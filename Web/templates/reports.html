@@ -1,0 +1,58 @@
+{% extends 'dashboard.html' %}
+{% block title %}LLMscope Reports{% endblock %}
+
+{% block content %}
+<div class="reports-container">
+  <header class="reports-header">
+    <h1>Reports</h1>
+    <p class="subtitle">Generate and download PDF summaries of recent runs.</p>
+    <div class="actions">
+      <form method="post" action="/reports/generate">
+        <button type="submit" class="btn bronze">Generate New Report</button>
+      </form>
+      <a href="/" class="btn ghost">← Back to Dashboard</a>
+    </div>
+  </header>
+
+  <section class="reports-list">
+    <h2>Existing Exports</h2>
+    {% if exports and exports|length > 0 %}
+      <ul class="report-items">
+        {% for item in exports %}
+          <li class="report-item">
+            <div>
+              <strong>{{ item.name }}</strong>
+              <div class="meta">Created: {{ item.created_at }}</div>
+              <div class="meta">Size: {{ item.size_kb }} KB</div>
+            </div>
+            <div class="item-actions">
+              <a class="btn small" href="/reports/download/{{ item.name }}">Download PDF</a>
+              <a class="btn small ghost" href="/reports/view/{{ item.name }}" target="_blank">View</a>
+            </div>
+          </li>
+        {% endfor %}
+      </ul>
+    {% else %}
+      <p class="empty">No reports yet. Click <em>Generate New Report</em> to create your first PDF.</p>
+    {% endif %}
+  </section>
+</div>
+{% endblock %}
+
+{% block extra_styles %}
+<style>
+  .reports-container { padding: 24px; }
+  .reports-header h1 { margin: 0 0 4px 0; color: #1A0F08; }
+  .reports-header .subtitle { margin: 0 0 16px 0; color: #333; }
+  .actions { display: flex; gap: 12px; flex-wrap: wrap; margin-bottom: 24px; }
+  .btn { padding: 10px 14px; border-radius: 12px; border: 1px solid #1A0F08; text-decoration: none; }
+  .btn.bronze { background: #D37E3E; color: white; border-color: #D37E3E; }
+  .btn.ghost { background: transparent; color: #1A0F08; }
+  .btn.small { padding: 6px 10px; font-size: 0.9rem; }
+  .reports-list h2 { margin-top: 12px; }
+  .report-items { list-style: none; padding: 0; margin: 0; display: grid; gap: 10px; }
+  .report-item { display: flex; justify-content: space-between; align-items: center; padding: 12px; border: 1px solid #eee; border-radius: 12px; background: #fff; }
+  .report-item .meta { font-size: 0.85rem; color: #555; }
+  .empty { color: #666; }
+</style>
+{% endblock %}

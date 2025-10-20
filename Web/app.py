@@ -39,6 +39,38 @@ def api_live():
         "timestamps": list(timestamps),
         "latencies": [float(x) for x in latencies],
     }
+# === REPORT ROUTES (PHASE 5C) ===
+from fastapi.responses import FileResponse, RedirectResponse
+import time
+
+EXPORTS_DIR = Path("Reports/exports")
+EXPORTS_DIR.mkdir(parents=True, exist_ok=True)
+
+@app.get("/reports", response_class=HTMLResponse)
+def reports(request: Request):
+    """List all generated reports"""
+    items = []
+    for p in sorted(EXPORTS_DIR.glob("*.pdf"), key=lambda x: x.stat().st_mtime, reverse=True):
+        stat = p.stat()
+        items.append({
+            "name": p.name,
+            "created_at": time.strftime("%Y-%m-%d %H:%M", time.localtime(stat.st_mtime)),
+            "size_kb": max(1, stat.st_size // 1024),
+        })
+    return TEMPLATES.TemplateResponse("reports.html", {"request": request, "exports": items})
+
+@app.post("/reports/generate")
+def reports_generate():
+    return RedirectResponse(url="/reports", status_code=303)
+
+@app.get("/reports/download/{name}")
+def reports_download(name: str):
+    """Download an existing report"""
+    file_path = EXPORTS_DIR / name
+    if not file_path.exists():
+        return {"error": "File not found"}
+    return FileResponse(path=file_path, filename=name, media_type="application/pdf")
+
 
 if __name__ == "__main__":
     import uvicorn
