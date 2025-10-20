@@ -1,0 +1,5 @@
+fastapi
+uvicorn
+plotly
+jinja2
+pandas
