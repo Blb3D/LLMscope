@@ -1,26 +1,36 @@
 from fastapi import FastAPI, Request
-from fastapi.responses import HTMLResponse, JSONResponse
+from fastapi.responses import HTMLResponse, JSONResponse, FileResponse, RedirectResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 from pathlib import Path
-import csv
+import csv, time
 
+# === APP SETUP ===
 app = FastAPI(title="LLMscope Dashboard")
+
 WEB_DIR = Path(__file__).resolve().parent
-TEMPLATES = Jinja2Templates(directory=str(WEB_DIR / "templates"))
+TEMPLATES = Jinja2Templates(directory=str(WEB_DIR / "templates"))  # ✅ ensure correct path
 STATIC = WEB_DIR / "static"
 LOG_FILE = Path("Logs/chatgpt_speed_log.csv")
+EXPORTS_DIR = Path("Reports/exports")
+EXPORTS_DIR.mkdir(parents=True, exist_ok=True)
+
 app.mount("/static", StaticFiles(directory=STATIC), name="static")
 
+# === DASHBOARD ROUTE ===
 @app.get("/", response_class=HTMLResponse)
 @app.get("/dashboard", response_class=HTMLResponse)
 def dashboard(request: Request):
+    """Main live dashboard"""
     return TEMPLATES.TemplateResponse("dashboard.html", {"request": request})
 
+# === API ENDPOINT (LIVE DATA) ===
 @app.get("/api/live", response_class=JSONResponse)
 def api_live():
+    """Return latest latency samples"""
     if not LOG_FILE.exists():
         return {"status": "waiting", "message": "No samples yet."}
+
     samples = []
     try:
         with open(LOG_FILE, "r", newline="", encoding="utf-8", errors="ignore") as f:
@@ -31,21 +41,18 @@ def api_live():
     except Exception as e:
         print(f"[WARN] Could not read CSV: {e}")
         return {"status": "error", "message": str(e)}
+
     if not samples:
         return {"status": "waiting", "message": "No valid data."}
+
     timestamps, latencies = zip(*samples[-20:])
     return {
         "status": "ok",
         "timestamps": list(timestamps),
         "latencies": [float(x) for x in latencies],
     }
+
 # === REPORT ROUTES (PHASE 5C) ===
-from fastapi.responses import FileResponse, RedirectResponse
-import time
-
-EXPORTS_DIR = Path("Reports/exports")
-EXPORTS_DIR.mkdir(parents=True, exist_ok=True)
-
 @app.get("/reports", response_class=HTMLResponse)
 def reports(request: Request):
     """List all generated reports"""
@@ -57,10 +64,25 @@ def reports(request: Request):
             "created_at": time.strftime("%Y-%m-%d %H:%M", time.localtime(stat.st_mtime)),
             "size_kb": max(1, stat.st_size // 1024),
         })
-    return TEMPLATES.TemplateResponse("reports.html", {"request": request, "exports": items})
+
+    # ✅ Force correct template name — ensures FastAPI loads /templates/reports.html
+    return TEMPLATES.TemplateResponse(
+        name="reports.html",
+        context={"request": request, "exports": items},
+    )
 
 @app.post("/reports/generate")
 def reports_generate():
+    """Generate a new PDF report from Logs/chatgpt_speed_log.csv"""
+    try:
+        from reports_generator import generate_report
+        output = generate_report()
+        if output:
+            print(f"[INFO] Report generated: {output}")
+        else:
+            print("[WARN] No report generated (missing CSV data).")
+    except Exception as e:
+        print(f"[ERROR] Report generation failed: {e}")
     return RedirectResponse(url="/reports", status_code=303)
 
 @app.get("/reports/download/{name}")
@@ -72,6 +94,7 @@ def reports_download(name: str):
     return FileResponse(path=file_path, filename=name, media_type="application/pdf")
 
 
+# === SERVER ENTRYPOINT ===
 if __name__ == "__main__":
     import uvicorn
     uvicorn.run(app, host="127.0.0.1", port=5000)
