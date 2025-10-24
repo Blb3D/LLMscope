@@ -1,0 +1,63 @@
+@echo off
+title 🔭 LLMscope Phase 5 Daily Sync
+color 0A
+echo.
+echo ================================================
+echo   LLMscope Phase 5 - Daily Verification & Push
+echo ================================================
+echo.
+
+REM ---- Step 1: Set working directory ----
+cd /d "%~dp0"
+if errorlevel 1 (
+    echo ❌ Failed to change directory. Exiting.
+    pause
+    exit /b
+)
+
+REM ---- Step 2: Run repo verification ----
+echo 🧠 Checking Git repository integrity...
+python scripts\git_verify_phase5.py
+if errorlevel 1 (
+    echo ⚠️  Git verification reported an issue.
+    pause
+)
+
+REM ---- Step 3: Optional Docker verification ----
+if exist scripts\docker_verify_build.py (
+    echo 🧩 Running Docker build verification...
+    python scripts\docker_verify_build.py
+)
+
+REM ---- Step 4: Stage and commit changes ----
+echo 📦 Staging any updated files...
+git add .
+git reset .env 2>nul
+git reset **/.env 2>nul
+
+set /p COMMSG=Enter commit message (default: "Daily Phase 5 sync"): 
+if "%COMMSG%"=="" set COMMSG=Daily Phase 5 sync
+
+git commit -m "%COMMSG%"
+if errorlevel 1 (
+    echo ⚠️  Nothing to commit or commit failed.
+) else (
+    echo ✅ Commit complete.
+)
+
+REM ---- Step 5: Pull & Push to GitHub ----
+echo 🔄 Pulling latest remote updates...
+git pull origin main --allow-unrelated-histories --no-rebase
+
+echo 🚀 Pushing to GitHub...
+git push origin main
+
+REM ---- Step 6: Tag the commit ----
+for /f "tokens=2 delims==" %%v in ('wmic os get localdatetime /value ^| find "="') do set datetime=%%v
+set tagdate=%datetime:~0,8%
+git tag -a v0.5-phase5-%tagdate% -m "Daily sync on %tagdate%"
+git push origin --tags
+
+echo.
+echo ✅ Daily sync complete!
+pause
