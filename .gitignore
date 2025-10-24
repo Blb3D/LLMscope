@@ -1,3 +1,8 @@
+# ────────────────────────────────────────────────
+# 🔭 LLMscope Phase 5 Git Ignore
+# (Python + Node + Docker + Local Dev)
+# ────────────────────────────────────────────────
+
 # --- GitHub default Python ignores ---
 __pycache__/
 *.py[codz]
@@ -52,8 +57,9 @@ target/
 profile_default/
 ipython_config.py
 .env
+.env.*
 .envrc
-.venv
+.venv/
 env/
 venv/
 ENV/
@@ -84,21 +90,47 @@ __marimo__/
 # Runtime data
 Logs/
 Reports/exports/
-Data/metrics.db
+Data/
+data/
+*.db
+*.sqlite3
 
 # Temporary test data
 *.csv
 *.tmp
 
-# IDE / Editor
+# --- Docker & runtime volumes ---
+docker/.env
+docker/data/
+docker/tmp/
+docker/volumes/
+docker-compose.override.yml
+*.pid
+
+# --- Frontend (Node / React / Vite) ---
+frontend/node_modules/
+frontend/dist/
+frontend/build/
+frontend/.vite/
+*.tsbuildinfo
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+package-lock.json
+.DS_Store
+
+# --- IDE / Editor ---
 .vscode/
 .idea/
+*.swp
+*.swo
 
-# Build artifacts
+# --- Build / Release artifacts ---
 Releases/
 build_temp/
 Releases.zip
 
-# OS files
+# --- OS files ---
 .DS_Store
 Thumbs.db
+Desktop.ini
