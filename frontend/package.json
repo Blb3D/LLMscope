@@ -1,0 +1,21 @@
+{
+  "name": "llmscope-frontend",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "recharts": "^2.10.0",
+    "lucide-react": "^0.263.1"
+  },
+  "devDependencies": {
+    "vite": "^4.5.2",
+    "@vitejs/plugin-react": "^4.1.0",
+    "typescript": "^5.4.5"
+  }
+}
