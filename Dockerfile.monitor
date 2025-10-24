@@ -2,10 +2,10 @@
 FROM python:3.11-slim
 WORKDIR /app
 
-COPY scripts/monitor_apis.py /app/monitor_apis.py
+COPY scripts/monitor_apis_revA.py /app/monitor_apis.py
 
 # install required libs
-RUN pip install --no-cache-dir requests aiohttp
+RUN pip install --no-cache-dir aiohttp requests
 
 CMD ["python", "-u", "/app/monitor_apis.py"]
 

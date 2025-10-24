@@ -418,6 +418,44 @@ async def stats_spc(
     return compute_spc_series(rows)
 # >>> LLMscope PATCH: END /api/stats/spc endpoint
 
+# >>> LLMscope PATCH: BEGIN /api/stats (simple dashboard feed)
+@app.get("/api/stats")
+async def get_recent_stats(summary: bool = Query(False)):
+    """
+    Returns recent request metrics in a shape consumable by the frontend dashboard.
+    Example:
+      {"logs": [{"provider":..., "model":..., "latency":..., ...}, ...]}
+    """
+    try:
+        with get_db() as conn:
+            rows = conn.execute("""
+                SELECT provider, model, latency, tokens_in, tokens_out, cost, success, timestamp
+                FROM requests
+                ORDER BY timestamp DESC
+                LIMIT 200
+            """).fetchall()
+        logs = [
+            {
+                "provider": r["provider"],
+                "model": r["model"],
+                "latency": r["latency"],
+                "tokens_in": r["tokens_in"],
+                "tokens_out": r["tokens_out"],
+                "cost": r["cost"],
+                "success": bool(r["success"]),
+                "timestamp": r["timestamp"],
+            }
+            for r in rows
+        ]
+        if summary:
+            latencies = [r["latency"] for r in rows]
+            stats = calculate_spc_stats(latencies)
+            return {"logs": logs, "summary": stats}
+        return {"logs": logs}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Failed to fetch stats: {e}")
+# >>> LLMscope PATCH: END /api/stats
+
 @app.get("/api/providers")
 async def get_providers(_: str = Depends(verify_api_key)):
     with get_db() as conn:
