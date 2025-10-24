@@ -1,0 +1,45 @@
+services:
+  backend:
+    container_name: llmscope_api
+    build:
+      context: .
+      dockerfile: Dockerfile.backend
+    env_file:
+      - .env
+    ports:
+      - "8081:8000"                # hostPort:containerPort (changed from 8000)
+    volumes:
+      - ./data:/data
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  monitor:
+    container_name: llmscope_monitor
+    build:
+      context: .
+      dockerfile: Dockerfile.monitor
+    env_file:
+      - .env
+    depends_on:
+      - backend
+    restart: unless-stopped
+
+  frontend:
+    container_name: llmscope_web
+    build:
+      context: .
+      dockerfile: Dockerfile.frontend
+    env_file:
+      - .env
+    ports:
+      - "3000:80"
+    depends_on:
+      - backend
+    restart: unless-stopped
+
+volumes:
+  data:

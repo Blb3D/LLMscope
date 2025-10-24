@@ -1,0 +1,12 @@
+# ---- Monitor Container ----
+FROM python:3.11-slim
+WORKDIR /app
+
+COPY scripts/monitor_apis.py /app/monitor_apis.py
+
+# install required libs
+RUN pip install --no-cache-dir requests aiohttp
+
+CMD ["python", "-u", "/app/monitor_apis.py"]
+
+
