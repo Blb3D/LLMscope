@@ -1,13 +1,77 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>LLMscope - Dashboard</title>
-  <link rel="stylesheet" href="/static/dashboard.css">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>LLMscope – Live Dashboard</title>
+  <link rel="stylesheet" href="/static/dashboard.css" />
+  <!-- Chart.js with time scale support -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns"></script>
 </head>
 <body>
-  <h1>LLMscope – See your AI’s heartbeat</h1>
-  <div id="chart"><p>Waiting for samples...</p></div>
-  <script src="/static/dashboard.js"></script>
+  <header class="topbar">
+    <div class="brand">LLMscope</div>
+    <div class="subtitle">Live Latency & Health</div>
+  </header>
+
+  <main class="container">
+    <!-- Metric cards -->
+    <section class="cards">
+      <div class="card">
+        <div class="label">Avg (last 20)</div>
+        <div class="value"><span id="avgLatency">--</span><span class="unit">s</span></div>
+      </div>
+      <div class="card">
+        <div class="label">Latest</div>
+        <div class="value"><span id="latestLatency">--</span><span class="unit">s</span></div>
+      </div>
+      <div class="card">
+        <div class="label">Total Samples</div>
+        <div class="value"><span id="totalSamples">--</span></div>
+      </div>
+      <div class="card status">
+        <div class="label">Status</div>
+        <div class="value">
+          <span id="status-dot" class="dot offline"></span>
+          <span id="status-text">Waiting…</span>
+        </div>
+        <div class="meta"><span id="lastUpdated">--:--:--</span></div>
+      </div>
+    </section>
+
+    <!-- Chart -->
+    <section class="panel">
+      <div class="panel-header">
+        <h2>Response Latency</h2>
+        <div class="panel-actions">
+          <a class="btn" href="/reports">📊 View Reports</a>
+          <form method="post" action="/reports/generate" style="display:inline;">
+            <button class="btn ghost" type="submit">🧾 Generate Report</button>
+          </form>
+        </div>
+      </div>
+      <div class="chart-wrap">
+        <canvas id="latencyChart" style="width:100%; height:400px;"></canvas>
+        <p id="chartStatus" style="color:#F4C98A;">Loading...</p>
+      </div>
+      <div class="metrics">
+        <div>Average: <span id="avgLatency">--</span></div>
+        <div>Latest: <span id="latestLatency">--</span></div>
+        <div>Min: <span id="minLatency">--</span></div>
+        <div>Max: <span id="maxLatency">--</span></div>
+        <div>Total Samples: <span id="totalSamples">--</span></div>
+      </div>
+    </section>
+
+    <!-- Additional stats -->
+    <div id="stats" style="margin-top:10px; color:#F4C98A;"></div>
+
+  </main>
+
+  <footer class="footer">BLB3D Labs · LLMscope v2.1</footer>
+
+  <!-- FIXED: Load dashboard_pretty.js instead of dashboard.js -->
+  <script src="/static/dashboard_pretty.js"></script>
 </body>
 </html>

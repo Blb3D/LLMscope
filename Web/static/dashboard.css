@@ -1,16 +1,151 @@
+/* BLB3D Labs bronze/black theme */
+:root {
+  --bg: #1A0F08;
+  --panel: #2C1A0B;
+  --bronze: #D37E3E;
+  --cream: #F4C98A;
+  --muted: #866E52;
+}
+
+* { box-sizing: border-box; }
+
 body {
-  background-color: #1A0F08;
-  color: #F4C98A;
-  font-family: Inter, sans-serif;
+  margin: 0;
+  background: var(--bg);
+  color: var(--cream);
+  font-family: Inter, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", sans-serif;
+}
+
+.header {
+  padding: 18px 16px;
+  border-bottom: 2px solid var(--bronze);
+  background: linear-gradient(90deg, var(--bg), var(--panel));
   text-align: center;
-  padding: 40px;
+}
+.header h1 { margin: 0 0 6px; color: var(--bronze); font-size: 1.6rem; }
+.subtitle { margin: 0; opacity: 0.85; font-size: 0.95rem; }
+
+.container {
+  width: 100%;
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 16px;
 }
 
-h1 {
-  color: #D37E3E;
+.cards {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 12px;
+  margin: 12px 0 18px;
 }
 
-h3 {
-  font-size: 1.5rem;
-  margin-top: 2rem;
+.card {
+  background: rgba(255,255,255,0.03);
+  border: 1px solid rgba(211,126,62,0.35);
+  border-radius: 10px;
+  padding: 12px;
+  text-align: center;
+}
+.card-label { font-size: 0.8rem; color: var(--muted); }
+.card-value { font-size: 1.6rem; color: var(--cream); margin: 6px 0; }
+.card-unit  { font-size: 0.75rem; color: var(--muted); }
+
+.chart-wrap {
+  position: relative;
+  height: 360px;
+  border: 1px solid var(--bronze);
+  border-radius: 10px;
+  padding: 8px;
+  background: rgba(255,255,255,0.03);
+}
+
+.chart-status {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  color: var(--cream);
+  font-size: 0.95rem;
+  pointer-events: none;
+}
+
+.actions {
+  margin: 16px 0 0;
+  text-align: center;
+}
+.btn {
+  display: inline-block;
+  padding: 10px 16px;
+  margin: 4px;
+  border-radius: 8px;
+  text-decoration: none;
+  font-weight: 600;
+  transition: 0.15s ease-in-out;
+}
+.btn.bronze { background: var(--bronze); color: var(--bg); }
+.btn.bronze:hover { filter: brightness(1.1); }
+.btn.ghost  { border: 1px solid var(--bronze); color: var(--bronze); background: transparent; }
+.btn.ghost:hover { background: var(--bronze); color: var(--bg); }
+
+.footer {
+  text-align: center;
+  color: var(--muted);
+  padding: 16px 0 28px;
+  font-size: 0.85rem;
+}
+/* Pulse animation for LIVE indicator */
+.pulse {
+  display: inline-block;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: #4CAF50;
+  box-shadow: 0 0 0 rgba(76, 175, 80, 0.6);
+  animation: pulseGlow 2s infinite;
+  margin-right: 6px;
+  vertical-align: middle;
+}
+
+@keyframes pulseGlow {
+  0% { box-shadow: 0 0 0 0 rgba(76, 175, 80, 0.7); }
+  70% { box-shadow: 0 0 0 10px rgba(76, 175, 80, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(76, 175, 80, 0); }
+}
+
+/* Chart container subtle glow */
+.chart-container {
+  border: 1px solid #D37E3E;
+  border-radius: 10px;
+  background: radial-gradient(circle at center, rgba(211,126,62,0.15) 0%, rgba(26,15,8,1) 100%);
+  padding: 15px;
+  box-shadow: 0 0 15px rgba(211,126,62,0.15);
+}
+
+/* Metrics section */
+#statsBox {
+  margin-top: 8px;
+  font-size: 0.9rem;
+  color: #F4C98A;
+  opacity: 0.9;
+}
+/* Mean line subtle glow */
+canvas {
+  filter: drop-shadow(0 0 5px rgba(244,201,138,0.15));
+}
+.chartjs-render-monitor {
+  filter: drop-shadow(0 0 4px rgba(244, 201, 138, 0.25));
+}
+/* === Mean Line Enhancement === */
+#latencyChart {
+  filter: drop-shadow(0 0 6px rgba(244, 201, 138, 0.25));
+}
+
+/* Optional: smooth fade when chart updates */
+canvas {
+  transition: filter 0.3s ease-in-out;
+}
+
+/* Optional: tweak chart legend color for contrast */
+.chartjs-legend li span {
+  color: #F4C98A !important;
 }

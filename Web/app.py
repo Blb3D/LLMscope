@@ -1,102 +1,107 @@
+# ============================================================
+# LLMscope Web App (Chart.js baseline version)
+# ============================================================
+
 from fastapi import FastAPI, Request
 from fastapi.responses import HTMLResponse, JSONResponse, FileResponse, RedirectResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 from pathlib import Path
-import csv
+import pandas as pd
 import time
+import traceback
 
-# ============================================================
-# APP INITIALIZATION
-# ============================================================
-
+# ------------------------------------------------------------
+# FastAPI setup
+# ------------------------------------------------------------
 app = FastAPI(title="LLMscope Dashboard")
 
-# Directories
 WEB_DIR = Path(__file__).resolve().parent
 TEMPLATES = Jinja2Templates(directory=str(WEB_DIR / "templates"))
 STATIC = WEB_DIR / "static"
-LOG_FILE = Path("Logs/chatgpt_speed_log.csv")
-EXPORTS_DIR = Path("Reports/exports")
 
-# Ensure exports folder exists
+# Absolute path to log file (update if needed)
+LOG_FILE = Path(r"C:\Users\brand\OneDrive\Documents\LLMscope-main\LLMscope_Clean_Baseline_v2.1\Logs\chatgpt_speed_log.csv")
+print(f"[DEBUG] Using log file: {LOG_FILE.resolve()}")
+
+EXPORTS_DIR = Path("Reports/exports")
 EXPORTS_DIR.mkdir(parents=True, exist_ok=True)
 
-# Mount static assets
+# Mount static folder
 app.mount("/static", StaticFiles(directory=STATIC), name="static")
 
-# ============================================================
-# DASHBOARD ROUTES
-# ============================================================
-
 @app.get("/", response_class=HTMLResponse)
-@app.get("/dashboard", response_class=HTMLResponse)
-def dashboard(request: Request):
-    """Main live dashboard"""
-    return TEMPLATES.TemplateResponse("dashboard.html", {"request": request})
+def index(request: Request):
+    """Serve the main dashboard HTML."""
+    html_path = Path(__file__).resolve().parent / "templates" / "dashboard.html"
+    if not html_path.exists():
+        return {"error": "Dashboard HTML not found."}
+    with open(html_path, "r", encoding="utf-8") as f:
+        return HTMLResponse(f.read())
 
-# ============================================================
-# API ENDPOINT – LIVE DATA
-# ============================================================
-
+# ------------------------------------------------------------
+# LIVE DATA ENDPOINT
+# ------------------------------------------------------------
 @app.get("/api/live", response_class=JSONResponse)
 def api_live():
-    """Return latest latency samples"""
-    if not LOG_FILE.exists():
-        return {"status": "waiting", "message": "No samples yet."}
-
-    samples = []
+    """Provide the most recent latency samples for live chart."""
     try:
-        with open(LOG_FILE, "r", newline="", encoding="utf-8", errors="ignore") as f:
-            reader = csv.reader(f)
-            for row in reader:
-                if len(row) == 2:
-                    samples.append(row)
+        if not LOG_FILE.exists():
+            print(f"[WARN] No log file found at {LOG_FILE}")
+            return {"status": "ok", "samples": []}
+
+        # Try comma first, then tab if parsing fails
+        try:
+            df = pd.read_csv(LOG_FILE)
+        except Exception:
+            df = pd.read_csv(LOG_FILE, sep="\t")
+
+        print(f"[DEBUG] DataFrame preview:\n{df.head()}")
+        print(f"[DEBUG] Columns: {df.columns.tolist()}")
+
+        df.columns = df.columns.str.strip().str.lower()
+        if not {"timestamp", "latency"}.issubset(df.columns):
+            print(f"[ERROR] CSV missing expected columns: {df.columns.tolist()}")
+            return {"status": "error", "samples": []}
+
+        df = df.dropna(subset=["timestamp", "latency"])
+        df["latency"] = pd.to_numeric(df["latency"], errors="coerce")
+        df = df.tail(50)
+
+        samples = [
+            {"timestamp": ts, "latency": float(lat)}
+            for ts, lat in zip(df["timestamp"], df["latency"])
+        ]
+
+        print(f"[DEBUG] Sending {len(samples)} samples to dashboard")
+        return {"status": "ok", "samples": samples}
+
     except Exception as e:
-        print(f"[WARN] Could not read CSV: {e}")
-        return {"status": "error", "message": str(e)}
+        print(f"[ERROR] Reading CSV failed: {e}")
+        traceback.print_exc()
+        return {"status": "error", "samples": [], "message": str(e)}
 
-    if not samples:
-        return {"status": "waiting", "message": "No valid data."}
-
-    timestamps, latencies = zip(*samples[-20:])
-    return {
-        "status": "ok",
-        "timestamps": list(timestamps),
-        "latencies": [float(x) for x in latencies],
-    }
-
-# ============================================================
-# REPORT ROUTES – PHASE 5C (Updated with View/Download)
-# ============================================================
-
-from fastapi.responses import FileResponse, RedirectResponse
-from Reports.reports_generator import generate_report
-
+# ------------------------------------------------------------
+# REPORT ROUTES
+# ------------------------------------------------------------
 @app.get("/reports", response_class=HTMLResponse)
 def reports(request: Request):
     """Display list of generated reports"""
-    EXPORTS_DIR.mkdir(parents=True, exist_ok=True)
     items = []
-
     for p in sorted(EXPORTS_DIR.glob("*.pdf"), key=lambda x: x.stat().st_mtime, reverse=True):
         stat = p.stat()
         items.append({
             "name": p.name,
             "created_at": time.strftime("%Y-%m-%d %H:%M", time.localtime(stat.st_mtime)),
-            "size_kb": max(1, stat.st_size // 1024),
+            "size_kb": max(1, stat.st_size // 1024)
         })
-
-    return TEMPLATES.TemplateResponse("reports.html", {
-        "request": request,
-        "exports": items
-    })
-
+    return TEMPLATES.TemplateResponse("reports.html", {"request": request, "exports": items})
 
 @app.post("/reports/generate")
 def reports_generate():
-    """Trigger PDF generation from sampler CSV"""
+    """Trigger PDF generation from log data"""
     try:
+        from Reports.reports_generator import generate_report
         output = generate_report()
         if output:
             print(f"[INFO] Report generated: {output}")
@@ -104,19 +109,15 @@ def reports_generate():
             print("[WARN] No report generated (missing CSV data).")
     except Exception as e:
         print(f"[ERROR] Report generation failed: {e}")
-
-    # Redirect back to reports page
     return RedirectResponse(url="/reports", status_code=303)
-
 
 @app.get("/reports/download/{name}")
 def reports_download(name: str):
-    """Download an existing report"""
+    """Download existing PDF report"""
     file_path = EXPORTS_DIR / name
     if not file_path.exists():
         return {"error": "File not found"}
     return FileResponse(path=file_path, filename=name, media_type="application/pdf")
-
 
 @app.get("/reports/view/{name}")
 def reports_view(name: str):
@@ -126,11 +127,3 @@ def reports_view(name: str):
         return {"error": "File not found"}
     headers = {"Content-Disposition": f'inline; filename="{name}"'}
     return FileResponse(path=file_path, media_type="application/pdf", headers=headers)
-
-# ============================================================
-# SERVER ENTRY POINT
-# ============================================================
-
-if __name__ == "__main__":
-    import uvicorn
-    uvicorn.run(app, host="127.0.0.1", port=5000)
