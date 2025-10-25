@@ -12,6 +12,8 @@ import os
 import json
 from contextlib import contextmanager
 import math
+import psutil
+import platform
 
 # =========================
 # Configuration
@@ -35,6 +37,87 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+# =========================
+# System Telemetry Endpoint
+# =========================
+import psutil
+import platform
+
+@app.get("/api/system")
+def get_system_stats():
+    """
+    Returns live CPU, memory, and temperature telemetry for host or container.
+    """
+    try:
+        # ----------------------------
+        # CPU and Memory Utilization
+        # ----------------------------
+        cpu_percent = psutil.cpu_percent(interval=0.5)
+        mem = psutil.virtual_memory()
+        mem_percent = mem.percent
+
+        # ----------------------------
+        # Temperature Readings
+        # ----------------------------
+        gpu_temp = None
+        cpu_temp = None
+
+        # --- Try NVIDIA NVML first ---
+        try:
+            import pynvml
+            pynvml.nvmlInit()
+            handle = pynvml.nvmlDeviceGetHandleByIndex(0)
+            gpu_temp = pynvml.nvmlDeviceGetTemperature(
+                handle, pynvml.NVML_TEMPERATURE_GPU
+            )
+            pynvml.nvmlShutdown()
+        except Exception:
+            # GPU not detected or NVML not accessible
+            gpu_temp = None
+
+        # --- Fallback to psutil sensors (for CPU) ---
+        try:
+            temps = psutil.sensors_temperatures()
+            if temps:
+                for label, entries in temps.items():
+                    if entries:
+                        if cpu_temp is None and (
+                            "coretemp" in label.lower() or "cpu" in label.lower()
+                        ):
+                            cpu_temp = entries[0].current
+        except Exception:
+            pass
+
+        # ----------------------------
+        # System Info
+        # ----------------------------
+        sys_info = {
+            "system": platform.system(),
+            "release": platform.release(),
+            "machine": platform.machine(),
+        }
+
+        # ----------------------------
+        # Response Payload
+        # ----------------------------
+        return {
+            "cpu": cpu_percent,
+            "memory": mem_percent,
+            "gpuTemp": gpu_temp,
+            "cpuTemp": cpu_temp,
+            "info": sys_info,
+        }
+
+    except Exception as e:
+        # Fallback in case anything fails
+        return {
+            "cpu": 0,
+            "memory": 0,
+            "gpuTemp": None,
+            "cpuTemp": None,
+            "error": str(e),
+        }
 
 # =========================
 # Database

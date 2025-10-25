@@ -2,7 +2,82 @@
 
 **Focus:** Integration, Polish, Deployment  
 **Timeline:** Q4 2025 – Q1 2026
+---
 
+🗺️ LLMscope Development Roadmap — Phase 5 Rev B
+🧭 Overview
+
+Phase 5 has achieved a stable, validated multi-container system for local performance monitoring.
+With Rev B Core complete, LLMscope now transitions into analytic expansion, statistical validation, and research enablement.
+
+✅ Phase 5A — Core System Build (Completed)
+
+Focus: Establish the functional backbone for performance collection and visualization.
+
+Area	Deliverable	Status
+Docker Architecture	Backend (FastAPI 8081), Frontend (Vite 3000/8082), Monitor (Ollama/Sim)	✅ Complete
+Data Pipeline	/api/stats, /api/system, /api/log endpoints validated	✅ Complete
+Frontend UI	Live SPC chart (Recharts) + system telemetry cards	✅ Complete
+Security	Local bearer key (dev-123) + permissive CORS policy	✅ Complete
+Reset & Diagnostics	reset_llmscope.ps1 added for container resets & smoke tests	✅ Complete
+GPU Telemetry Docs	Added detailed enablement & fallback documentation	✅ Complete
+Baseline Benchmarks	Manual test suite validated with latency variance data	✅ Complete
+🔜 Phase 5B — Analytical Visualization Layer (In Progress)
+
+Focus: Introduce a research-grade SPC analysis environment using Plotly.
+
+Area	Deliverable	Description
+Frontend Enhancement	SPCAnalysisPlotly.jsx	Interactive SPC chart with UCL/LCL, zone shading, hover data
+Export Tools	CSV + PNG Export	One-click export for documentation & reports
+Navigation	Dashboard ↔ Analysis	Two-way view toggle using React Router
+Data Source	Live /api/stats feed	Pulls current session logs dynamically
+Backend Hook	Rule Data Endpoint	Extend /api/stats with pre-computed control limits
+🔬 Phase 5C — Statistical Rule Engine & Session Persistence
+
+Focus: Implement backend-side SPC logic and long-term stability tracking.
+
+Feature	Description
+Nelson Rules 1-8	Backend algorithm to detect & tag rule violations
+Violation Flags	Output appended to /api/stats ("violations": [1, 4])
+Visual Markers	Plotly highlights points breaking control limits
+Session Exports	Auto-serialize runs into /data/spc_sessions/
+pPk/cPk Computation	Aggregate multi-session capability for research reports
+🌐 Phase 5D — Multi-Model & Provider Expansion
+
+Focus: Extend benchmarking to commercial and local LLMs.
+
+Provider	Integration	Notes
+Ollama (local)	✅ Live	Baseline reference
+OpenAI GPT-4/4o	🔜	Requires API key & cost logging
+Anthropic Claude 3 Opus	🔜	Comparative reasoning tests
+Google Gemini	🔜	Prompt-latency vs. cost study
+AWS Bedrock	🔜	Infrastructure latency correlation
+Microsoft Copilot API	🧪 Planned	Enterprise latency benchmarking
+🧩 Phase 5E — Research & Public Beta Release
+
+Focus: Transform LLMscope into a validated open research tool.
+
+Deliverable	Description
+Documentation Suite	Full setup, hardware notes, telemetry guidance
+Research Paper Draft	“Quantifying LLM Latency and System Efficiency via LLMscope”
+Public Beta Build	Docker + Standalone Python release
+Community Feedback	Solicit data from early testers for cross-platform validation
+📈 Current Status Snapshot
+Layer	State	Notes
+Docker Stack	✅ Stable	Backend/frontend/monitor verified
+API Layer	✅ Operational	/api/system & /api/stats live
+Dashboard UI	✅ Functional	Real-time data confirmed
+SPC Analytics	🔜 In Progress	Plotly view under development
+GPU Telemetry	⚙️ Optional	Requires NVML & Docker GPU runtime
+Documentation	✅ Updated	README + Telemetry sections added
+🗓️ Next Internal Review
+
+Target Date: November 3, 2025
+Focus: Rev B Analysis Integration + Nelson Rule Prototype
+
+✅ Revision: ROADMAP_v5 Rev B
+🗓️ Updated: October 25, 2025
+✍️ Author: BLB3D Labs / LLMscope Development Team
 ---
 
 ## 📅 Phase 5 Milestones

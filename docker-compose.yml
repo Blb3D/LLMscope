@@ -7,9 +7,11 @@ services:
     env_file:
       - .env
     ports:
-      - "8081:8000"                # hostPort:containerPort (changed from 8000)
+      - "8081:8000"
     volumes:
       - ./data:/data
+      - /proc:/host_proc:ro
+      - /sys:/host_sys:ro
     restart: unless-stopped
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
@@ -24,8 +26,14 @@ services:
       dockerfile: Dockerfile.monitor
     env_file:
       - .env
+    environment:
+      - USE_OLLAMA=true
+      - OLLAMA_MODEL=gemma3:4b
+      - LLMSCOPE_API_KEY=dev-123
+      - LLMSCOPE_API_BASE=http://backend:8000
     depends_on:
-      - backend
+      backend:
+        condition: service_healthy
     restart: unless-stopped
 
   frontend:
@@ -38,7 +46,8 @@ services:
     ports:
       - "3000:80"
     depends_on:
-      - backend
+      backend:
+        condition: service_healthy
     restart: unless-stopped
 
 volumes:

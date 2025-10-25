@@ -12,6 +12,8 @@ COPY backend/ /app/backend/
 COPY backend/requirements.txt /app/backend/requirements.txt
 
 RUN pip install --no-cache-dir -r /app/backend/requirements.txt
+RUN pip install psutil
+RUN pip install nvidia-ml-py3
 
 # healthcheck depends on /api/providers (present in your app)
 HEALTHCHECK --interval=15s --timeout=5s --retries=10 CMD curl -fsS http://localhost:8000/api/providers || exit 1

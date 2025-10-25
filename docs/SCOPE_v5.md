@@ -80,6 +80,66 @@ from APIs Nelson Rules 1–8 and violation alerts
 | User conversion (Beta → Pro) | 10 % within 30 days |
 
 ---
+🧭 LLMscope Scope Definition – Phase 5 (Rev B Core + Expanded Research Plan)
+📖 Overview
+
+LLMscope has evolved from a latency-tracking proof-of-concept into a research-grade AI performance and system-health analytics platform.
+The Phase 5 Rev B milestone establishes a stable containerized foundation and introduces live hardware telemetry, SPC analytics, and a validated path toward multi-model benchmarking and sustainability research.
+
+🎯 Core Objective
+
+Provide engineers, data scientists, and AI researchers with a local-first diagnostic platform that quantifies LLM performance, resource cost, and operational stability—independent of vendor dashboards.
+
+LLMscope now measures:
+
+Model latency and token throughput
+
+System resource load (CPU %, Memory %, GPU Temp when available)
+
+Statistical process variation (σ, Cp, Cpk, UCL/LCL violations)
+
+Environmental context (Network + Hardware performance)
+
+🧩 Phase 5 Rev B Core Deliverables
+Category	Description	Status
+Backend API	FastAPI + SQLite service with /api/stats, /api/system, and /api/log endpoints.	✅ Complete
+Monitor Service	Python benchmark agent supporting Ollama (local) and simulated modes via USE_OLLAMA.	✅ Complete
+Frontend Dashboard	React + Vite UI using Recharts; displays real-time latency and telemetry cards.	✅ Complete
+System Telemetry	psutil-based CPU/RAM monitor + optional NVML GPU integration.	✅ Operational
+Documentation	GPU Telemetry Support + Hardware Compatibility Matrix added to README.	✅ Complete
+🧠 Expanded Scope (Phase 5B–5D)
+Phase	Focus	Key Additions
+5B – Analytical Visualization	Research-grade SPC Analysis View (Plotly). Adds zone shading, Nelson Rule #1, and export tools (CSV + PNG).	🔜
+5C – Statistical Rule Engine	Backend Nelson rules (1–8) + real-time violation tagging and alerts.	🔜
+5D – Long-Term Research Mode	Session serialization (/data/spc_sessions/) and pPk tracking across tests. Supports multi-provider benchmark (OpenAI, Anthropic, Gemini, AWS).	🔜
+5E – Public Beta / Outreach	Launch LLMscope as an open research tool with documentation, screenshots, and sustainability report integration.	🔜
+⚙️ Technical Highlights
+
+Container Architecture: backend (FastAPI 8081), frontend (Vite 3000 / 8082), monitor (Python agent).
+
+Persistent Storage: SQLite database mounted to /data/llmscope.db.
+
+Telemetry Precision: 0.5 s sampling interval, JSON API response.
+
+Frontend Refresh: 5 s polling cycle for stats and system updates.
+
+Security: Bearer token auth (dev-123) with CORS policy for local dev.
+
+🌍 Research & Sustainability Vision
+
+The integration of latency metrics with live power/temperature telemetry enables correlation between AI efficiency, energy usage, and infrastructure sustainability.
+Future work will quantify model response time against hardware draw and resource consumption—supporting data-center optimization and environmental reporting initiatives.
+
+🧭 Summary Statement
+
+Phase 5 establishes LLMscope as a local-first AI observatory capable of bridging model performance, system telemetry, and statistical quality control.
+The next stage (5B) will introduce Plotly-based analytical visualization and rule-based process monitoring, transforming LLMscope from a utility into a research instrument.
+
+✅ Revision: SCOPE_v5 Rev B
+🗓️ Updated: October 25, 2025
+✍️ Author: BLB3D Labs / LLMscope Development Team
+
+---
 
 ## 🔒 Environment Variables
 

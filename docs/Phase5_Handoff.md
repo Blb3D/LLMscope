@@ -1,17 +1,11 @@
-\# 🔭 LLMscope Phase 5 — Daily Handoff \& Continuity Protocol
+🧾 LLMscope – Phase 5 Handoff Document (Rev B)
+🗓️ Updated
 
-\*\*Owner:\*\* Brandan Baker  
+October 25 2025
 
-\*\*Project Context:\*\* `LLMscope\_Development` (ChatGPT Project)  
+✍️ Author
 
-\*\*Repository:\*\* \[https://github.com/Blb3D/LLMscope-Desktop](https://github.com/Blb3D/LLMscope-Desktop)  
-
-\*\*Current Tag:\*\* `v0.5-phase5-20251025`  
-
-\*\*Baseline Path:\*\* `C:\\Users\\brand\\OneDrive\\Desktop\\LMMscope\_V0.1.0\\LLMscope\_Phase5`
-
-
-
+BLB3D Labs / LLMscope Development Team
 ---
 
 
@@ -208,16 +202,116 @@ Document Owner:
 🏗️ Active Phase: 5 (Functional Verification \& Docker Integration)
 
 
+🧩 Overview
 
----
----
+Phase 5 (Rev B) marks the transition of LLMscope from a prototype latency monitor into a validated multi-service research platform.
+The stack now runs stably across Docker with working telemetry, benchmark posting, and front-end visualizations.
+This document serves as the bridge between daily development and long-term research operations.
 
-## 📅 Daily Summary Log
+⚙️ Current Architecture (Validated)
+Service	Port	Role	Tech Stack
+Backend	8081 (container : 8000)	FastAPI + SQLite core, serves /api/stats, /api/system, /api/log.	Python 3.11 +, FastAPI + psutil
+Frontend	3000 / 8082	React + Vite dashboard (Recharts SPC chart + Telemetry cards).	Node + Vite + React Router
+Monitor	Internal	Python agent generating simulated / Ollama benchmarks.	aiohttp + asyncio
+Data Volume	/data	Persistent SQLite DB (llmscope.db) + future /data/spc_sessions.	Docker volume
+🔑 Environment & Variables
+Variable	Example	Purpose
+LLMSCOPE_API_KEY	dev-123	Local authentication token for /api/log.
+LLMSCOPE_API_BASE	http://backend:8000	Monitor → Backend endpoint.
+USE_OLLAMA	true / false	Toggles real vs simulated benchmarking.
+OLLAMA_MODEL	gemma3:4b	Default model for benchmark tests.
+🔧 Reset & Testing Utilities
+reset_llmscope.ps1
 
-| Date | Focus Area | Key Actions | Outcome | Next Steps |
-|------|-------------|-------------|----------|-------------|
-| 2025-10-25 | Repo + Docker verification | Cleaned .gitignore, verified sync, added Phase5_Handoff.md | ✅ Repository stable, ready for next day build | Validate containers and SPC data flow |
-| 2025-10-26 | | | | |
-| 2025-10-27 | | | | |
+Provides four modes:
 
-> 💡 *Add one row per work session to maintain continuity between ChatGPT threads and track project momentum.*
+Fast Reset – clears DB and restarts containers.
+
+Medium Reset – rebuilds images + restart.
+
+Full Prune & Rebuild – complete system cleanup.
+
+Smoke Test – short simulated benchmark for health validation.
+
+📊 System Telemetry Endpoint (/api/system)
+
+Returns:
+
+{
+  "cpu": float,
+  "memory": float,
+  "gpuTemp": nullable,
+  "cpuTemp": nullable,
+  "info": { "system": str, "release": str, "machine": str }
+}
+
+
+CPU / RAM : collected via psutil.
+
+GPU Temp : optional NVML integration; requires Docker GPU access (--gpus all and NVIDIA Container Toolkit).
+
+Fallbacks : safe null return if telemetry unavailable.
+
+📝 To enable GPU later
+
+Install NVIDIA drivers and Container Toolkit.
+
+Add --gpus all to docker-compose backend service.
+
+Confirm pynvml installed in backend image.
+
+Verify /api/system returns non-null gpuTemp.
+
+📈 Data Flow Summary
+[Monitor Service]
+ → POST /api/log (latency data)
+ → GET /api/system (telemetry snapshot)
+ → Backend (FastAPI + SQLite)
+ → Frontend (Recharts or Plotly)
+
+🧮 SPC & Analytics Plan (Phase 5B)
+
+Next Development Sprint
+
+Component	Description
+SPCAnalysisPlotly.jsx	New Plotly analytics view with UCL/LCL lines, zone A/B/C shading.
+Nelson Rule #1	Highlight points beyond 3σ on Plotly chart.
+Session Stats Box	Show mean, σ, Cp, Cpk values live.
+Data Export	Add CSV and PNG export buttons.
+Routing	Add /analysis route to switch between views.
+🔬 Research Mode (Phase 5C Preview)
+
+Planned features:
+
+Nelson Rules 1–8 in backend for quality diagnostics.
+
+Session Serialization → /data/spc_sessions/*.json.
+
+pPk/pPp Metrics for multi-run capability studies.
+
+Cross-vendor Benchmark Harness (OpenAI, Anthropic, Gemini, AWS, Copilot).
+
+🧠 Known Limitations / Pending Fixes
+Issue	Description	Action
+GPU Telemetry Null	WSL2 lacks NVML support.	Documented / Enable via GPU Docker runtime.
+Monitor Auto-Loop	Posts only on manual trigger.	Add background interval loop (Phase 5B).
+Nelson Rules Inactive	Not implemented in frontend.	Add in Plotly analysis phase.
+SPC Static Until Trigger	Caused by monitor init delay.	Add heartbeat poller in 5B.
+🧰 Developer Checklist (Next Steps)
+
+ Implement Plotly SPC Analysis View.
+
+ Add auto-loop in monitor_apis.py.
+
+ Extend FastAPI for rule evaluation.
+
+ Integrate export controls.
+
+ Document GPU enablement steps in README.
+
+ Validate new Docker build and push to GitHub.
+
+✅ Revision Summary
+Version	Date	Notes
+Rev A	Oct 22 2025	Initial Phase 5 handoff draft.
+Rev B	Oct 25 2025	Full stack validated; telemetry added; Plotly analysis roadmap defined.

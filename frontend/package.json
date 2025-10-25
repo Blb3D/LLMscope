@@ -8,14 +8,15 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "lucide-react": "^0.263.1",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
-    "recharts": "^2.10.0",
-    "lucide-react": "^0.263.1"
+    "react-router-dom": "^7.9.4",
+    "recharts": "^2.10.0"
   },
   "devDependencies": {
-    "vite": "^4.5.2",
     "@vitejs/plugin-react": "^4.1.0",
-    "typescript": "^5.4.5"
+    "typescript": "^5.4.5",
+    "vite": "^7.1.12"
   }
 }
