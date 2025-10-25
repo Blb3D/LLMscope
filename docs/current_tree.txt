@@ -1,0 +1,72 @@
+﻿D  backend
+D  docker
+D  docs
+D  docs/Images
+D  docs/Phase5
+D  frontend
+D  frontend/src
+D  frontend/src/components
+D  frontend/src/hooks
+D  scripts
+D  tools
+F  .dockerignore  1096
+F  .env  492
+F  backend/.env  196
+F  backend/app.py  23379
+F  backend/requirements.txt  159
+F  docker/Dockerfile.backend  708
+F  docker/Dockerfile.frontend  762
+F  docker/Dockerfile.monitor  254
+F  docker/nginx.conf  734
+F  docker-compose.yml  1152
+F  Dockerfile.backend  708
+F  Dockerfile.frontend  762
+F  Dockerfile.monitor  254
+F  docs/Addendum_A_Investor_RevA.pdf  4703
+F  docs/CASE_STUDY_Cognitive_Load_Spike_RevA.md  3184
+F  docs/CHANGELOG.md  292
+F  docs/Images/cognitive_latency_spike.png  1281653
+F  docs/Images/cognitive_load_spike_thumb.png  172231
+F  docs/LLMscope_AddendumA_Cognitive_Load_Analytics_RevA.pdf  5976
+F  docs/LLMscope_Phase6_TreeSpec.txt  698
+F  docs/LLMscope_Research_Paper_RevA.pdf  1609272
+F  docs/PHASE_RELEASE_CHECKLIST.md  1186
+F  docs/Phase5_Handoff.md  7778
+F  docs/Phase5D_Pre-Deployment_Checklist.md  3670
+F  docs/Phase6_Kickoff_Kit.md  4390
+F  docs/progress.md  2789
+F  docs/README.md  4610
+F  docs/ROADMAP_v5.md  6472
+F  docs/SCOPE_v5.md  6507
+F  frontend/.env  196
+F  frontend/index.html  406
+F  frontend/nginx.conf  479
+F  frontend/package.json  540
+F  frontend/package-lock.json  190802
+F  frontend/src/components/LatencyChart.tsx  2178
+F  frontend/src/components/NelsonLegend.tsx  635
+F  frontend/src/Dashboard.jsx  4419
+F  frontend/src/hooks/useSpc.ts  1285
+F  frontend/src/index.css  481
+F  frontend/src/main.tsx  532
+F  frontend/src/SPCAnalysisPlotly.jsx  4457
+F  frontend/src/SPCChart.jsx  1386
+F  frontend/vite.config.ts  324
+F  requirements.txt  42
+F  scripts/compare_trees.py  4523
+F  scripts/Compare-FileTrees.ps1  3783
+F  scripts/Compare-TreeToSpec.ps1  2158
+F  scripts/demo_ollama.py  5165
+F  scripts/finalize_phase5_docs.py  11149
+F  scripts/git_verify_phase5.py  1734
+F  scripts/manage_docs.py  3829
+F  scripts/monitor_apis.py  9112
+F  scripts/monitor_apis_revA.py  4300
+F  scripts/New Text Document.txt  0
+F  scripts/phase5_daily_sync.bat  2710
+F  scripts/push_to_github_autotag_phase_changelog.py  4198
+F  scripts/reset_llmscope.ps1  4170
+F  scripts/run_wrapper.py  441
+F  scripts/setup.sh  10473
+F  scripts/Write-TreeSnapshot.ps1  1334
+F  tools/benchmark_suite_revB.py  14494

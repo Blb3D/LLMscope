@@ -3,3 +3,6 @@ uvicorn[standard]==0.30.6
 pydantic==2.9.2
 python-multipart==0.0.9
 requests==2.32.3
+numpy==1.26.4
+psutil==5.9.8
+nvidia-ml-py3==7.352.0

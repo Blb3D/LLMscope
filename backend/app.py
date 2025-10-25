@@ -14,6 +14,11 @@ from contextlib import contextmanager
 import math
 import psutil
 import platform
+from fastapi import APIRouter
+import numpy as np
+from statistics import mean, stdev
+import sqlite3
+import os
 
 # =========================
 # Configuration
@@ -118,6 +123,59 @@ def get_system_stats():
             "cpuTemp": None,
             "error": str(e),
         }
+
+@app.get("/api/analysis")
+def get_analysis():
+    """
+    Returns statistical summary and rule violations from latency data.
+    """
+    db_path = os.path.join(os.getcwd(), "data", "llmscope.db")
+    if not os.path.exists(db_path):
+        return {"error": "Database not found"}
+
+    conn = sqlite3.connect(db_path)
+    cur = conn.cursor()
+    try:
+        cur.execute("SELECT latency FROM stats ORDER BY timestamp DESC LIMIT 200;")
+        rows = cur.fetchall()
+        values = [r[0] for r in rows if isinstance(r[0], (int, float))]
+        if len(values) < 2:
+            return {"error": "Not enough data points"}
+
+        μ = mean(values)
+        σ = stdev(values)
+        ucl = μ + 3 * σ
+        lcl = μ - 3 * σ
+        spec_upper = μ + 6 * σ
+        spec_lower = μ - 6 * σ
+        cp = (spec_upper - spec_lower) / (6 * σ or 1)
+        cpk = min(
+            (spec_upper - μ) / (3 * σ or 1),
+            (μ - spec_lower) / (3 * σ or 1)
+        )
+
+        # Detect Nelson Rule #1 violations (beyond 3σ)
+        violations = [
+            {"index": i, "value": v}
+            for i, v in enumerate(values)
+            if v > ucl or v < lcl
+        ]
+
+        conn.close()
+        return {
+            "count": len(values),
+            "mean": μ,
+            "std": σ,
+            "ucl": ucl,
+            "lcl": lcl,
+            "cp": cp,
+            "cpk": cpk,
+            "violations": violations,
+        }
+
+    except Exception as e:
+        conn.close()
+        return {"error": str(e)}
 
 # =========================
 # Database

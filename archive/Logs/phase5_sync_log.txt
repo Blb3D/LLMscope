@@ -1,0 +1,130 @@
+=============================================================== 
+🔭 LLMscope Phase 5 Daily Sync - Fri 10/24/2025  9:13:32.56 
+=============================================================== 
+ 
+🧠 Git verification... 
+Traceback (most recent call last):
+  File "C:\Users\brand\OneDrive\Desktop\LMMscope_V0.1.0\LLMscope_Phase5\scripts\git_verify_phase5.py", line 17, in <module>
+    print("\n\U0001f50d Verifying LLMscope-Desktop Phase 5 Git State\n")
+    ~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Python313\Lib\encodings\cp1252.py", line 19, in encode
+    return codecs.charmap_encode(input,self.errors,encoding_table)[0]
+           ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+UnicodeEncodeError: 'charmap' codec can't encode character '\U0001f50d' in position 2: character maps to <undefined>
+⚠️  Verification failed. 
+🧩 Docker verification... 
+Traceback (most recent call last):
+  File "C:\Users\brand\OneDrive\Desktop\LMMscope_V0.1.0\LLMscope_Phase5\scripts\docker_verify_build.py", line 3, in <module>
+    print("\n\U0001f9e9 Verifying Docker build context...")
+    ~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Python313\Lib\encodings\cp1252.py", line 19, in encode
+    return codecs.charmap_encode(input,self.errors,encoding_table)[0]
+           ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+UnicodeEncodeError: 'charmap' codec can't encode character '\U0001f9e9' in position 2: character maps to <undefined>
+📦 Commit step... 
+[main a922427] docker build verification + .gitignore cleanup
+ 5 files changed, 220 insertions(+)
+ create mode 100644 .dockerignore
+ create mode 100644 New Text Document (2).txt
+ create mode 100644 New Text Document.txt
+ create mode 100644 phase5_daily_sync.bat
+ create mode 100644 scripts/docker_verify_build.py
+✅ Commit: docker build verification + .gitignore cleanup 
+From https://github.com/Blb3D/LLMscope-Desktop
+ * branch            main       -> FETCH_HEAD
+Already up to date.
+To https://github.com/Blb3D/LLMscope-Desktop.git
+   1cbcb3a..a922427  main -> main
+To https://github.com/Blb3D/LLMscope-Desktop.git
+ * [new tag]         v0.5-phase5-20251024 -> v0.5-phase5-20251024
+ 
+✅ Sync completed successfully on Fri 10/24/2025  9:24:13.25 
+ 
+=============================================================== 
+🔭 LLMscope Phase 5 Daily Sync - Fri 10/24/2025 16:49:14.25 
+=============================================================== 
+ 
+🧠 Git verification... 
+Traceback (most recent call last):
+  File "C:\Users\brand\OneDrive\Desktop\LMMscope_V0.1.0\LLMscope_Phase5\scripts\git_verify_phase5.py", line 17, in <module>
+    print("\n\U0001f50d Verifying LLMscope-Desktop Phase 5 Git State\n")
+    ~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Python313\Lib\encodings\cp1252.py", line 19, in encode
+    return codecs.charmap_encode(input,self.errors,encoding_table)[0]
+           ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+UnicodeEncodeError: 'charmap' codec can't encode character '\U0001f50d' in position 2: character maps to <undefined>
+⚠️  Verification failed. 
+🧩 Docker verification... 
+Traceback (most recent call last):
+  File "C:\Users\brand\OneDrive\Desktop\LMMscope_V0.1.0\LLMscope_Phase5\scripts\docker_verify_build.py", line 3, in <module>
+    print("\n\U0001f9e9 Verifying Docker build context...")
+    ~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Python313\Lib\encodings\cp1252.py", line 19, in encode
+    return codecs.charmap_encode(input,self.errors,encoding_table)[0]
+           ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+UnicodeEncodeError: 'charmap' codec can't encode character '\U0001f9e9' in position 2: character maps to <undefined>
+📦 Commit step... 
+warning: in the working copy of 'backend/app.py', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'docs/Phase5_Final_Build.md', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'frontend/src/Dashboard.jsx', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'docs/phase_5_final_build.md', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'docs/progress.md', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'scripts/monitor_apis_revA.py', LF will be replaced by CRLF the next time Git touches it
+[main 90d20fc] Phase 5 build complete-live OLLAMA
+ 7 files changed, 633 insertions(+), 561 deletions(-)
+ create mode 100644 docs/phase_5_final_build.md
+ create mode 100644 docs/progress.md
+ create mode 100644 scripts/monitor_apis_revA.py
+✅ Commit: Phase 5 build complete-live OLLAMA 
+From https://github.com/Blb3D/LLMscope-Desktop
+ * branch            main       -> FETCH_HEAD
+Already up to date.
+To https://github.com/Blb3D/LLMscope-Desktop.git
+   da3c53d..90d20fc  main -> main
+fatal: tag 'v0.5-phase5-20251024' already exists
+Everything up-to-date
+ 
+✅ Sync completed successfully on Fri 10/24/2025 16:49:52.79 
+ 
+=============================================================== 
+🔭 LLMscope Phase 5 Daily Sync - Fri 10/24/2025 17:39:03.20 
+=============================================================== 
+ 
+🧠 Git verification... 
+Traceback (most recent call last):
+  File "C:\Users\brand\OneDrive\Desktop\LMMscope_V0.1.0\LLMscope_Phase5\scripts\git_verify_phase5.py", line 17, in <module>
+    print("\n\U0001f50d Verifying LLMscope-Desktop Phase 5 Git State\n")
+    ~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Python313\Lib\encodings\cp1252.py", line 19, in encode
+    return codecs.charmap_encode(input,self.errors,encoding_table)[0]
+           ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+UnicodeEncodeError: 'charmap' codec can't encode character '\U0001f50d' in position 2: character maps to <undefined>
+⚠️  Verification failed. 
+🧩 Docker verification... 
+Traceback (most recent call last):
+  File "C:\Users\brand\OneDrive\Desktop\LMMscope_V0.1.0\LLMscope_Phase5\scripts\docker_verify_build.py", line 3, in <module>
+    print("\n\U0001f9e9 Verifying Docker build context...")
+    ~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Python313\Lib\encodings\cp1252.py", line 19, in encode
+    return codecs.charmap_encode(input,self.errors,encoding_table)[0]
+           ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+UnicodeEncodeError: 'charmap' codec can't encode character '\U0001f9e9' in position 2: character maps to <undefined>
+📦 Commit step... 
+warning: in the working copy of 'docs/LLMscope_AddendumA_Cognitive_Load_Analytics_RevA.pdf', LF will be replaced by CRLF the next time Git touches it
+[main b8ad49b] Cognitive Analysis Data Added
+ 5 files changed, 274 insertions(+)
+ create mode 100644 docs/CASE_STUDY_Cognitive_Load_Spike_RevA.md
+ create mode 100644 docs/Images/cognitive_latency_spike.png
+ create mode 100644 docs/Images/cognitive_load_spike_thumb.png
+ create mode 100644 docs/LLMscope_AddendumA_Cognitive_Load_Analytics_RevA.pdf
+✅ Commit: Cognitive Analysis Data Added 
+From https://github.com/Blb3D/LLMscope-Desktop
+ * branch            main       -> FETCH_HEAD
+Already up to date.
+To https://github.com/Blb3D/LLMscope-Desktop.git
+   90d20fc..b8ad49b  main -> main
+fatal: tag 'v0.5-phase5-20251024' already exists
+Everything up-to-date
+ 
+✅ Sync completed successfully on Fri 10/24/2025 17:39:29.83 
+ 

@@ -1,0 +1,85 @@
+# Canonical tree spec (Phase 6 — Rev C)
+
+D  backend
+F  backend/app.py
+F  backend/requirements.txt
+
+D  frontend
+F  frontend/index.html
+F  frontend/package.json
+F  frontend/package-lock.json
+F  frontend/vite.config.ts
+D  frontend/src
+F  frontend/src/index.css
+F  frontend/src/main.tsx
+F  frontend/src/Dashboard.jsx
+F  frontend/src/SPCAnalysisPlotly.jsx
+F  frontend/src/SPCChart.jsx
+D  frontend/src/components
+F  frontend/src/components/LatencyChart.tsx
+F  frontend/src/components/NelsonLegend.tsx
+D  frontend/src/hooks
+F  frontend/src/hooks/useSpc.ts
+
+D  tools
+F  tools/benchmark_suite_revB.py
+
+D  docker
+F  docker/Dockerfile.backend
+F  docker/Dockerfile.frontend
+F  docker/Dockerfile.monitor
+F  docker/nginx.conf
+
+D  scripts
+F  scripts/Compare-FileTrees.ps1
+F  scripts/Compare-TreeToSpec.ps1
+F  scripts/Write-TreeSnapshot.ps1
+F  scripts/compare_trees.py
+F  scripts/demo_ollama.py
+F  scripts/finalize_phase5_docs.py
+F  scripts/git_verify_phase5.py
+F  scripts/manage_docs.py
+F  scripts/monitor_apis.py
+F  scripts/monitor_apis_revA.py
+F  scripts/phase5_daily_sync.bat
+F  scripts/push_to_github_autotag_phase_changelog.py
+F  scripts/run_wrapper.py
+F  scripts/setup.sh
+F  scripts/reset_llmscope.ps1
+
+D  docs
+D  docs/archive
+D  docs/Images
+D  docs/Phase5
+F  docs/archive/claude_backend.py
+F  docs/archive/claude_frontend.json
+F  docs/LLMscope_Phase6_TreeSpec.txt
+F  docs/CHANGELOG.md
+F  docs/README.md
+F  docs/ROADMAP_v5.md
+F  docs/SCOPE_v5.md
+F  docs/progress.md
+F  docs/PHASE_RELEASE_CHECKLIST.md
+F  docs/Phase5_Handoff.md
+F  docs/Phase5D_Pre-Deployment_Checklist.md
+F  docs/Phase6_Kickoff_Kit.md
+F  docs/CASE_STUDY_Cognitive_Load_Spike_RevA.md
+F  docs/Addendum_A_Investor_RevA.pdf
+F  docs/LLMscope_AddendumA_Cognitive_Load_Analytics_RevA.pdf
+F  docs/LLMscope_Research_Paper_RevA.pdf
+F  docs/current_tree.txt
+F  docs/Images/cognitive_latency_spike.png
+F  docs/Images/cognitive_load_spike_thumb.png
+
+D  data
+D  archive
+
+
+
+
+
+F  .env
+F  .gitignore
+F  .dockerignore
+F  docker-compose.yml
+F  requirements.txt
