@@ -1,8 +1,65 @@
-﻿# (minimum)
+﻿# Archive directory (internal business files)
+/archive/
+
+# Environment variables
 .env
-*.env
-data/*.db
-frontend/node_modules/
-frontend/dist/
+.env.local
+.env.*.local
+
+# Python
 __pycache__/
-.venv/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+.pytest_cache/
+.coverage
+htmlcov/
+
+# Node/Frontend
+node_modules/
+dist/
+.DS_Store
+*.tsbuildinfo
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Database
+data/llmscope.db
+*.db
+
+# Docker
+docker-compose.override.yml
+
+# OS
+.DS_Store
+Thumbs.db
+```
+
+Create/update this at your project root. ✅
+
+---
+
+### File 2: `./VERSION` (at project root)
+```
+0.2.0

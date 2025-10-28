@@ -1,0 +1,45 @@
+{
+  "provider": "ollama",
+  "model": "llama3",
+  "latency_ms": 2050.5,
+  "timestamp": "2025-10-28T12:34:56.789",
+  "total_duration_ms": 2050.5,
+  "load_duration_ms": 50.2,
+  "prompt_eval_duration_ms": 100.3,
+  "eval_duration_ms": 1900.0,
+  "prompt_eval_count": 26,
+  "eval_count": 42,
+  "cpu_percent": 35.2,
+  "memory_percent": 45.6,
+  "gpu_percent": 78.5,
+  "gpu_memory_percent": 62.3,
+  "prompt_hash": "a1b2c3d4",
+  "prompt_text": "Write one sentence..."
+}
+```
+
+---
+
+## Step 4: Root Level Files
+
+**File: `./.gitignore`** (at root)
+```
+/archive/
+.env
+.env.local
+.env.*.local
+node_modules/
+__pycache__/
+*.pyc
+.pytest_cache/
+*.db
+dist/
+build/
+.venv/
+venv/
+.DS_Store
+```
+
+**File: `./VERSION`** (at root)
+```
+0.2.0
