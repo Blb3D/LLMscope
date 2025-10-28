@@ -62,4 +62,26 @@ Create/update this at your project root. ✅
 
 ### File 2: `./VERSION` (at project root)
 ```
-0.2.0
+0.2.0# Test files
+test_data.py
+monitor_apis.py
+
+# Environment
+.env
+.env.local
+
+# Node
+node_modules/
+dist/
+
+# Python
+__pycache__/
+*.pyc
+.pytest_cache/
+
+# Docker
+.dockerignore
+
+# IDE
+.vscode/
+.idea/
