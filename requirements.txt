@@ -1,5 +1,11 @@
 fastapi
-uvicorn
+uvicorn[standard]
 plotly
 jinja2
 pandas
+psutil==5.9.8
+numpy
+pynvml
+aiohttp
+requests
+python-multipart

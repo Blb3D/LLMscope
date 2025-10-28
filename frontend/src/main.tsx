@@ -1,7 +1,8 @@
+import './index.css';
 import React from 'react'
 import ReactDOM from 'react-dom/client'
 import { BrowserRouter, Routes, Route } from 'react-router-dom'
-import Dashboard from './Dashboard'
+import Dashboard from './Dashboard_ollama_revB'
 import SPCAnalysisPlotly from "./SPCAnalysisPlotly";
 
 ReactDOM.createRoot(document.getElementById('root')).render(
@@ -9,7 +10,6 @@ ReactDOM.createRoot(document.getElementById('root')).render(
     <BrowserRouter>
       <Routes>
         <Route path="/" element={<Dashboard />} />
-        <Route path="/analysis" element={<SPCAnalysisPlotly />} />
       </Routes>
     </BrowserRouter>
   </React.StrictMode>

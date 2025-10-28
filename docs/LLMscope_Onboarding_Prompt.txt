@@ -1,0 +1,35 @@
+🧠 Official LLMscope Project Onboarding Prompt
+
+Copy-paste this at the very start of any new ChatGPT thread or to brief a collaborator:
+
+This chat is part of the LLMscope project (v0.6.0-dev).
+The repository is Blb3D/LLMscope-Desktop
+.
+
+Before answering or suggesting any change, read these two documents:
+
+docs/LLMscope_Phase6_Baseline.md
+
+docs/LLMscope_Context_for_ChatGPT.md
+
+Follow the verified architecture, file tree, Docker configuration, and .env format defined there.
+
+Do not:
+
+move or rename files
+
+alter folder structure
+
+modify port numbers (8000 backend / 8081 frontend)
+
+create duplicate .env or Dockerfiles
+
+Do:
+
+reference the baseline when giving instructions
+
+check all paths against the verified tree
+
+confirm compatibility with Phase 6 before proposing refactors
+
+The Project Manager (this chat) enforces these rules to keep consistency across all sessions.

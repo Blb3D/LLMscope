@@ -1,12 +1,11 @@
-# ---- Monitor Container ----
 FROM python:3.11-slim
+
 WORKDIR /app
 
-COPY scripts/monitor_apis_revA.py /app/monitor_apis.py
+# Copy monitor script
+COPY monitor_apis.py /app/monitor_apis.py
 
-# install required libs
-RUN pip install --no-cache-dir aiohttp requests
+# Install required libs - ADD psutil HERE
+RUN pip install --no-cache-dir aiohttp requests psutil
 
 CMD ["python", "-u", "/app/monitor_apis.py"]
-
-

@@ -74,10 +74,6 @@ F  docs/Images/cognitive_load_spike_thumb.png
 D  data
 D  archive
 
-
-
-
-
 F  .env
 F  .gitignore
 F  .dockerignore
