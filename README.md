@@ -283,10 +283,10 @@ This project is licensed under the MIT License - see [LICENSE](./LICENSE) file f
 
 ## Support
 
-- 📧 Email: support@llmscope.dev
+- 📧 Email: bbaker@blb3dprinting.com
 - 💬 Slack: [Join our community](https://slack.com)
 - 📖 Docs: [Full documentation](./docs)
-- 🐛 Issues: [GitHub Issues](https://github.com/yourusername/LLMscope/issues)
+- 🐛 Issues: [GitHub Issues](https://github.com/Blb3D/LLMscope/issues)
 
 ---
 
@@ -297,9 +297,9 @@ If you use LLMscope in your research or projects, please cite:
 ```bibtex
 @software{llmscope2025,
   title={LLMscope: Real-time SPC Monitoring for LLM Performance},
-  author={Your Name},
+  author={Brandan Baker},
   year={2025},
-  url={https://github.com/yourusername/LLMscope}
+  url={https://github.com/Blb3D/LLMscope-Desktop}
 }
 ```
 
