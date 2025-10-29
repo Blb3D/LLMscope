@@ -1,308 +1,269 @@
 # LLMscope
 
-**Real-time Statistical Process Control (SPC) monitoring for LLM latency and performance**
+**Real-time Statistical Process Control (SPC) monitoring for LLM latency and performance.**
 
-Monitor your Large Language Models with professional-grade statistical analysis. Detect performance degradation using industry-standard Nelson Rules before it impacts users.
+[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
+[![Python 3.11+](https://img.shields.io/badge/python-3.11+-blue.svg)](https://www.python.org/downloads/)
+[![Docker](https://img.shields.io/badge/docker-required-blue.svg)](https://www.docker.com/)
 
-![GitHub release](https://img.shields.io/badge/version-0.2.0-blue)
-![License](https://img.shields.io/badge/license-MIT-green)
-![Docker](https://img.shields.io/badge/docker-ready-brightgreen)
-
----
-
-## Features
-
-✨ **Real-time Monitoring**
-- Live latency tracking with sub-second updates
-- Historical data retention (24h+)
-- Multi-model support (Ollama, ChatGPT, local LLMs)
-
-📊 **Statistical Process Control**
-- Nelson Rules violation detection (R1, R2, R3)
-- Dynamic control limits (UCL/LCL)
-- Mean, standard deviation, P95 percentile analysis
-
-🚨 **Smart Alerting**
-- Email alerts (Gmail, SendGrid, Mailgun)
-- Slack webhook integration
-- Configurable alert rules
-
-🎯 **Violation Workflow**
-- Track violations with frozen statistics
-- Acknowledge violations with user tracking
-- Mark as resolved with timestamps
-- CSV export for analysis
-
-🎨 **Professional Dashboard**
-- Real-time SPC chart with control lines
-- Live system telemetry (CPU, GPU, Memory)
-- Violations log with one-click details
-- Model filtering and time window selection
+> Detect when your LLM service goes out of control using industry-standard Nelson Rules. Self-hosted, privacy-first, and production-ready.
 
 ---
 
-## Quick Start
+## 🎯 Why LLMscope?
+
+LLM performance isn't just slow or fast—it's **statistically predictable**. LLMscope applies **Statistical Process Control (SPC)**, the same methodology used in manufacturing quality control for decades, to monitor LLM latency in real-time.
+
+### The Problem
+- **Generic monitoring** only tells you "latency is high"
+- **Cloud dashboards** require sending your data to third parties
+- **No context** around what caused performance degradation
+- **False alarms** from naive threshold alerts
+
+### The Solution
+- ✅ **SPC-based detection** - Nelson Rules identify real anomalies, not noise
+- ✅ **Local-first** - All data stays on your infrastructure
+- ✅ **Root cause analysis** - System telemetry (CPU, GPU, Memory) captured at violation time
+- ✅ **Multi-provider** - Works with Ollama, OpenAI, Anthropic, and any LLM API
+- ✅ **Production-ready** - Docker Compose setup in <15 minutes
+
+---
+
+## 🔥 Real-World Example: Cognitive Load Spike
+
+When testing with complex prompts, we observed latency spikes that correlated directly with task complexity:
+
+| Prompt Complexity | Baseline Latency | Spike Latency | Increase |
+|-------------------|------------------|---------------|----------|
+| Simple (1 sentence) | 2.0s | 2.0s | 0% |
+| Medium (paragraph) | 2.0s | 4.0s | **+100%** |
+| Complex (1200-page story) | 2.0s | **9.0s** | **+350%** |
+
+**LLMscope detected this immediately** using Rule R1 (point beyond 3σ from mean) and provided full context:
+- Latency jumped to 1772ms (violation)
+- Rule R3 also triggered (6+ points in increasing trend)
+- System telemetry showed GPU at 0% (CPU bottleneck)
+- Violation modal showed ±10 points of context for debugging
+
+![Cognitive Load Spike Detection](docs/assets/cognitive-load-spike.png)
+
+*Real screenshot from LLMscope detecting Claude API latency spike during complex prompt generation.*
+
+---
+
+## 📊 Features
+
+### Phase 1 (Released)
+- ✅ Real-time SPC chart with UCL/LCL control limits
+- ✅ Nelson Rules violation detection (R1, R2, R3)
+- ✅ System telemetry (CPU, GPU, Memory)
+- ✅ Multi-provider support (Ollama, OpenAI, Anthropic)
+- ✅ Time-window filtering (1h, 6h, 24h)
+- ✅ SQLite persistence
+
+### Phase 2 (Current - v0.2.0)
+- ✅ **Server-side violation detection** - Backend calculates violations, not just frontend
+- ✅ **Violation details modal** - Click any violation for full context (±10 points)
+- ✅ **CSV export** - Download violation logs for reporting
+- ✅ **Violation log** - Persistent record of all SPC rule triggers
+- ✅ **Email/Slack alerts** (⚠️ *beta - still testing*)
+- ✅ **Setup wizard** (⚠️ *beta - still testing*)
+
+### Phase 3 (Planned)
+- 🔄 Advanced Nelson Rules (R4-R8)
+- 🔄 Custom alert thresholds
+- 🔄 Multi-model comparison
+- 🔄 Historical trend analysis
+- 🔄 Prometheus/Grafana integration
+
+[Full Roadmap →](docs/ROADMAP_v5.md)
+
+---
+
+## 🚀 Quick Start
 
 ### Prerequisites
-- Docker Desktop (download from [docker.com](https://www.docker.com/products/docker-desktop))
-- Ollama (for local LLM testing, or use your own API)
+- Docker & Docker Compose
+- Ollama running locally (or API keys for OpenAI/Anthropic)
+- 2GB RAM, 1GB disk space
 
-### Installation
+### Installation (< 15 minutes)
 
-1. **Clone the repository**
 ```bash
-git clone https://github.com/yourusername/LLMscope.git
-cd LLMscope
-```
+# 1. Clone the repository
+git clone https://github.com/Blb3D/llmscope.git
+cd llmscope
 
-2. **Create environment file**
-```bash
+# 2. Configure environment
 cp .env.example .env
-```
+# Edit .env with your settings:
+# - OLLAMA_BASE_URL=http://host.docker.internal:11434
+# - OLLAMA_MODEL=llama3
+# - LLMSCOPE_API_KEY=your-secure-key
 
-3. **Start with Docker**
-```bash
+# 3. Start all services
 docker-compose up -d
+
+# 4. Open dashboard
+open http://localhost:8081
 ```
 
-4. **Open dashboard**
-Navigate to `http://localhost:8081` in your browser
-
-5. **Complete setup wizard**
-Configure email alerts, Slack webhooks, and alert rules
+**That's it!** LLMscope is now monitoring your LLM and detecting violations in real-time.
 
 ---
 
-## Configuration
+## 📐 How It Works
 
-### Environment Variables
+### Architecture Overview
 
-Create a `.env` file in the project root:
-
-```env
-# Core
-LLMSCOPE_API_KEY=dev-123
-
-# Ollama (for local testing)
-USE_OLLAMA=true
-OLLAMA_BASE_URL=http://host.docker.internal:11434
-OLLAMA_MODEL=llama2
-MONITOR_INTERVAL=2
-
-# Email Alerts
-SMTP_SERVER=smtp.gmail.com
-SMTP_PORT=587
-SMTP_USER=your-email@gmail.com
-SMTP_PASSWORD=your-app-password
-ALERT_EMAIL_FROM=your-email@gmail.com
-ALERT_EMAIL_TO=team@company.com
-
-# Slack Alerts
-SLACK_WEBHOOK_URL=https://hooks.slack.com/services/YOUR/WEBHOOK/URL
+```
+┌─────────────────────────────────────────────────────────────┐
+│                      YOUR INFRASTRUCTURE                     │
+├─────────────────────────────────────────────────────────────┤
+│                                                              │
+│  ┌──────────────────┐         ┌──────────────────────────┐ │
+│  │ Ollama (GPU)     │ ◄─────  │  Monitor Container       │ │
+│  │ Port 11434       │         │  - Tests every 2s        │ │
+│  └──────────────────┘         │  - Measures latency      │ │
+│                               │  - Collects telemetry    │ │
+│                               └────────┬─────────────────┘ │
+│                                        │ POST /api/stats   │
+│                               ┌────────▼─────────────────┐ │
+│                               │  Backend Container       │ │
+│                               │  - FastAPI + SQLite      │ │
+│                               │  - Calculates SPC stats  │ │
+│                               │  - Nelson Rules engine   │ │
+│                               └────────┬─────────────────┘ │
+│                                        │ GET /api/stats/spc│
+│                               ┌────────▼─────────────────┐ │
+│                               │  Frontend Container      │ │
+│  Your Browser ◄───────────────┤  - React + Recharts      │ │
+│  localhost:8081               │  - Real-time chart       │ │
+│                               │  - Violation log         │ │
+│                               └──────────────────────────┘ │
+└─────────────────────────────────────────────────────────────┘
 ```
 
-### Setup Wizard
+### Statistical Process Control (SPC)
 
-On first load, you'll see a 5-step setup wizard:
+LLMscope uses **control limits** calculated from your actual data:
 
-1. **Welcome** - Overview of features
-2. **Email Alerts** - Configure SMTP (optional)
-3. **Slack Alerts** - Add webhook URL (optional)
-4. **Alert Rules** - Select Nelson Rules to monitor
-5. **Review** - Confirm settings and finish
+- **Mean (μ)** = average latency
+- **Std Dev (σ)** = spread of latency
+- **UCL** = μ + 3σ (Upper Control Limit)
+- **LCL** = μ - 3σ (Lower Control Limit)
+
+**Why 3σ?**  
+In a normal distribution, 99.7% of data falls within 3σ. Points outside this range have only a 0.3% chance of being random noise—they're **real anomalies**.
+
+### Nelson Rules (Violation Detection)
+
+| Rule | Condition | What It Detects |
+|------|-----------|----------------|
+| **R1** | Point beyond 3σ | Outlier - extreme latency spike |
+| **R2** | 9+ points on same side of mean | Sustained shift - process changed |
+| **R3** | 6+ points in trend (up/down) | Drift - gradual degradation |
+
+*Advanced rules (R4-R8) coming in Phase 3*
 
 ---
 
-## How It Works
+## 📖 Documentation
 
-### Monitoring Cycle
-
-Every 2 seconds (configurable):
-
-1. **Collect** - Send test prompt to LLM, measure latency
-2. **Capture** - Record system metrics (CPU, GPU, Memory)
-3. **Store** - Persist to SQLite database
-4. **Analyze** - Calculate statistics and detect violations
-5. **Alert** - Send email/Slack if violations detected
-6. **Display** - Update dashboard in real-time
-
-### Statistical Analysis
-
-**Nelson Rules Detection:**
-
-- **R1**: Point beyond 3σ from mean (sudden spike/drop)
-- **R2**: 9+ consecutive points on same side of mean (sustained shift)
-- **R3**: 6+ points in increasing/decreasing trend (gradual degradation)
-
-**Control Limits:**
-```
-Mean (μ) = average latency
-Std Dev (σ) = spread of latencies
-UCL = μ + 3σ  (Upper Control Limit)
-LCL = μ - 3σ  (Lower Control Limit)
-```
-
-99.7% of normal data falls within control limits. Violations indicate out-of-control processes.
+- **[Architecture Guide](docs/llmscope_architecture_guide.md)** - Deep dive into system design
+- **[Roadmap](docs/ROADMAP_v5.md)** - Feature timeline and vision
+- **[Scope Document](docs/SCOPE_v5.md)** - Technical specifications
+- **[Case Study: Cognitive Load Spike](docs/CASE_STUDY_Cognitive_Load_Spike_RevA.md)** - Real-world example with data
 
 ---
 
-## Documentation
+## 🛠️ Technology Stack
 
-- **[Installation Guide](./docs/INSTALL.md)** - Detailed setup instructions
-- **[Email Setup](./docs/EMAIL_SETUP.md)** - Gmail, SendGrid, Mailgun configuration
-- **[Slack Setup](./docs/SLACK_SETUP.md)** - Webhook setup guide
-- **[API Reference](./docs/API.md)** - REST API endpoints
-- **[Architecture](./docs/ARCHITECTURE.md)** - System design overview
-
----
-
-## Technology Stack
-
-**Backend**
-- FastAPI (Python web framework)
-- SQLite (embedded database)
+**Backend:**
+- FastAPI (Python 3.11)
+- SQLite (persistence)
 - Uvicorn (ASGI server)
+- psutil + pynvml (system metrics)
 
-**Frontend**
-- React (UI framework)
-- Recharts (charting library)
-- Tailwind CSS (styling)
+**Frontend:**
+- React 18
+- Recharts (visualization)
+- Tailwind CSS 4
 - Vite (build tool)
 
-**DevOps**
+**Infrastructure:**
 - Docker + Docker Compose
 - Nginx (reverse proxy)
-
-**Monitoring**
-- psutil (system metrics)
-- pynvml (GPU metrics)
-- aiohttp (async HTTP)
+- Multi-stage builds (optimized images)
 
 ---
 
-## Project Structure
+## 🤝 Contributing
 
-```
-LLMscope/
-├── backend/
-│   ├── app.py                    # FastAPI application
-│   ├── monitor_apis.py           # Telemetry collection
-│   └── requirements.txt
-├── frontend/
-│   ├── src/
-│   │   ├── main.tsx              # React entry point
-│   │   ├── SetupWizard.jsx       # Configuration UI
-│   │   └── Dashboard_ollama_revB.jsx  # Main dashboard
-│   └── package.json
-├── tests/
-│   ├── test_e2e_phase2.py       # E2E test suite
-│   ├── conftest.py              # Pytest fixtures
-│   └── pytest.ini
-├── docker-compose.yml
-├── Dockerfile.backend
-├── Dockerfile.frontend
-├── Dockerfile.monitor
-└── docs/                         # Documentation
+Contributions are welcome! Please see [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines.
+
+### Development Setup
+
+```bash
+# Backend (FastAPI)
+cd backend
+pip install -r requirements.txt
+uvicorn app:app --reload --port 8000
+
+# Frontend (React)
+cd frontend
+npm install
+npm run dev
 ```
 
 ---
 
-## API Endpoints
+## 📊 Use Cases
 
-| Method | Endpoint | Description |
-|--------|----------|-------------|
-| GET | `/health` | Health check |
-| POST | `/api/stats` | Log telemetry |
-| GET | `/api/stats/spc` | Get SPC chart data |
-| GET | `/api/violations` | List violations |
-| POST | `/api/violations/{id}/acknowledge` | Acknowledge violation |
-| POST | `/api/violations/{id}/resolve` | Mark as resolved |
-| GET | `/api/settings` | Get alert settings |
-| PUT | `/api/settings/{key}` | Update setting |
-| GET | `/api/system` | Get system telemetry |
+### For AI Engineers
+- Detect model degradation before users complain
+- Identify which prompts cause performance issues
+- Optimize infrastructure based on real telemetry
 
----
+### For DevOps Teams
+- Monitor LLM APIs like any other service
+- Set up alerts for SPC violations
+- Export violation data for postmortems
 
-## Performance
-
-- **Dashboard**: Real-time updates every 1 second
-- **Telemetry**: Collection every 2 seconds
-- **Storage**: ~1MB per 1000 data points
-- **Database**: SQLite (embedded, no external DB needed)
-- **Memory**: <100MB for typical use
+### For Researchers
+- Study LLM performance characteristics
+- Correlate latency with prompt complexity
+- Publish reproducible performance benchmarks
 
 ---
 
-## Roadmap
+## 🔒 Privacy & Security
 
-**Phase 3 (Planned)**
-- E2E test suite (Selenium)
-- CI/CD pipeline (GitHub Actions)
-- Standalone executable (.EXE installer)
-- Multi-provider support (OpenAI, Anthropic, local)
-- Advanced analytics dashboard
-- Webhook alerts for custom integrations
+- ✅ **Self-hosted** - All data stays on your infrastructure
+- ✅ **No telemetry** - We don't collect anything
+- ✅ **API key protected** - Backend requires Bearer token
+- ✅ **Prompt hashing** - Store SHA-256 hashes, not full text (optional)
 
 ---
 
-## Troubleshooting
+## 📜 License
 
-**Dashboard shows blank chart?**
-- Ensure Ollama is running and accessible
-- Check `.env` file has correct `OLLAMA_BASE_URL`
-- View logs: `docker-compose logs llmscope_monitor`
-
-**Alerts not sending?**
-- Verify SMTP credentials in setup wizard
-- Check Gmail app password (not regular password)
-- Test Slack webhook URL format
-
-**High latency readings?**
-- Smaller models respond faster (gemma3:4b vs gpt-oss:20b)
-- GPU memory impacts first-run latency
-- Monitor system metrics during spikes
+MIT License - see [LICENSE](LICENSE) for details.
 
 ---
 
-## Contributing
+## 🌟 Star History
 
-Contributions welcome! Please:
-
-1. Fork the repository
-2. Create a feature branch
-3. Make your changes
-4. Submit a pull request
+If LLMscope helps you catch performance issues before your users do, consider giving us a star! ⭐
 
 ---
 
-## License
+## 📬 Contact
 
-This project is licensed under the MIT License - see [LICENSE](./LICENSE) file for details.
-
----
-
-## Support
-
-- 📧 Email: bbaker@blb3dprinting.com
-- 💬 Slack: [Join our community](https://slack.com)
-- 📖 Docs: [Full documentation](./docs)
-- 🐛 Issues: [GitHub Issues](https://github.com/Blb3D/LLMscope/issues)
+- **Issues:** [GitHub Issues](https://github.com/Blb3D/llmscope/issues)
+- **Discussions:** [GitHub Discussions](https://github.com/Blb3D/llmscope/discussions)
+- **Email:** bbaker@blb3dprinting.com
 
 ---
 
-## Citation
-
-If you use LLMscope in your research or projects, please cite:
-
-```bibtex
-@software{llmscope2025,
-  title={LLMscope: Real-time SPC Monitoring for LLM Performance},
-  author={Brandan Baker},
-  year={2025},
-  url={https://github.com/Blb3D/LLMscope-Desktop}
-}
-```
-
----
-
-**Built with ❤️ for LLM performance monitoring**
+**Built with ❤️ by engineers who are tired of reactive monitoring.**

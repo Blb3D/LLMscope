@@ -1,271 +1,283 @@
-# 🗺️ LLMscope Development Roadmap
+# LLMscope Product Roadmap
 
-**Where we are. Where we're going. How to help.**
-
----
-
-## 📍 Current Status: Phase 3 Development
-
-**Phase 2** ✅ Complete
-- Real-time SPC monitoring
-- Nelson Rules violation detection
-- Docker deployment
-- Ollama integration
-
-**Phase 3** 🔄 In Progress (Q1 2026)
-- Universal LLM provider support
-- Multi-model comparison
-- Enhanced analytics
-
-**Phase 4** 📅 Planned (Q2 2026)
-- Manufacturing SPC monitoring
-- PLC/sensor integration
-- Production equipment tracking
+**Last Updated:** October 29, 2024  
+**Current Version:** 0.2.0  
+**Status:** Phase 2 Complete, Phase 3 in Planning
 
 ---
 
-## 🎯 Phase 3: Universal LLM Monitoring
+## 🎯 Vision
 
-**Goal:** One dashboard for any LLM, any provider.
+Transform LLM performance monitoring from **reactive threshold alerts** to **proactive statistical process control**, enabling engineers to detect and diagnose performance degradation before it impacts users.
+
+---
+
+## 📊 Release Strategy
+
+We follow a **phased approach** with each phase building on the previous:
+
+1. **Phase 1 (Complete)** - Foundation: Real-time monitoring + basic SPC
+2. **Phase 2 (Complete)** - Violations: Server-side detection + alerts
+3. **Phase 3 (Q1 2025)** - Advanced Detection: Full Nelson Rules + integrations
+4. **Phase 4 (2025+)** - Long-term Vision: Multi-site, enterprise features
+
+Each phase is **production-ready** and can be deployed independently.
+
+---
+
+## ✅ Phase 1: Foundation (v0.1.0) - COMPLETE
+
+**Released:** October 15, 2024  
+**Goal:** Prove SPC methodology works for LLM monitoring
+
+### Delivered Features
+- ✅ Real-time SPC chart (latency over time)
+- ✅ Nelson Rules detection (R1, R2, R3)
+- ✅ UCL/LCL control limit visualization
+- ✅ System telemetry (CPU, GPU, Memory)
+- ✅ Multi-provider support (Ollama, OpenAI, Anthropic)
+- ✅ Time-window filtering (1h, 6h, 24h)
+- ✅ SQLite persistence
+- ✅ Docker Compose deployment (<15 min setup)
+
+### Key Learnings
+- SPC methodology successfully detects LLM performance anomalies
+- Nelson Rules provide better signal-to-noise ratio than threshold alerts
+- Cognitive load spikes are **reproducible and measurable**
+- Engineers prefer local-first solutions over cloud dashboards
+
+---
+
+## ✅ Phase 2: Violations (v0.2.0) - COMPLETE
+
+**Released:** October 29, 2024  
+**Goal:** Make violations actionable with context and persistence
+
+### Delivered Features
+- ✅ **Server-side violation detection** - Backend calculates Nelson Rules
+- ✅ **Violation details modal** - Full context (±10 points, telemetry)
+- ✅ **CSV export** - Download violation logs
+- ✅ **Violation log persistence** - SQLite storage with timestamps
+- ✅ **Email alerts (beta)** - Send alerts on R1 violations (⚠️ testing)
+- ✅ **Slack webhooks (beta)** - Post to Slack channels (⚠️ testing)
+- ✅ **Setup wizard (beta)** - Guided first-time configuration (⚠️ testing)
+
+### Beta Features Status
+These features are **functional but still being tested** in production:
+- **Email alerts:** SMTP configuration works, but template needs polish
+- **Slack webhooks:** Posting works, but rate limiting needs handling
+- **Setup wizard:** UI exists, but validation needs improvement
+
+**Expected stable:** v0.2.1 (November 2024)
+
+### Key Learnings
+- Engineers want **context**, not just alerts
+- CSV export is critical for postmortems
+- Server-side detection improves consistency across clients
+
+---
+
+## 🔄 Phase 3: Advanced Detection (v0.3.0) - IN PLANNING
+
+**Target:** Q1 2025 (January - March)  
+**Goal:** Complete Nelson Rules implementation + enterprise integrations
 
 ### Planned Features
 
-- [ ] **Multi-Provider Support**
-  - OpenAI (GPT-4, GPT-4o)
-  - Anthropic (Claude 3 Opus)
-  - Google Gemini
-  - AWS Bedrock
-  - Custom HTTP endpoints
-  - Local Ollama (already supported)
+#### 3.1 Advanced Nelson Rules (January 2025)
+- 🔄 **R4:** 14+ alternating points (oscillation detection)
+- 🔄 **R5:** 2 of 3 points beyond 2σ (early warning)
+- 🔄 **R6:** 4 of 5 points beyond 1σ (trend confirmation)
+- 🔄 **R7:** 15 points within 1σ (reduced variability)
+- 🔄 **R8:** 8 points beyond 1σ (sustained deviation)
 
-- [ ] **Model Comparison**
-  - Side-by-side latency charts
-  - Cost-per-token analysis
-  - Quality metrics (if available)
-  - Recommendation engine (beta)
+**Why these matter:**
+- R4-R8 catch **subtle degradation** that R1-R3 miss
+- Used in manufacturing for 50+ years with proven track record
+- Enable predictive maintenance (catch issues before they spike)
 
-- [ ] **Enhanced Analytics**
-  - Plotly-based research view
-  - Zone-shaded SPC charts
-  - Export to PNG + CSV
-  - Statistical summary reports
+#### 3.2 Custom Alert Configuration (February 2025)
+- 🔄 Per-rule threshold overrides (e.g., disable R2, keep R1)
+- 🔄 Model-specific alert rules (different thresholds per model)
+- 🔄 Time-based alert suppression (mute during deployments)
+- 🔄 Alert routing (different Slack channels per rule)
 
-- [ ] **Violation Context**
-  - ±10 surrounding data points
-  - System metrics at time of violation
-  - Root cause suggestions
-  - Historical pattern matching
+#### 3.3 Integrations (February 2025)
+- 🔄 **Prometheus metrics exporter** - `/metrics` endpoint
+- 🔄 **Grafana dashboard templates** - Pre-built SPC dashboards
+- 🔄 **Webhook support** - POST violations to custom endpoints
+- 🔄 **PagerDuty integration** - Incident creation on critical violations
 
-- [ ] **Data Export**
-  - CSV (violations, session data)
-  - JSON (full telemetry)
-  - PNG (charts for presentations)
-  - PDF reports (summary)
+#### 3.4 Multi-Model Comparison (March 2025)
+- 🔄 Side-by-side SPC charts (compare 2+ models)
+- 🔄 Performance benchmarking (latency, cost, quality)
+- 🔄 A/B testing support (statistical significance testing)
 
-### Timeline
-- **Month 1-2:** Provider adapter framework
-- **Month 2-3:** OpenAI + Anthropic integration
-- **Month 3-4:** Analytics & export features
-- **Month 4-5:** Beta testing & refinement
-- **Month 5-6:** Launch + documentation
-
-### Success Criteria
-- [ ] Deploy in <5 minutes
-- [ ] Support 5+ providers
-- [ ] <1 second API response time
-- [ ] 95%+ SPC accuracy
-- [ ] 100+ beta testers
+### Success Metrics
+- All 8 Nelson Rules implemented and tested
+- 5+ production deployments using Prometheus/Grafana
+- Documentation for all integrations
+- <30 min setup time including integrations
 
 ---
 
-## 🏭 Phase 4: Manufacturing SPC Monitoring
+## 🚀 Phase 4: Long-Term Vision (2025+)
 
-**Goal:** Apply LLMscope's SPC engine to production equipment.
+**Status:** Exploratory - Dependent on Phase 3 adoption  
+**Goal:** Enterprise-grade features for large organizations
 
-### Problem We're Solving
-- Factory equipment breaks without warning
-- Unplanned downtime costs $50K+
-- Preventive maintenance is reactive, not proactive
-- No real-time visibility into process drift
+### Potential Features (NOT COMMITTED)
 
-### Solution
-Real-time statistical monitoring for manufacturing equipment using the proven LLMscope engine.
+#### 4.1 Multi-Site Monitoring (Q2 2025?)
+- Monitor multiple deployments from single dashboard
+- Cross-site performance comparison
+- Global SPC baseline calculation
 
-### Planned Features
+#### 4.2 Enterprise Security (Q2 2025?)
+- Role-based access control (RBAC)
+- Single Sign-On (SSO) integration
+- Audit logging
+- SOC 2 compliance features
 
-- [ ] **PLC Integration**
-  - MQTT protocol support
-  - OPC-UA protocol support
-  - Modbus RTU/TCP support
-  - Sensor data aggregation
+#### 4.3 Advanced Analytics (Q3 2025?)
+- Historical trend analysis (30-day, 90-day)
+- Capacity planning predictions
+- Cost optimization recommendations
+- ML-based anomaly detection (complement SPC)
 
-- [ ] **Equipment Monitoring**
-  - Temperature trends
-  - Pressure variance
-  - Vibration analysis
-  - Production cycle metrics
+#### 4.4 Database Flexibility (Q3 2025?)
+- PostgreSQL support (in addition to SQLite)
+- TimescaleDB for time-series optimization
+- ClickHouse for high-volume deployments
 
-- [ ] **Predictive Alerts**
-  - Equipment degradation detection
-  - Maintenance scheduling
-  - Supply chain forecasting
-  - Yield optimization
+#### 4.5 Manufacturing Integration (2026?)
+- MES (Manufacturing Execution System) integration
+- ISO 9001 quality documentation generation
+- Traceability for regulated industries
+- Digital twin synchronization
 
-- [ ] **Research Data**
-  - Full session serialization
-  - Cross-equipment benchmarking
-  - Sustainability metrics (power, waste)
-  - Academic publication support
+### Why Phase 4 is "Vision"
+- Requires **significant user feedback** from Phase 3
+- May need external funding or partnerships
+- Manufacturing angle needs validation in real factories
+- Enterprise features require customer contracts to justify development
 
-### Use Cases
-- **Injection Molding** - Detect mold wear before defects
-- **CNC Machining** - Monitor spindle degradation
-- **3D Printing** - Optimize quality, reduce waste
-- **Assembly Lines** - Real-time process control
-- **HVAC Systems** - Efficiency optimization
-
-### Business Model
-- SMB (1-5 machines): $500/month
-- Mid-market (5-20 machines): $1K-2K/month
-- Enterprise (20+): Custom pricing
-- Research tier: $250/month (universities)
-
-### Timeline
-- **Month 1-2:** 3D printer farm test (internal)
-- **Month 2-4:** PLC adapter development
-- **Month 4-5:** Beta with manufacturing partner
-- **Month 5-6:** Public launch with case study
-
-### Success Criteria
-- [ ] Reduce unplanned downtime by 30%
-- [ ] ROI within first month
-- [ ] 3+ manufacturing customers
-- [ ] Published case study
+**We will NOT start Phase 4 until Phase 3 is proven in production.**
 
 ---
 
-## 🔮 Phase 5: Enterprise Features (2026 H2+)
+## 📈 Adoption Goals
 
-- **Team Dashboards** - Multi-user, role-based access
-- **Slack Integration** - Real-time alerts to team channels
-- **Webhook Support** - Trigger custom workflows
-- **Advanced Forecasting** - ML-based trend prediction
-- **Custom Rules** - User-defined SPC thresholds
-- **White-Label** - Brand for partners/resellers
+### Q4 2024 (Current)
+- [ ] 100 GitHub stars
+- [ ] 10 production deployments
+- [ ] 3 case studies published
+- [ ] 1 conference talk or blog post
 
----
+### Q1 2025
+- [ ] 500 GitHub stars
+- [ ] 50 production deployments
+- [ ] Prometheus/Grafana integration proven
+- [ ] First enterprise customer
 
-## 📊 Metrics We're Tracking
-
-| Metric | Current | Target (Phase 3) | Target (Phase 4) |
-|--------|---------|------------------|------------------|
-| **Users** | ~500 | 5K | 50K+ |
-| **Providers Supported** | 1 (Ollama) | 5+ | N/A (different product) |
-| **Accuracy** | 99.7% | 99.7%+ | 98%+ |
-| **Setup Time** | 15 min | 10 min | 20 min |
-| **Uptime** | 99.5% | 99.9% | 99.95% |
-
----
-
-## 🤝 How You Can Help
-
-### Testing
-- Try Phase 3 beta when available
-- Report bugs (include screenshots)
-- Share use cases
-
-### Development
-- Contribute to provider adapters
-- Write documentation
-- Improve UI/UX
-
-### Feedback
-- Share your monitoring needs
-- Suggest providers to add
-- Propose features
-
-### Sponsorship
-- Fund faster development
-- Enable server costs
-- Support open source
+### Q2 2025
+- [ ] 1,000 GitHub stars
+- [ ] 200 production deployments
+- [ ] Listed on Awesome LLM Tools
+- [ ] Contributor community (5+ active contributors)
 
 ---
 
-## 📅 Timeline at a Glance
+## 🎯 Decision Framework
 
-```
-Q4 2025
-├── Phase 3 planning
-├── OpenAI adapter (alpha)
-└── Beta sign-ups
+We prioritize features using these criteria:
 
-Q1 2026
-├── Multi-provider launch
-├── Analytics dashboard
-└── Phase 3 release
+1. **User Impact** (High/Medium/Low)
+   - Does this solve a real pain point?
+   - How many users need this?
 
-Q2 2026
-├── Manufacturing research
-├── 3D printer farm testing
-└── Phase 4 beta
+2. **Technical Complexity** (1-5)
+   - How hard is it to build?
+   - How much testing is required?
 
-Q3 2026
-├── Manufacturing launch
-├── Enterprise features
-└── Series A fundraising
+3. **Strategic Alignment**
+   - Does this advance the SPC methodology?
+   - Does this enable future features?
 
-Q4 2026+
-├── White-label program
-├── Advanced analytics
-└── Global expansion
-```
+4. **Adoption Risk**
+   - Will this cause breaking changes?
+   - Can we roll it out incrementally?
+
+**Examples:**
+- Advanced Nelson Rules (R4-R8): High impact, Medium complexity → **Phase 3**
+- Manufacturing MES integration: Low impact, High complexity → **Phase 4 (exploratory)**
 
 ---
 
-## ❓ FAQ
+## 📝 Feature Request Process
 
-### Q: When is Phase 3 shipping?
-**A:** End of Q1 2026 (March 31, 2026). We're shipping in phases as features complete.
+Have an idea? Here's how to suggest it:
 
-### Q: Will this replace Datadog?
-**A:** Not for web apps, but for LLM-specific monitoring, yes. Datadog is generic; LLMscope is specialized.
+1. **Check roadmap** - Is it already planned?
+2. **Open GitHub Issue** - Use the `enhancement` label
+3. **Describe use case** - Why do you need this?
+4. **Provide context** - How would you use it?
 
-### Q: Can I use this on production?
-**A:** Yes. It's been tested at scale. Deploy with confidence.
+We review feature requests **monthly** and assign them to phases.
 
-### Q: What about pricing?
-**A:** Phase 3 stays free & open source. Phase 4 (Manufacturing) will have paid tiers. No lock-in.
-
-### Q: How do I contribute?
-**A:** Open an issue or PR. Check [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines.
-
-### Q: Can I use this for research?
-**A:** Absolutely. Export data, publish findings. Academic tier coming Phase 4.
+**Popular feature requests are fast-tracked!** If 10+ users upvote an issue, we move it up the roadmap.
 
 ---
 
-## 🚀 Quick Links
+## 🔮 Non-Goals
 
-- **GitHub:** [Blb3D/LLMscope-Desktop](https://github.com/Blb3D/LLMscope-Desktop)
-- **Issues:** [Report bugs or request features](https://github.com/Blb3D/LLMscope-Desktop/issues)
-- **Discussions:** [Chat with the community](https://github.com/Blb3D/LLMscope-Desktop/discussions)
-- **Documentation:** [Full setup guide](docs/)
-- **Case Studies:** [Real-world examples](docs/CASE_STUDIES/)
+Things we **will NOT build** (to stay focused):
 
----
+- ❌ Full observability platform (use Prometheus/Grafana)
+- ❌ Log aggregation (use ELK stack)
+- ❌ Application performance monitoring (use Datadog/New Relic)
+- ❌ LLM fine-tuning or training tools
+- ❌ Prompt engineering IDE
 
-## 📞 Contact & Support
-
-- **Questions?** Open an issue on GitHub
-- **Want to partner?** Email: [contact info]
-- **Found a bug?** Please report it with reproduction steps
-- **Have a use case?** Share it in Discussions
+**LLMscope is laser-focused on SPC for LLM performance monitoring.**
 
 ---
 
-**LLMscope is built by engineers, for engineers.**
+## 📊 Release Cadence
 
-Monitor your systems like NASA monitors spacecraft. 🚀
+- **Major versions (x.0.0):** Every 3-6 months (new phase)
+- **Minor versions (0.x.0):** Every 4-6 weeks (new features)
+- **Patch versions (0.0.x):** As needed (bug fixes)
 
-*Last Updated: October 28, 2025*
-*Maintained by: Brandan Baker (@Blb3D)*
+**Current schedule:**
+- v0.2.1 (November 2024) - Stabilize beta features
+- v0.3.0 (January 2025) - Advanced Nelson Rules
+- v0.4.0 (Q2 2025) - Enterprise features (if demand exists)
+
+---
+
+## 🤝 Contributing to the Roadmap
+
+Want to influence what we build? Here's how:
+
+1. **Star the repo** - Shows demand
+2. **Open issues** - Feature requests or bug reports
+3. **Share case studies** - How are you using LLMscope?
+4. **Contribute code** - PRs are welcome!
+5. **Sponsor development** - Contact us for enterprise features
+
+---
+
+## 📬 Contact
+
+Questions about the roadmap?
+
+- **GitHub Discussions:** https://github.com/Blb3D/llmscope/discussions
+- **Email:** bbaker@blb3dprinting.com
+- **Twitter:** @yourhandle
+
+---
+
+**This roadmap is a living document.** We update it quarterly based on user feedback and adoption metrics.
+
+**Last major update:** October 29, 2024 (Phase 2 completion)
