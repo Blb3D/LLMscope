@@ -297,9 +297,9 @@ If you use LLMscope in your research or projects, please cite:
 ```bibtex
 @software{llmscope2025,
   title={LLMscope: Real-time SPC Monitoring for LLM Performance},
-  author={Your Name},
+  author={Brandan Baker},
   year={2025},
-  url={https://github.com/yourusername/LLMscope}
+  url={https://github.com/Blb3D/LLMscope-Desktop}
 }
 ```
 
