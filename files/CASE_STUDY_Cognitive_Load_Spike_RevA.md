@@ -295,7 +295,7 @@ LLMs have internal processing limits that manifest as latency spikes. These are 
 1. **Nelson Rules** - Western Electric Statistical Quality Control Handbook (1956)
 2. **Statistical Process Control** - Montgomery, D.C. (2009), Introduction to Statistical Quality Control
 3. **Claude API Documentation** - https://docs.anthropic.com/
-4. **LLMscope Repository** - https://github.com/Blb3D/llmscope
+4. **LLMscope Repository** - https://github.com/yourusername/llmscope
 
 ---
 
@@ -303,8 +303,9 @@ LLMs have internal processing limits that manifest as latency spikes. These are 
 
 Questions about this case study?
 
-- **GitHub Issues:** https://github.com/Blb3D/llmscope/issues
-- **Email:** bbaker@blb3dprinting.com
+- **GitHub Issues:** https://github.com/yourusername/llmscope/issues
+- **Email:** your-email@example.com
+- **Twitter:** @yourhandle
 
 ---
 

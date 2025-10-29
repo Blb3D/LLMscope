@@ -1,87 +1,138 @@
-﻿# Archive directory (internal business files)
-/archive/
+# LLMscope .gitignore
+# Prevents helper files and tools from being pushed to GitHub
 
-# Environment variables
-.env
-.env.local
-.env.*.local
+# ============================================================================
+# Documentation Helper Files (don't push these)
+# ============================================================================
+QUICK_DEPLOY.md
+READY_TO_PUSH.md
+PRE_PUSH_CHECKLIST.md
+IMPLEMENTATION_GUIDE.md
+ASSETS_README.md
+SUMMARY.md
+FILES_OVERVIEW.txt
+BLBZ3D_QUICKSTART.md
+DEPLOY_INSTRUCTIONS.md
 
+# Deployment scripts (don't push these)
+deploy-windows.ps1
+deploy-windows-v2.ps1
+DEPLOY.bat
+validate-docs.sh
+
+# ============================================================================
 # Python
+# ============================================================================
 __pycache__/
 *.py[cod]
 *$py.class
 *.so
 .Python
-build/
-develop-eggs/
-dist/
-downloads/
-eggs/
-.eggs/
-lib/
-lib64/
-parts/
-sdist/
-var/
-wheels/
+env/
+venv/
+ENV/
+.venv
 *.egg-info/
-.installed.cfg
-*.egg
-.pytest_cache/
-.coverage
-htmlcov/
-
-# Node/Frontend
-node_modules/
 dist/
-.DS_Store
-*.tsbuildinfo
+build/
 
-# IDE
-.vscode/
-.idea/
+# ============================================================================
+# Database & Data
+# ============================================================================
+*.db
+*.sqlite
+*.sqlite3
+data/
+*.log
+
+# ============================================================================
+# Docker
+# ============================================================================
+docker-compose.override.yml
+.dockerignore
+
+# ============================================================================
+# OS Files
+# ============================================================================
+.DS_Store
+Thumbs.db
 *.swp
 *.swo
 *~
 
-# Database
-data/llmscope.db
-*.db
-
-# Docker
-docker-compose.override.yml
-
-# OS
-.DS_Store
-Thumbs.db
-```
-
-Create/update this at your project root. ✅
-
----
-
-### File 2: `./VERSION` (at project root)
-```
-0.2.0# Test files
-test_data.py
-monitor_apis.py
-
-# Environment
-.env
-.env.local
-
-# Node
-node_modules/
-dist/
-
-# Python
-__pycache__/
-*.pyc
-.pytest_cache/
-
-# Docker
-.dockerignore
-
-# IDE
+# ============================================================================
+# IDE / Editors
+# ============================================================================
 .vscode/
 .idea/
+*.iml
+*.sublime-project
+*.sublime-workspace
+
+# ============================================================================
+# Node / Frontend
+# ============================================================================
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+dist/
+.cache/
+
+# ============================================================================
+# Environment Files
+# ============================================================================
+.env
+.env.local
+.env.*.local
+!.env.example
+
+# ============================================================================
+# Logs
+# ============================================================================
+*.log
+logs/
+
+# ============================================================================
+# Temporary Files
+# ============================================================================
+tmp/
+temp/
+*.tmp
+
+# ============================================================================
+# Screenshots (keep in repo, but ignore temporary ones)
+# ============================================================================
+# We keep docs/assets/*.png (required for documentation)
+# But ignore any temp/backup screenshots
+*_backup.png
+*_old.png
+*_temp.png
+
+# ============================================================================
+# Git
+# ============================================================================
+.git/
+.gitattributes
+
+# ============================================================================
+# CI/CD (if you add later)
+# ============================================================================
+.github/workflows/*.yml.backup
+
+# ============================================================================
+# Keep These Files (Important!)
+# ============================================================================
+# The following files SHOULD be pushed to GitHub:
+# ✓ README.md
+# ✓ CHANGELOG.md
+# ✓ VERSION
+# ✓ LICENSE
+# ✓ CONTRIBUTING.md
+# ✓ docs/ROADMAP_v5.md
+# ✓ docs/SCOPE_v5.md
+# ✓ docs/CASE_STUDY_Cognitive_Load_Spike_RevA.md
+# ✓ docs/assets/*.png (screenshots)
+# ✓ All Python/JavaScript source code
+# ✓ Docker files
+# ✓ package.json, requirements.txt
