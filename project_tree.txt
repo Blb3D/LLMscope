@@ -1,0 +1,130 @@
+# LLMscope Phase 6 TreeSpec
+# Auto-generated on C:\Users\brand\OneDrive\Desktop\LMMscope_V0.1.0\LLMscope_v1.0
+# Regenerate using: python scripts/compare_to_spec.py --update
+
+📁 ./
+│   ├── .dockerignore
+│   ├── .env
+│   ├── .gitignore
+│   ├── .gitkeep
+│   ├── CHANGELOG.md
+│   ├── README.md
+│   ├── VERSION
+│   ├── app.py
+│   ├── docker-compose.yml
+│   ├── llmscope_architecture_guide.md
+│   ├── monitor_apis.py
+│   ├── package-lock.json
+│   ├── package.json
+│   ├── project_tree.txt
+│   ├── requirements.txt
+│   ├── show_tree.py
+│   ├── test_data.py
+📁 .github/
+│   📁 workflows/
+│   │   ├── nightly-release.yml
+📁 backend/
+│   ├── app.py
+│   ├── monitor_apis.py
+│   ├── requirements.txt
+📁 data/
+│   ├── llmscope.db
+📁 docker/
+│   ├── Dockerfile.backend
+│   ├── Dockerfile.frontend
+│   ├── Dockerfile.monitor
+│   ├── nginx.conf
+📁 docs/
+│   ├── Addendum_A_Investor_RevA.pdf
+│   ├── CASE_STUDY_Cognitive_Load_Spike_RevA.md
+│   ├── CHANGELOG.md
+│   ├── LLMscope clean project.pdf
+│   ├── LLMscope_AddendumA_Cognitive_Load_Analytics_RevA.pdf
+│   ├── LLMscope_Context_for_ChatGPT.md
+│   ├── LLMscope_IP_Brief_for_Legal_Review_RevB.pdf
+│   ├── LLMscope_Onboarding_Prompt.txt
+│   ├── LLMscope_Phase6_Baseline.md
+│   ├── LLMscope_Phase6_TreeSpec.txt
+│   ├── LLMscope_Research_Paper_RevA.pdf
+│   ├── PHASE_RELEASE_CHECKLIST.md
+│   ├── Phase5D_Pre-Deployment_Checklist.md
+│   ├── Phase5_Handoff.md
+│   ├── Phase6_Kickoff_Kit.md
+│   ├── README.md
+│   ├── ROADMAP_v5.md
+│   ├── SCOPE_v5.md
+│   ├── current_tree.txt
+│   ├── progress.md
+│   📁 Claude/
+│   │   ├── 27-10-2025.pdf
+│   │   ├── 27-10-20251.pdf
+│   │   ├── llmscope-dependency-map (1).tsx
+│   │   ├── llmscope-dependency-map.tsx
+│   │   ├── llmscope-integrated-spc.tsx
+│   │   ├── llmscope_ollama_all_2025-10-27.csv
+│   │   ├── llmscope_report_ollama_all_24h_2025-10-27.csv
+│   📁 Images/
+│   │   ├── cognitive_latency_spike.png
+│   │   ├── cognitive_load_spike_thumb.png
+│   📁 Marketing/
+│   │   ├── BLB3D_Labs_Letterhead_RevA.docx
+│   │   ├── BLB3D_Labs_Letterhead_RevA.dotx
+│   │   ├── chart_financial_projection.png
+│   │   ├── chart_market_growth.png
+│   │   ├── chart_use_of_funds.png
+│   │   ├── 🧾 LLMscope Investor Prospectus.docx
+│   📁 Phase5/
+│   │   ├── Phase5_Final_Build.md
+│   │   ├── phase_5_final_build.md
+📁 frontend/
+│   ├── index.html
+│   ├── package-lock.json
+│   ├── package.json
+│   ├── postcss.config.js
+│   ├── tailwind.config.js
+│   ├── vite.config.ts
+│   📁 components/
+│   📁 hooks/
+│   📁 src/
+│   │   ├── Dashboard_ollama_revB.jsx
+│   │   ├── SPCChart_ollama_revB.jsx
+│   │   ├── SetupWizard.jsx
+│   │   ├── index.css
+│   │   ├── main.tsx
+│   │   📁 components/
+│   │   │   ├── LatencyChart.tsx
+│   │   │   ├── NelsonLegend.tsx
+│   │   📁 hooks/
+│   │   │   ├── useSpc.ts
+│   📁 tests/
+│   │   ├── conftest.py
+│   │   ├── pytest.ini
+│   │   📁 fixtures/
+│   │   │   ├── mock_telemetry.json
+📁 scripts/
+│   ├── Compare-FileTrees.ps1
+│   ├── Compare-TreeToSpec.ps1
+│   ├── Write-TreeSnapshot.ps1
+│   ├── compare_to_spec.py
+│   ├── compare_trees.py
+│   ├── demo_ollama.py
+│   ├── docker_verify_build.py
+│   ├── finalize_phase5_docs.py
+│   ├── generate_tree.py
+│   ├── git_verify_phase5.py
+│   ├── manage_docs.py
+│   ├── monitor_apis.py
+│   ├── phase5_daily_sync.bat
+│   ├── push_to_github_autotag_phase_changelog.py
+│   ├── release_nightly.ps1
+│   ├── reset_llmscope.ps1
+│   ├── run_wrapper.py
+│   ├── setup.sh
+📁 tests/
+│   ├── conftest.py
+│   ├── pytest.ini
+│   📁 fixtures/
+│   │   ├── mock_telemetry.json
+📁 tools/
+│   ├── benchmark_suite_revB.py
+│   ├── clean docker and restart.txt
