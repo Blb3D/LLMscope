@@ -15,7 +15,7 @@ Found a bug? Open an issue with:
 - **Environment** - OS, Docker version, LLM provider, etc.
 - **Screenshots** - If applicable
 
-[Open a bug report →](https://github.com/Blb3D/llmscope/issues/new?labels=bug)
+[Open a bug report →](https://github.com/yourusername/llmscope/issues/new?labels=bug)
 
 ### 2. Suggest Features
 Have an idea? Open an issue with:
@@ -24,7 +24,7 @@ Have an idea? Open an issue with:
 - **Alternatives** - What else did you consider?
 - **Impact** - Who benefits from this?
 
-[Request a feature →](https://github.com/Blb3D/llmscope/issues/new?labels=enhancement)
+[Request a feature →](https://github.com/yourusername/llmscope/issues/new?labels=enhancement)
 
 ### 3. Improve Documentation
 Documentation can always be better:
@@ -58,7 +58,7 @@ Submit pull requests for:
 # Fork the repo on GitHub first, then:
 git clone https://github.com/YOUR_USERNAME/llmscope.git
 cd llmscope
-git remote add upstream https://github.com/Blb3D/llmscope.git
+git remote add upstream https://github.com/yourusername/llmscope.git
 ```
 
 #### 2. Backend Development
@@ -405,16 +405,23 @@ Contributors will be:
 
 ## 📬 Questions?
 
-- **General questions:** Open a [GitHub Discussion](https://github.com/Blb3D/llmscope/discussions)
-- **Bug reports:** Open an [Issue](https://github.com/Blb3D/llmscope/issues)
+- **General questions:** Open a [GitHub Discussion](https://github.com/yourusername/llmscope/discussions)
+- **Bug reports:** Open an [Issue](https://github.com/yourusername/llmscope/issues)
 - **Security:** Email security@yourproject.com
-- **Other:** Email bbaker@blb3dprinting.com
+- **Other:** Email your-email@example.com
 
 ---
 
 ## 📄 License
 
-By contributing, you agree that your contributions will be licensed under the [MIT License](LICENSE).
+By contributing, you agree that your contributions will be licensed under the Business Source License 1.1 (BSL).
+
+**What this means:**
+- Your code will be visible and usable for non-commercial purposes
+- After 3 years, it automatically becomes MIT licensed (fully open source)
+- Commercial users need a license, helping sustain the project
+
+See [LICENSE](LICENSE) for full details.
 
 ---
 

@@ -2,7 +2,12 @@
 
 **Real-time Statistical Process Control (SPC) monitoring for LLM latency and performance.**
 
-[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
+> ⚠️ **BETA VERSION 0.2.0** - Currently in testing phase. We welcome testers and feedback!  
+> Free for personal/non-commercial use. [Commercial licensing available](#-license).
+
+[![License: BSL 1.1](https://img.shields.io/badge/License-BSL%201.1-blue.svg)](LICENSE)
+![Version](https://img.shields.io/badge/version-0.2.0--beta-orange)
+![Status](https://img.shields.io/badge/status-beta-yellow)
 [![Python 3.11+](https://img.shields.io/badge/python-3.11+-blue.svg)](https://www.python.org/downloads/)
 [![Docker](https://img.shields.io/badge/docker-required-blue.svg)](https://www.docker.com/)
 
@@ -91,7 +96,7 @@ When testing with complex prompts, we observed latency spikes that correlated di
 
 ```bash
 # 1. Clone the repository
-git clone https://github.com/Blb3D/llmscope.git
+git clone https://github.com/yourusername/llmscope.git
 cd llmscope
 
 # 2. Configure environment
@@ -248,7 +253,41 @@ npm run dev
 
 ## 📜 License
 
-MIT License - see [LICENSE](LICENSE) for details.
+**LLMscope is source-available under the Business Source License 1.1 (BSL).**
+
+### ✅ Free for:
+- Personal use, education, testing, and evaluation
+- Non-commercial projects and research
+- Individual developers learning and experimenting
+
+### ❌ Requires Commercial License for:
+- Production use in commercial environments
+- Offering LLMscope as a hosted/managed service
+- Incorporating LLMscope into commercial products
+- Using LLMscope to monitor commercial LLM deployments
+
+### 💰 Commercial Licensing
+
+For commercial use, we offer flexible licensing options for businesses of all sizes.
+
+**Contact:** bbaker@blb3dprinting.com
+
+### ⏰ Future: Automatic Open Source
+
+On **October 29, 2028** (3 years from publication), LLMscope automatically converts to the MIT License, becoming fully open source.
+
+**Full terms:** See [LICENSE](LICENSE) for complete details.
+
+---
+
+### Why BSL?
+
+We chose BSL to:
+- ✅ Keep source code visible and auditable
+- ✅ Allow free use for testing and evaluation
+- ✅ Protect against commercial exploitation
+- ✅ Ensure long-term sustainability
+- ✅ Guarantee eventual open source release
 
 ---
 
@@ -260,9 +299,10 @@ If LLMscope helps you catch performance issues before your users do, consider gi
 
 ## 📬 Contact
 
-- **Issues:** [GitHub Issues](https://github.com/Blb3D/llmscope/issues)
-- **Discussions:** [GitHub Discussions](https://github.com/Blb3D/llmscope/discussions)
-- **Email:** bbaker@blb3dprinting.com
+- **Issues & Bugs:** [GitHub Issues](https://github.com/Blb3D/LLMscope/issues)
+- **Discussions:** [GitHub Discussions](https://github.com/Blb3D/LLMscope/discussions)
+- **Commercial Licensing:** bbaker@blb3dprinting.com
+- **General Inquiries:** bbaker@blb3dprinting.com
 
 ---
 
