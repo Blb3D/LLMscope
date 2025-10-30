@@ -50,10 +50,15 @@ Each phase is **production-ready** and can be deployed independently.
 
 ## ✅ Phase 2: Violations (v0.2.0) - COMPLETE
 
-**Released:** October 29, 2024  
-**Goal:** Make violations actionable with context and persistence
+**Released:** October 30, 2024  
+**Goal:** Make violations actionable with context and AI-powered analysis
 
 ### Delivered Features
+- ✅ **AI Copilot** - Ollama-powered intelligent violation analysis
+  - Smart model fallback (llama3.2:1b ↔ llama3.2:3b)
+  - 3 explanation types (Technical, Business, Remediation)
+  - Zero-configuration setup with automatic model detection
+  - Professional quality analysis and actionable recommendations
 - ✅ **Server-side violation detection** - Backend calculates Nelson Rules
 - ✅ **Violation details modal** - Full context (±10 points, telemetry)
 - ✅ **CSV export** - Download violation logs
@@ -274,6 +279,7 @@ Questions about the roadmap?
 
 - **GitHub Discussions:** https://github.com/Blb3D/llmscope/discussions
 - **Email:** bbaker@blb3dprinting.com
+- **LinkedIn:** [Professional profile in development]
 
 ---
 

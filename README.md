@@ -8,7 +8,7 @@
 [![Docker Ready](https://img.shields.io/badge/docker-ready-brightgreen)](https://hub.docker.com/r/blb3d/llmscope)
 [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](http://makeapullrequest.com)
 
-[🚀 Live Demo](https://demo.llmscope.io) | [📖 Documentation](./docs) | [💬 Discord](https://discord.gg/llmscope) | [🐛 Report Bug](https://github.com/Blb3D/LLMscope/issues)
+[🚀 Live Demo](https://demo.llmscope.io) | [📖 Documentation](./docs) | [� Contact](./CONTACT.md) | [🐛 Report Bug](https://github.com/Blb3D/LLMscope/issues)
 
 ## 🎯 Quick Access
 
@@ -43,6 +43,12 @@ After running `docker-compose up -d`:
 LLMscope brings **50 years of proven Statistical Process Control (SPC)** from manufacturing to LLM monitoring. The same math that keeps airplane parts from failing now protects your AI infrastructure.
 
 ### 🎯 Key Features
+
+- **🧠 AI Copilot** - Intelligent violation analysis powered by Ollama:
+  - **Smart Model Fallback** - Works with any available model (llama3.2:1b, 3b, etc.)
+  - **3 Explanation Types** - Technical, Business, and Remediation perspectives
+  - **Zero Setup** - Automatically detects and uses your Ollama models
+  - **Professional Analysis** - Root cause analysis and actionable remediation steps
 
 - **📊 Nelson Rules Detection** - 8 statistical patterns that catch issues early:
   - R1: Points beyond 3σ (immediate issues)
@@ -80,6 +86,23 @@ docker-compose up -d
 open http://localhost:8081
 ```
 
+### 🧠 AI Copilot Setup (Optional but Recommended)
+
+For intelligent violation analysis, install Ollama:
+
+```bash
+# Install Ollama
+curl -fsSL https://ollama.com/install.sh | sh
+
+# Download a model (pick one):
+ollama pull llama3.2:3b    # Best quality (2GB)
+ollama pull llama3.2:1b    # Faster, smaller (1.3GB)
+
+# LLMscope will auto-detect and use any available model!
+```
+
+**Note**: AI Copilot works with smart fallback - if you have `llama3.2:1b`, it uses that. If you upgrade to `llama3.2:3b`, it automatically switches. Zero configuration required!
+
 ### Option 3: Manual Setup
 
 ```bash
@@ -106,6 +129,13 @@ cd monitor && python monitor_apis.py
 <th>Helicone</th>
 </tr>
 <tr>
+<td><b>AI Copilot Analysis</b></td>
+<td>✅ Ollama-powered</td>
+<td>❌</td>
+<td>❌</td>
+<td>❌</td>
+</tr>
+<tr>
 <td><b>Statistical Process Control</b></td>
 <td>✅ Full SPC</td>
 <td>❌</td>
@@ -124,6 +154,13 @@ cd monitor && python monitor_apis.py
 <td>✅ 10min early</td>
 <td>❌</td>
 <td>Limited</td>
+<td>❌</td>
+</tr>
+<tr>
+<td><b>Smart Model Fallback</b></td>
+<td>✅ Auto-detects</td>
+<td>❌</td>
+<td>❌</td>
 <td>❌</td>
 </tr>
 <tr>
@@ -249,10 +286,11 @@ LLMscope is licensed under the Business Source License 1.1. See [LICENSE](./LICE
 
 ## 💬 Community & Support
 
-- **Discord**: [Join our community](https://discord.gg/llmscope)
+- **Email**: <bbaker@blb3dprinting.com>
 - **GitHub Issues**: [Report bugs](https://github.com/Blb3D/LLMscope/issues)
-- **Twitter**: [@LLMscope](https://twitter.com/llmscope)
-- **Email**: <support@llmscope.io>
+- **GitHub Discussions**: [Feature requests & questions](https://github.com/Blb3D/LLMscope/discussions)
+- **LinkedIn**: [Professional profile coming soon]
+- **Website**: [Domain registration in progress]
 
 ## 🙏 Acknowledgments
 
@@ -274,6 +312,6 @@ Built with inspiration from:
 
 Made with ❤️ for the AI reliability community
 
-[🚀 Get Started](https://github.com/Blb3D/LLMscope) | [📖 Read Docs](./docs) | [💬 Join Discord](https://discord.gg/llmscope)
+[🚀 Get Started](https://github.com/Blb3D/LLMscope) | [📖 Read Docs](./docs) | [� Contact](./CONTACT.md)
 
 </div>

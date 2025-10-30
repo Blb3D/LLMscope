@@ -284,6 +284,21 @@ You can use it freely for personal, commercial, or research purposes.
 
 ---
 
+## 🎬 Live Demo Video
+
+**AI Copilot Smart Fallback System**  
+*3:30 minute demo showing complete workflow*
+
+📹 **[Watch Demo](docs/AI_COPILOT_DEMO.md)** - See the AI Copilot automatically detect violations, provide technical/business/remediation explanations, and handle model fallbacks seamlessly.
+
+**What the demo shows:**
+- Smart model detection and fallback (llama3.2:1b ← llama3.2:3b)
+- Complete explanation workflow (Technical → Business → Remediation)
+- Professional UI with typing animations and acknowledgment
+- Zero-friction user experience for any Ollama setup
+
+---
+
 ## 📊 Current Status
 
 | Component | Status |

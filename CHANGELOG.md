@@ -19,9 +19,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
-## [0.2.0] - 2024-10-29
+## [0.2.0] - 2024-10-30
 
 ### Added
+- **🧠 AI Copilot** - Intelligent violation analysis powered by Ollama
+  - **Smart model fallback** - Auto-detects and uses any available llama3.2 model
+  - **3 explanation types** - Technical, Business, and Remediation perspectives  
+  - **Zero-configuration setup** - Works with existing Ollama installations
+  - **Professional analysis** - Root cause analysis and actionable remediation steps
+  - **Typing animation** - Realistic AI response simulation in UI
+  - **Error recovery** - Smart error handling with auto-fix suggestions
 - **Server-side violation detection** - Backend now calculates Nelson Rules violations, not just frontend
 - **Violation details modal** - Click any violation in the log to see:
   - Full telemetry snapshot at time of violation

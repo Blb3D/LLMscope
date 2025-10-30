@@ -425,6 +425,18 @@ See [LICENSE](LICENSE) for full details.
 
 ---
 
+## 📞 Contact & Support
+
+**Questions about contributing?**
+- **Email**: bbaker@blb3dprinting.com
+- **GitHub Issues**: [Ask questions](https://github.com/Blb3D/LLMscope/issues)
+- **GitHub Discussions**: [Feature requests & roadmap discussions](https://github.com/Blb3D/LLMscope/discussions)
+- **LinkedIn**: [Professional profile in development]
+
+**Project Maintainer**: [Brandan Baker](https://github.com/Blb3D)
+
+---
+
 **Thank you for making LLMscope better!** 🚀
 
 Your contributions help developers worldwide monitor their LLM services more effectively.

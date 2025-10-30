@@ -8,12 +8,14 @@
 
 ## 1. Executive Summary
 
-**LLMscope** is a self-hosted Statistical Process Control (SPC) monitoring system for LLM latency and performance. It applies industrial quality control methodology (Nelson Rules) to detect when an LLM service degrades, providing engineers with real-time visibility and diagnostic context.
+**LLMscope** is a self-hosted Statistical Process Control (SPC) monitoring system for LLM latency and performance. It applies industrial quality control methodology (Nelson Rules) to detect when an LLM service degrades, providing engineers with real-time visibility, diagnostic context, and **AI-powered violation analysis**.
 
 **Core Value Proposition:**
 - Replace naive threshold alerts with **statistical anomaly detection**
+- **AI Copilot** provides intelligent analysis and remediation suggestions
 - Keep all performance data on **your infrastructure** (privacy-first)
 - Detect performance issues **before they impact users**
+- **Smart model fallback** ensures AI features work with any Ollama setup
 
 ---
 
@@ -55,9 +57,10 @@
 | Component | Purpose | Technology | Exposed Port |
 |-----------|---------|------------|--------------|
 | **Monitor** | Test LLM provider, measure latency, POST to backend | Python 3.11 + aiohttp | None |
-| **Backend** | Store telemetry, calculate SPC stats, serve API | FastAPI + SQLite | 8000 (internal) |
-| **Frontend** | Visualize data, display violations, export CSV | React + Recharts | 8081 (host) |
+| **Backend** | Store telemetry, calculate SPC stats, AI Copilot service | FastAPI + SQLite + Ollama | 8000 (internal) |
+| **Frontend** | Visualize data, AI Copilot UI, display violations | React + Recharts + AI Widget | 8081 (host) |
 | **Nginx** | Reverse proxy `/api` to backend, serve static files | Nginx 1.27 | 80 (container) |
+| **Ollama** | Local LLM inference with smart model detection | External service | 11434 (host) |
 
 ---
 

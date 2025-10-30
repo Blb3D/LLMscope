@@ -25,6 +25,9 @@ import asyncio
 DATABASE_PATH = os.getenv("DATABASE_PATH", "./data/llmscope.db")
 LLMSCOPE_API_KEY = os.getenv("LLMSCOPE_API_KEY", "dev-123")
 
+# Ollama Config (for AI Copilot)
+DEFAULT_OLLAMA_URL = os.getenv("OLLAMA_URL", "http://localhost:11434")
+
 # Email Config (can be overridden by database settings)
 SMTP_SERVER = os.getenv("SMTP_SERVER", "smtp.gmail.com")
 SMTP_PORT = int(os.getenv("SMTP_PORT", "587"))
@@ -922,11 +925,99 @@ async def copilot_test(_: bool = Depends(verify_api_key)):
         return {"success": False, "error": "Copilot service not available"}
     
     settings = get_current_settings(sqlite3.connect(DATABASE_PATH))
-    ollama_url = settings.get("copilot_ollama_url", "http://localhost:11434")
+    ollama_url = settings.get("copilot_ollama_url", DEFAULT_OLLAMA_URL)
     model = settings.get("copilot_model", "llama3.2:3b")
     
     async with CopilotService(ollama_url, model) as copilot:
         return await copilot.test_connection()
+
+@app.get("/api/copilot/model-updates")
+async def copilot_model_updates(_: bool = Depends(verify_api_key)):
+    """Check for newer model versions and recommendations."""
+    if not COPILOT_AVAILABLE:
+        return {"success": False, "error": "Copilot service not available"}
+    
+    settings = get_current_settings(sqlite3.connect(DATABASE_PATH))
+    ollama_url = settings.get("copilot_ollama_url", DEFAULT_OLLAMA_URL)
+    model = settings.get("copilot_model", "llama3.2:3b")
+    
+    async with CopilotService(ollama_url, model) as copilot:
+        return await copilot.check_model_updates()
+
+@app.get("/api/copilot/validate")
+async def validate_copilot_model(_: bool = Depends(verify_api_key)):
+    """Validate current model for appropriate SPC monitoring behavior."""
+    if not COPILOT_AVAILABLE:
+        return {"success": False, "error": "Copilot service not available"}
+    
+    try:
+        from model_validator import ModelValidator
+        
+        settings = get_current_settings(sqlite3.connect(DATABASE_PATH))
+        ollama_url = settings.get("copilot_ollama_url", DEFAULT_OLLAMA_URL)
+        model = settings.get("copilot_model", "llama3.2:3b")
+        
+        validator = ModelValidator(ollama_url)
+        result = await validator.validate_model(model)
+        
+        return {
+            "success": True,
+            "validation_result": result,
+            "recommendation": {
+                "safe_for_production": result["safe_for_production"],
+                "overall_score": result["score"],
+                "status": result["overall_status"],
+                "message": result["recommendation"]
+            }
+        }
+        
+    except ImportError:
+        return {
+            "success": False, 
+            "error": "Model validation service not available"
+        }
+    except Exception as e:
+        return {
+            "success": False,
+            "error": f"Validation failed: {str(e)}"
+        }
+
+@app.get("/api/copilot/validate-all")
+async def validate_all_recommended_models(_: bool = Depends(verify_api_key)):
+    """Validate all recommended models for LLMscope deployment."""
+    if not COPILOT_AVAILABLE:
+        return {"success": False, "error": "Copilot service not available"}
+    
+    try:
+        from model_validator import ModelValidator
+        
+        settings = get_current_settings(sqlite3.connect(DATABASE_PATH))
+        ollama_url = settings.get("copilot_ollama_url", DEFAULT_OLLAMA_URL)
+        
+        validator = ModelValidator(ollama_url)
+        results = await validator.validate_recommended_models()
+        
+        return {
+            "success": True,
+            "validation_results": results,
+            "summary": {
+                "total_models_tested": len(results["validation_summary"]),
+                "safe_for_production": len(results["recommended_for_production"]),
+                "models_to_avoid": len(results["models_to_avoid"]),
+                "best_model": results["best_model"]
+            }
+        }
+        
+    except ImportError:
+        return {
+            "success": False, 
+            "error": "Model validation service not available"
+        }
+    except Exception as e:
+        return {
+            "success": False,
+            "error": f"Validation failed: {str(e)}"
+        }
 
 @app.post("/api/violations/{violation_id}/explain")
 async def explain_violation(
@@ -935,7 +1026,10 @@ async def explain_violation(
     _: bool = Depends(verify_api_key)
 ):
     """Generate AI explanation for violation using Ollama."""
+    print(f"[DEBUG] Explain endpoint called: violation_id={violation_id}, type={explanation_type}")
+    
     if not COPILOT_AVAILABLE:
+        print("[DEBUG] Copilot not available")
         raise HTTPException(status_code=503, detail="AI copilot not available")
     
     try:
@@ -974,7 +1068,7 @@ async def explain_violation(
         if not settings.get("copilot_enabled", True):
             raise HTTPException(status_code=503, detail="AI copilot disabled in settings")
         
-        ollama_url = settings.get("copilot_ollama_url", "http://localhost:11434")
+        ollama_url = settings.get("copilot_ollama_url", DEFAULT_OLLAMA_URL)
         model = settings.get("copilot_model", "llama3.2:3b")
         
         # Generate explanation
