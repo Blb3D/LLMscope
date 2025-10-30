@@ -1,0 +1,380 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LLMscope AI Copilot - Demo</title>
+    <script src="https://unpkg.com/react@18/umd/react.development.js"></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body { background: #0f172a; color: white; font-family: system-ui; }
+        .gradient-bg { background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%); }
+    </style>
+</head>
+<body>
+    <div id="root"></div>
+
+    <script type="text/babel">
+        const { useState, useEffect } = React;
+
+        // Mock violation data for demo
+        const mockViolation = {
+            id: 2655,
+            rule: "R2",
+            model: "mistral",
+            latency_ms: 2768.2,
+            mean_ms: 5332.2,
+            deviation_sigma: -0.39,
+            timestamp: "2025-10-30T13:38:54.702038",
+            provider: "ollama",
+            is_acknowledged: false,
+            resolved_at: null
+        };
+
+        // Mock AI responses
+        const mockResponses = {
+            business: `🔍 **BUSINESS IMPACT ANALYSIS**
+
+**WHAT HAPPENED:** Your Mistral model is showing a sustained process shift - 9 consecutive responses on the same side of the mean. While it's actually performing faster than usual (2.8s vs 5.3s normal), this consistency change indicates a fundamental shift in behavior.
+
+**WHY IT MATTERS:**
+• **User Experience**: Inconsistent response times create unpredictable user experience
+• **Cost Impact**: Process shifts often precede performance degradation
+• **Reliability**: Even "good" deviations suggest system instability
+• **SLA Risk**: Unexpected behavior can quickly turn negative
+
+**URGENCY:** Medium-High. The shift suggests underlying changes that need investigation before they potentially reverse into poor performance.
+
+**ESTIMATED IMPACT:** If this pattern reverses, you could see 40-60% slower responses affecting ~200 daily users, potentially costing $150-400 in lost productivity.`,
+
+            remediation: `🔧 **REMEDIATION PLAN**
+
+**IMMEDIATE ACTIONS (Next 5 Minutes):**
+• Run \`docker stats\` to check container resource usage
+• Verify Mistral model version: \`ollama list | grep mistral\`
+• Check GPU temperature: \`nvidia-smi\` (if applicable)
+
+**SHORT-TERM FIXES (Next Hour):**
+• Review recent configuration changes in logs
+• Test with smaller batch sizes: reduce from 4 to 2 concurrent requests
+• Monitor for 30 minutes to confirm stability
+• Document baseline performance for comparison
+
+**LONG-TERM PREVENTION:**
+• Implement automated drift detection alerts
+• Set up model version tracking and rollback capability
+• Create performance regression test suite
+• Schedule weekly model health checks
+
+**MONITORING:** Add alerts for >3σ deviations AND process shifts to catch both types of anomalies early.`
+        };
+
+        function CopilotDemo() {
+            const [isExpanded, setIsExpanded] = useState(true);
+            const [currentExplanation, setCurrentExplanation] = useState("");
+            const [explanationType, setExplanationType] = useState("");
+            const [loading, setLoading] = useState(false);
+            const [typingAnimation, setTypingAnimation] = useState(false);
+            const [displayedText, setDisplayedText] = useState("");
+            const [connectionStatus] = useState("connected"); // Change to "disconnected" to test error state with download links
+            const [showResolutionActions, setShowResolutionActions] = useState(false);
+            const [resolutionSuccess, setResolutionSuccess] = useState(false);
+
+            // Typing animation effect
+            useEffect(() => {
+                if (!typingAnimation || !currentExplanation) return;
+                
+                let index = 0;
+                setDisplayedText("");
+                
+                const timer = setInterval(() => {
+                    if (index <= currentExplanation.length) {
+                        setDisplayedText(currentExplanation.slice(0, index));
+                        index++;
+                    } else {
+                        setTypingAnimation(false);
+                        clearInterval(timer);
+                    }
+                }, 15); // Typing speed
+                
+                return () => clearInterval(timer);
+            }, [typingAnimation, currentExplanation]);
+
+            const handleExplain = async (type) => {
+                setLoading(true);
+                setExplanationType(type);
+                
+                // Simulate API call delay
+                await new Promise(resolve => setTimeout(resolve, 1500));
+                
+                setCurrentExplanation(mockResponses[type] || "Analysis complete.");
+                setLoading(false);
+                setTypingAnimation(true);
+                
+                // Show resolution actions after explanation
+                setTimeout(() => {
+                    setShowResolutionActions(true);
+                }, 3000);
+            };
+
+            const handleResolution = async (type) => {
+                await new Promise(resolve => setTimeout(resolve, 1000));
+                setResolutionSuccess(true);
+                setShowResolutionActions(false);
+            };
+
+            const getExplanationIcon = (type) => {
+                switch (type) {
+                    case "business": return "💼";
+                    case "remediation": return "🔧";
+                    default: return "🤖";
+                }
+            };
+
+            return (
+                <div className="min-h-screen gradient-bg p-8">
+                    <div className="max-w-6xl mx-auto">
+                        {/* Header */}
+                        <div className="text-center mb-8">
+                            <h1 className="text-4xl font-bold text-white mb-2">
+                                🤖 LLMscope AI Copilot
+                            </h1>
+                            <p className="text-slate-400">
+                                Live Demo - AI-Powered SPC Violation Explanations
+                            </p>
+                        </div>
+
+                        {/* Main Demo Area */}
+                        <div className="flex gap-6">
+                            {/* Violation Card */}
+                            <div className="flex-1 bg-slate-800/50 rounded-xl p-6 border border-slate-700">
+                                <h3 className="text-xl font-bold text-white mb-4">Sample Violation</h3>
+                                <div className="bg-gradient-to-r from-slate-800 to-slate-700 rounded-lg p-4 border border-slate-600">
+                                    <div className="text-xs text-slate-400 uppercase tracking-wider mb-1">
+                                        Real LLMscope Violation
+                                    </div>
+                                    <div className="text-white font-bold text-lg">
+                                        {mockViolation.rule} • {mockViolation.model}
+                                    </div>
+                                    <div className="text-orange-400 font-mono text-lg">
+                                        {mockViolation.latency_ms}ms 
+                                        <span className="text-slate-400 ml-2">
+                                            ({mockViolation.deviation_sigma.toFixed(1)}σ)
+                                        </span>
+                                    </div>
+                                    <div className="text-xs text-slate-400 mt-2">
+                                        {new Date(mockViolation.timestamp).toLocaleString()}
+                                    </div>
+                                </div>
+
+                                {/* Action Buttons */}
+                                <div className="mt-6 space-y-3">
+                                    <button
+                                        onClick={() => handleExplain('business')}
+                                        disabled={loading}
+                                        className="w-full bg-green-600 hover:bg-green-700 disabled:bg-slate-600 disabled:cursor-not-allowed text-white px-4 py-3 rounded-lg text-sm font-medium transition-colors flex items-center gap-3"
+                                    >
+                                        <span>💼</span>
+                                        {loading && explanationType === 'business' ? 'Analyzing Business Impact...' : 'Business Impact Analysis'}
+                                    </button>
+                                    <button
+                                        onClick={() => handleExplain('remediation')}
+                                        disabled={loading}
+                                        className="w-full bg-orange-600 hover:bg-orange-700 disabled:bg-slate-600 disabled:cursor-not-allowed text-white px-4 py-3 rounded-lg text-sm font-medium transition-colors flex items-center gap-3"
+                                    >
+                                        <span>🔧</span>
+                                        {loading && explanationType === 'remediation' ? 'Generating Solutions...' : 'Remediation Plan'}
+                                    </button>
+                                </div>
+                            </div>
+
+                            {/* AI Response Panel */}
+                            <div className="flex-1 bg-slate-800/50 rounded-xl border border-slate-700 flex flex-col">
+                                {/* Header */}
+                                <div className="px-6 py-4 border-b border-slate-700 flex items-center justify-between">
+                                    <div className="text-lg font-semibold text-white flex items-center gap-2">
+                                        🤖 AI Analysis
+                                        <span className="text-xs bg-green-600 px-2 py-1 rounded-full">
+                                            gemma3:1b
+                                        </span>
+                                    </div>
+                                    {currentExplanation && (
+                                        <button
+                                            onClick={() => setTypingAnimation(!typingAnimation)}
+                                            className="text-xs text-slate-400 hover:text-white transition-colors px-2 py-1 rounded"
+                                        >
+                                            {typingAnimation ? '⏸️ Pause' : '▶️ Animate'}
+                                        </button>
+                                    )}
+                                </div>
+
+                                {/* Content */}
+                                <div className="flex-1 p-6 overflow-y-auto">
+                                    {connectionStatus === "disconnected" ? (
+                                        <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
+                                            <div className="flex">
+                                                <div className="flex-shrink-0">
+                                                    <svg className="h-5 w-5 text-yellow-400" viewBox="0 0 20 20" fill="currentColor">
+                                                        <path fillRule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
+                                                    </svg>
+                                                </div>
+                                                <div className="ml-3">
+                                                    <h3 className="text-sm font-medium text-yellow-800">
+                                                        Ollama Not Available
+                                                    </h3>
+                                                    <div className="mt-2 text-sm text-yellow-700">
+                                                        <p>AI Copilot requires Ollama to be installed and running locally. This ensures all AI analysis remains on your system for maximum privacy.</p>
+                                                        
+                                                        <div className="mt-3 space-y-2">
+                                                            <p className="font-medium">Step-by-step Setup:</p>
+                                                            <ol className="list-decimal list-inside space-y-1 ml-4 text-xs">
+                                                                <li>Visit <a href="https://ollama.com" target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:text-blue-800 underline">ollama.com</a> and download Ollama</li>
+                                                                <li>Install Ollama and restart your terminal/command prompt</li>
+                                                                <li>Run: <code className="bg-gray-100 px-1 rounded font-mono">ollama pull llama3.2:3b</code></li>
+                                                                <li>Wait for download (3.3GB) - takes 5-10 minutes</li>
+                                                                <li>Refresh this page</li>
+                                                            </ol>
+                                                            
+                                                            <div className="mt-3 p-2 bg-yellow-100 rounded">
+                                                                <p className="text-xs text-yellow-800">
+                                                                    <strong>Why local AI?</strong><br/>
+                                                                    • 🔒 Complete privacy - data never leaves your machine<br/>
+                                                                    • 💰 No API costs - unlimited AI explanations<br/>
+                                                                    • ⚡ Fast responses once installed<br/>
+                                                                </p>
+                                                            </div>
+                                                            
+                                                            <div className="mt-2">
+                                                                <a href="https://ollama.com/library/llama3.2" target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:text-blue-800 underline text-sm">
+                                                                    🔗 Browse all available models
+                                                                </a>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    ) : loading ? (
+                                        <div className="text-slate-400 space-y-4">
+                                            <div className="flex items-center gap-3">
+                                                <div className="animate-spin w-5 h-5 border border-blue-400 border-t-transparent rounded-full"></div>
+                                                <span>AI analyzing violation pattern...</span>
+                                            </div>
+                                            <div className="w-full bg-slate-700 h-2 rounded overflow-hidden">
+                                                <div className="bg-gradient-to-r from-blue-600 to-purple-600 h-full rounded animate-pulse"></div>
+                                            </div>
+                                            <div className="text-xs text-slate-500">
+                                                Using Ollama • Model: gemma3:1b • Processing...
+                                            </div>
+                                        </div>
+                                    ) : currentExplanation ? (
+                                        <div className="space-y-4">
+                                            <div className="flex items-center gap-2 text-sm text-slate-400">
+                                                <span>{getExplanationIcon(explanationType)}</span>
+                                                <span>{explanationType.charAt(0).toUpperCase() + explanationType.slice(1)} Analysis</span>
+                                            </div>
+                                            <div className="text-slate-200 leading-relaxed whitespace-pre-wrap">
+                                                {typingAnimation ? displayedText : currentExplanation}
+                                                {typingAnimation && <span className="animate-pulse">|</span>}
+                                            </div>
+                                            
+                                            {/* Resolution Actions */}
+                                            {showResolutionActions && !resolutionSuccess && (
+                                                <div className="border-t border-slate-600 pt-4 mt-4 space-y-3">
+                                                    <div className="text-xs text-slate-400 font-medium uppercase tracking-wider">
+                                                        🎯 Next Steps
+                                                    </div>
+                                                    
+                                                    <div className="space-y-2">
+                                                        <button
+                                                            onClick={() => handleResolution('acknowledge')}
+                                                            className="w-full bg-yellow-600 hover:bg-yellow-700 text-white px-3 py-2 rounded text-sm font-medium transition-colors flex items-center gap-2"
+                                                        >
+                                                            <span>✓</span>
+                                                            Acknowledge (AI Analyzed)
+                                                        </button>
+                                                        
+                                                        <button
+                                                            onClick={() => handleResolution('resolve')}
+                                                            className="w-full bg-green-600 hover:bg-green-700 text-white px-3 py-2 rounded text-sm font-medium transition-colors flex items-center gap-2"
+                                                        >
+                                                            <span>🔧</span>
+                                                            Mark as Resolved
+                                                        </button>
+                                                    </div>
+                                                    
+                                                    <div className="text-xs text-slate-500 italic">
+                                                        Skip email workflow - AI analysis provides sufficient context
+                                                    </div>
+                                                </div>
+                                            )}
+                                            
+                                            {/* Success State */}
+                                            {resolutionSuccess && (
+                                                <div className="border-t border-slate-600 pt-4 mt-4">
+                                                    <div className="bg-green-900/30 border border-green-500/50 rounded-lg p-3">
+                                                        <div className="text-green-400 text-sm font-medium">✅ Action Complete</div>
+                                                        <div className="text-green-200 text-xs mt-1">
+                                                            Violation updated successfully via AI Copilot
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            )}
+                                        </div>
+                                    ) : (
+                                        <div className="text-center text-slate-400 py-12">
+                                            <div className="text-4xl mb-4">🤖</div>
+                                            <div className="text-lg mb-2">Ready for Analysis</div>
+                                            <div className="text-sm">
+                                                Click an analysis button to see AI explanations in action
+                                            </div>
+                                        </div>
+                                    )}
+                                </div>
+                            </div>
+                        </div>
+
+                        {/* Features List */}
+                        <div className="mt-8 bg-slate-800/30 rounded-xl p-6 border border-slate-700">
+                            <h3 className="text-lg font-bold text-white mb-4">🚀 Enhanced Workflow</h3>
+                            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
+                                <div className="bg-slate-700/30 p-3 rounded-lg">
+                                    <div className="font-semibold text-blue-400 mb-1">1️⃣ Violation Detected</div>
+                                    <div className="text-slate-300">User clicks violation → Modal opens with 3 options</div>
+                                </div>
+                                <div className="bg-slate-700/30 p-3 rounded-lg">
+                                    <div className="font-semibold text-purple-400 mb-1">2️⃣ AI Analysis</div>
+                                    <div className="text-slate-300">"Analyze with AI Copilot" → Technical insights + business impact</div>
+                                </div>
+                                <div className="bg-slate-700/30 p-3 rounded-lg">
+                                    <div className="font-semibold text-green-400 mb-1">3️⃣ Direct Resolution</div>
+                                    <div className="text-slate-300">Acknowledge or resolve directly from copilot (no email needed)</div>
+                                </div>
+                            </div>
+                            
+                            <div className="mt-4 p-4 bg-blue-900/20 border border-blue-500/30 rounded-lg">
+                                <div className="text-blue-300 font-medium text-sm mb-2">💡 Workflow Benefits</div>
+                                <ul className="text-xs text-blue-200 space-y-1">
+                                    <li>• <strong>Skip Email Workflow:</strong> AI analysis provides sufficient context for acknowledgment</li>
+                                    <li>• <strong>Faster Resolution:</strong> Business impact + remediation steps in one place</li>
+                                    <li>• <strong>Audit Trail:</strong> "Acknowledged via AI Copilot" appears in violation logs</li>
+                                    <li>• <strong>Smart Decisions:</strong> Make informed choices with AI-generated insights</li>
+                                </ul>
+                            </div>
+                        </div>
+
+                        {/* Demo Info */}
+                        <div className="mt-6 text-center text-xs text-slate-500">
+                            This is a live demo of the AI Copilot feature • Using real LLMscope violation data • Powered by Ollama
+                        </div>
+                    </div>
+                </div>
+            );
+        }
+
+        ReactDOM.render(<CopilotDemo />, document.getElementById('root'));
+    </script>
+</body>
+</html>

@@ -14,6 +14,20 @@ FILES_OVERVIEW.txt
 BLBZ3D_QUICKSTART.md
 DEPLOY_INSTRUCTIONS.md
 
+# Internal improvement documentation (sensitive implementation details)
+docs/DATABASE_IMPROVEMENTS.md
+docs/FRONTEND_IMPROVEMENTS.md
+docs/SECURITY_IMPROVEMENTS.md
+docs/SCALABILITY_IMPROVEMENTS.md
+docs/CODE_QUALITY_IMPROVEMENTS.md
+docs/IMPLEMENTATION_ROADMAP.md
+
+# Sensitive configuration examples
+*.env.production
+*.env.staging
+config/production.yml
+config/staging.yml
+
 # Deployment scripts (don't push these)
 deploy-windows.ps1
 deploy-windows-v2.ps1

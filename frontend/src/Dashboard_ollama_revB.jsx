@@ -1,5 +1,6 @@
 import React, { useEffect, useState, useCallback, useMemo } from "react";
 import ChartSelector from "./components/charts/ChartSelector";
+import CopilotWidget from "./components/CopilotWidget";
 
 /**
  * LLMscope Dashboard - Real-time SPC Monitoring for LLM Performance
@@ -51,6 +52,8 @@ export default function Dashboard_ollama_revB() {
   const [acknowledgeInput, setAcknowledgeInput] = useState("");
   const [loadingAck, setLoadingAck] = useState(false);
   const [ackError, setAckError] = useState("");
+  const [showCopilot, setShowCopilot] = useState(false);
+  const [copilotViolation, setCopilotViolation] = useState(null);
 
   const apiKey = "dev-123";
 
@@ -695,6 +698,27 @@ export default function Dashboard_ollama_revB() {
                 </div>
               </div>
 
+              {/* AI Copilot Section */}
+              <div className="bg-gradient-to-r from-blue-900/30 to-purple-900/30 rounded-lg p-4 border border-blue-500/30">
+                <h3 className="text-sm font-bold text-blue-300 mb-2 flex items-center gap-2">
+                  🤖 AI Analysis
+                  <span className="text-xs bg-blue-600 px-2 py-0.5 rounded-full">NEW</span>
+                </h3>
+                <p className="text-xs text-blue-200 mb-3">
+                  Get AI-powered explanations with business impact analysis and remediation steps
+                </p>
+                <button
+                  onClick={() => {
+                    setCopilotViolation(selectedViolation);
+                    setShowCopilot(true);
+                    setSelectedViolation(null); // Close modal
+                  }}
+                  className="w-full bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 rounded px-3 py-2 text-sm font-bold text-white transition"
+                >
+                  🧠 Analyze with AI Copilot
+                </button>
+              </div>
+
               {/* Acknowledgment Section */}
               {!selectedViolation.is_acknowledged ? (
                 <div className="bg-slate-800/50 rounded-lg p-4 border border-yellow-500/30">
@@ -771,6 +795,18 @@ export default function Dashboard_ollama_revB() {
           </div>
         </div>
       )}
+
+      {/* AI Copilot Widget */}
+      <CopilotWidget 
+        violation={showCopilot ? copilotViolation : null}
+        apiKey="dev-123"
+        baseUrl="http://localhost:8000"
+        onViolationUpdate={() => {
+          fetchViolations();
+          setShowCopilot(false);
+          setCopilotViolation(null);
+        }}
+      />
     </div>
   );
 }

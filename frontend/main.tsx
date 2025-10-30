@@ -1,9 +1,9 @@
-import React, { useState, useEffect } from 'react'
-import { createRoot } from 'react-dom/client'
+import './index.css';
+import React, { useState, useEffect } from 'react';
+import ReactDOM from 'react-dom/client'
 import { BrowserRouter, Routes, Route } from 'react-router-dom'
-import Dashboard from './Dashboard_ollama_revB'
-import SetupWizard from './SetupWizard'
-import './index.css'
+import Dashboard from './src/Dashboard_ollama_revB'
+import SetupWizard from './src/SetupWizard'
 
 function App() {
   const [setupComplete, setSetupComplete] = useState(false);
@@ -43,9 +43,8 @@ function App() {
 const rootElement = document.getElementById('root');
 if (!rootElement) throw new Error('Root element not found');
 
-const root = createRoot(rootElement);
-root.render(
+ReactDOM.createRoot(rootElement).render(
   <React.StrictMode>
     <App />
   </React.StrictMode>
-);
+)

@@ -272,9 +272,9 @@ Want to influence what we build? Here's how:
 
 Questions about the roadmap?
 
-- **GitHub Discussions:** https://github.com/yourusername/llmscope/discussions
-- **Email:** your-email@example.com
-- **Twitter:** @yourhandle
+- **GitHub Discussions:** https://github.com/Blb3D/llmscope/discussions
+- **Email:** bbaker@blb3dprinting.com
+- **LinkedIn:** [Professional profile in development]
 
 ---
 

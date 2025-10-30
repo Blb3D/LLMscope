@@ -1,6 +1,6 @@
 # 🔬 LLMscope
 
-### Statistical Process Control for LLM Performance Monitoring
+## Statistical Process Control for LLM Performance Monitoring
 
 [![GitHub stars](https://img.shields.io/github/stars/Blb3D/LLMscope?style=social)](https://github.com/Blb3D/LLMscope/stargazers)
 [![GitHub forks](https://img.shields.io/github/forks/Blb3D/LLMscope?style=social)](https://github.com/Blb3D/LLMscope/network)
@@ -8,7 +8,7 @@
 [![Docker Ready](https://img.shields.io/badge/docker-ready-brightgreen)](https://hub.docker.com/r/blb3d/llmscope)
 [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](http://makeapullrequest.com)
 
-[🚀 Live Demo](https://demo.llmscope.io) | [📖 Documentation](./docs) | [💬 Discord](https://discord.gg/llmscope) | [🐛 Report Bug](https://github.com/Blb3D/LLMscope/issues)
+[🚀 Live Demo](https://demo.llmscope.io) | [📖 Documentation](./docs) | [� Contact](./CONTACT.md) | [🐛 Report Bug](https://github.com/Blb3D/LLMscope/issues)
 
 ## 🎯 Quick Access
 
@@ -17,15 +17,23 @@ After running `docker-compose up -d`:
 - **🌐 Dashboard**: [http://localhost:8081](http://localhost:8081) - Main SPC monitoring interface
 - **🔌 API**: [http://localhost:8000](http://localhost:8000) - Backend API endpoints  
 - **📊 API Docs**: [http://localhost:8000/docs](http://localhost:8000/docs) - Interactive API documentation
-- **🔑 API Key**: `dev-123` (for development)
+- **🔑 API Key**: Set via `LLMSCOPE_API_KEY` environment variable
 
 ---
 
 <div align="center">
-  <img src="https://github.com/Blb3D/LLMscope/assets/YOUR_USER_ID/dashboard-preview.gif" width="800" alt="LLMscope Dashboard showing real-time violation detection">
+  <img src="https://github.com/Blb3D/LLMscope/assets/Blb3D/llmscope-dashboard-preview.gif" width="800" alt="LLMscope Dashboard showing real-time violation detection">
   <br>
   <i>Detecting performance degradation 10 minutes before failure using Nelson Rules</i>
 </div>
+
+### 🎬 AI Copilot Demo Video
+
+**Smart Fallback System in Action** (3 minutes - full workflow)
+
+[![AI Copilot Demo](https://img.shields.io/badge/🎥_Watch_Demo-AI_Copilot_Smart_Fallback-blue?style=for-the-badge)](docs/assets/demos/ai-copilot-demo-smart-fallback.mp4)
+
+See the complete AI workflow: violation detection → intelligent analysis → direct resolution. Features smart model detection, professional explanations, and seamless fallback from llama3.2:3b to 1b.
 
 ---
 
@@ -44,6 +52,12 @@ LLMscope brings **50 years of proven Statistical Process Control (SPC)** from ma
 
 ### 🎯 Key Features
 
+- **🧠 AI Copilot** - Intelligent violation analysis powered by Ollama:
+  - **Smart Model Fallback** - Works with any available model (llama3.2:1b, 3b, etc.)
+  - **3 Explanation Types** - Technical, Business, and Remediation perspectives
+  - **Zero Setup** - Automatically detects and uses your Ollama models
+  - **Professional Analysis** - Root cause analysis and actionable remediation steps
+
 - **📊 Nelson Rules Detection** - 8 statistical patterns that catch issues early:
   - R1: Points beyond 3σ (immediate issues)
   - R2: 9+ points on same side (process shift)
@@ -61,11 +75,13 @@ LLMscope brings **50 years of proven Statistical Process Control (SPC)** from ma
 ## 🚀 Quick Start (2 minutes)
 
 ### Option 1: One-Line Install (Recommended)
+
 ```bash
 curl -sSL https://raw.githubusercontent.com/Blb3D/LLMscope/main/install.sh | bash
 ```
 
 ### Option 2: Docker Compose
+
 ```bash
 # Clone the repository
 git clone https://github.com/Blb3D/LLMscope.git
@@ -78,7 +94,25 @@ docker-compose up -d
 open http://localhost:8081
 ```
 
+### 🧠 AI Copilot Setup (Optional but Recommended)
+
+For intelligent violation analysis, install Ollama:
+
+```bash
+# Install Ollama
+curl -fsSL https://ollama.com/install.sh | sh
+
+# Download a model (pick one):
+ollama pull llama3.2:3b    # Best quality (2GB)
+ollama pull llama3.2:1b    # Faster, smaller (1.3GB)
+
+# LLMscope will auto-detect and use any available model!
+```
+
+**Note**: AI Copilot works with smart fallback - if you have `llama3.2:1b`, it uses that. If you upgrade to `llama3.2:3b`, it automatically switches. Zero configuration required!
+
 ### Option 3: Manual Setup
+
 ```bash
 # Backend API
 cd backend && pip install -r requirements.txt
@@ -103,6 +137,13 @@ cd monitor && python monitor_apis.py
 <th>Helicone</th>
 </tr>
 <tr>
+<td><b>AI Copilot Analysis</b></td>
+<td>✅ Ollama-powered</td>
+<td>❌</td>
+<td>❌</td>
+<td>❌</td>
+</tr>
+<tr>
 <td><b>Statistical Process Control</b></td>
 <td>✅ Full SPC</td>
 <td>❌</td>
@@ -124,6 +165,13 @@ cd monitor && python monitor_apis.py
 <td>❌</td>
 </tr>
 <tr>
+<td><b>Smart Model Fallback</b></td>
+<td>✅ Auto-detects</td>
+<td>❌</td>
+<td>❌</td>
+<td>❌</td>
+</tr>
+<tr>
 <td><b>Self-Hosted Option</b></td>
 <td>✅</td>
 <td>✅</td>
@@ -142,15 +190,19 @@ cd monitor && python monitor_apis.py
 ## 🎬 See It In Action
 
 ### Real Violation Detection
-<img src="https://github.com/Blb3D/LLMscope/assets/YOUR_USER_ID/violation-detection.gif" width="600" alt="Violation detection in action">
+
+<!-- Future: Add violation detection GIF -->
+<img src="https://via.placeholder.com/600x300/1e293b/06b6d4?text=Violation+Detection+Demo" width="600" alt="Violation detection in action">
 
 In this real test, LLMscope detected a "cognitive load spike" pattern 10 minutes before Ollama would have crashed, allowing automatic intervention.
 
 ### Dashboard Views
+<!-- markdownlint-disable MD033 -->
 <div align="center">
-<img src="https://github.com/Blb3D/LLMscope/assets/YOUR_USER_ID/dashboard-stats.png" width="400" alt="Statistics Panel">
-<img src="https://github.com/Blb3D/LLMscope/assets/YOUR_USER_ID/violations-log.png" width="400" alt="Violations Log">
+<img src="https://via.placeholder.com/400x250/1e293b/06b6d4?text=Statistics+Panel" width="400" alt="Statistics Panel">
+<img src="https://via.placeholder.com/400x250/1e293b/06b6d4?text=Violations+Log" width="400" alt="Violations Log">
 </div>
+<!-- markdownlint-enable MD033 -->
 
 ## 🏗️ Architecture
 
@@ -167,6 +219,7 @@ graph LR
 ## 🛠️ Configuration
 
 ### Basic Configuration
+
 ```yaml
 # config.yaml
 monitor:
@@ -200,6 +253,7 @@ thresholds:
 ## 🚦 Roadmap
 
 ### Current (v0.2.0)
+
 - ✅ Real-time SPC monitoring
 - ✅ Nelson Rules R1-R3
 - ✅ Email/Slack alerts
@@ -207,12 +261,14 @@ thresholds:
 - ✅ Docker deployment
 
 ### Coming Soon (v0.3.0 - Q1 2026)
+
 - 🔄 Complete Nelson Rules (R4-R8)
 - 🔄 Prometheus/Grafana integration
 - 🔄 Cost analytics dashboard
 - 🔄 Team collaboration features
 
 ### Future (v1.0.0 - 2026)
+
 - 🔮 Manufacturing IoT monitoring
 - 🔮 Predictive maintenance AI
 - 🔮 Enterprise SSO/RBAC
@@ -223,6 +279,7 @@ thresholds:
 We love contributions! See [CONTRIBUTING.md](./CONTRIBUTING.md) for guidelines.
 
 ### Quick Contribution Ideas
+
 - Add support for your LLM provider
 - Improve violation detection algorithms  
 - Create custom dashboards
@@ -237,14 +294,16 @@ LLMscope is licensed under the Business Source License 1.1. See [LICENSE](./LICE
 
 ## 💬 Community & Support
 
-- **Discord**: [Join our community](https://discord.gg/llmscope)
+- **Email**: <bbaker@blb3dprinting.com>
 - **GitHub Issues**: [Report bugs](https://github.com/Blb3D/LLMscope/issues)
-- **Twitter**: [@LLMscope](https://twitter.com/llmscope)
-- **Email**: support@llmscope.io
+- **GitHub Discussions**: [Feature requests & questions](https://github.com/Blb3D/LLMscope/discussions)
+- **LinkedIn**: [Professional profile coming soon]
+- **Website**: [Domain registration in progress]
 
 ## 🙏 Acknowledgments
 
 Built with inspiration from:
+
 - Statistical Process Control pioneers (Shewhart, Deming, Nelson)
 - The Ollama community
 - Modern observability tools
@@ -261,6 +320,6 @@ Built with inspiration from:
 
 Made with ❤️ for the AI reliability community
 
-[🚀 Get Started](https://github.com/Blb3D/LLMscope) | [📖 Read Docs](./docs) | [💬 Join Discord](https://discord.gg/llmscope)
+[🚀 Get Started](https://github.com/Blb3D/LLMscope) | [📖 Read Docs](./docs) | [� Contact](./CONTACT.md)
 
 </div>

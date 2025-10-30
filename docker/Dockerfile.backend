@@ -14,7 +14,9 @@ COPY requirements.txt /app/requirements.txt
 RUN pip install --no-cache-dir -r /app/requirements.txt
 
 # Copy the backend application
-COPY app.py /app/app.py
+COPY backend/app.py /app/app.py
+COPY backend/copilot_service.py /app/copilot_service.py
+COPY backend/model_validator.py /app/model_validator.py
 
 # Create data directory
 RUN mkdir -p /app/data

@@ -25,6 +25,9 @@ import asyncio
 DATABASE_PATH = os.getenv("DATABASE_PATH", "./data/llmscope.db")
 LLMSCOPE_API_KEY = os.getenv("LLMSCOPE_API_KEY", "dev-123")
 
+# Ollama Config (for AI Copilot)
+DEFAULT_OLLAMA_URL = os.getenv("OLLAMA_URL", "http://localhost:11434")
+
 # Email Config (can be overridden by database settings)
 SMTP_SERVER = os.getenv("SMTP_SERVER", "smtp.gmail.com")
 SMTP_PORT = int(os.getenv("SMTP_PORT", "587"))
@@ -139,6 +142,41 @@ def init_db():
             FOREIGN KEY(violation_id) REFERENCES violations(id)
         )
     """)
+    
+    # AI explanations table (Phase 2.5 - Copilot)
+    c.execute("""
+        CREATE TABLE IF NOT EXISTS ai_explanations (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            violation_id INTEGER NOT NULL,
+            explanation_type TEXT NOT NULL,
+            prompt_template TEXT,
+            raw_response TEXT,
+            processed_explanation TEXT,
+            confidence_score REAL,
+            model_used TEXT,
+            generation_time_ms INTEGER,
+            created_at TEXT DEFAULT CURRENT_TIMESTAMP,
+            FOREIGN KEY(violation_id) REFERENCES violations(id)
+        )
+    """)
+    
+    # Create indexes for performance
+    c.execute("CREATE INDEX IF NOT EXISTS idx_ai_explanations_violation ON ai_explanations(violation_id)")
+    c.execute("CREATE INDEX IF NOT EXISTS idx_ai_explanations_type ON ai_explanations(explanation_type)")
+    
+    # Insert default copilot settings
+    default_copilot_settings = [
+        ("copilot_enabled", "true", "boolean", "Enable AI copilot explanations"),
+        ("copilot_ollama_url", "http://localhost:11434", "text", "Ollama API endpoint"),
+        ("copilot_model", "llama3.2:3b", "text", "Model for explanations"),
+        ("copilot_auto_explain", "false", "boolean", "Auto-generate explanations for new violations"),
+    ]
+    
+    for key, value, type_val, desc in default_copilot_settings:
+        c.execute(
+            "INSERT OR IGNORE INTO settings (key, value, type, description) VALUES (?, ?, ?, ?)",
+            (key, value, type_val, desc)
+        )
     
     conn.commit()
     
@@ -869,6 +907,255 @@ async def export_violations_csv(
             "csv": output.getvalue(),
             "count": len(rows)
         }
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+# === AI COPILOT ENDPOINTS ==================================================
+try:
+    from copilot_service import CopilotService
+    COPILOT_AVAILABLE = True
+except ImportError:
+    COPILOT_AVAILABLE = False
+    print("[Warning] Copilot service not available. Install aiohttp: pip install aiohttp")
+
+@app.get("/api/copilot/test")
+async def copilot_test(_: bool = Depends(verify_api_key)):
+    """Test Ollama connection and model availability."""
+    if not COPILOT_AVAILABLE:
+        return {"success": False, "error": "Copilot service not available"}
+    
+    settings = get_current_settings(sqlite3.connect(DATABASE_PATH))
+    ollama_url = settings.get("copilot_ollama_url", DEFAULT_OLLAMA_URL)
+    model = settings.get("copilot_model", "llama3.2:3b")
+    
+    async with CopilotService(ollama_url, model) as copilot:
+        return await copilot.test_connection()
+
+@app.get("/api/copilot/model-updates")
+async def copilot_model_updates(_: bool = Depends(verify_api_key)):
+    """Check for newer model versions and recommendations."""
+    if not COPILOT_AVAILABLE:
+        return {"success": False, "error": "Copilot service not available"}
+    
+    settings = get_current_settings(sqlite3.connect(DATABASE_PATH))
+    ollama_url = settings.get("copilot_ollama_url", DEFAULT_OLLAMA_URL)
+    model = settings.get("copilot_model", "llama3.2:3b")
+    
+    async with CopilotService(ollama_url, model) as copilot:
+        return await copilot.check_model_updates()
+
+@app.get("/api/copilot/validate")
+async def validate_copilot_model(_: bool = Depends(verify_api_key)):
+    """Validate current model for appropriate SPC monitoring behavior."""
+    if not COPILOT_AVAILABLE:
+        return {"success": False, "error": "Copilot service not available"}
+    
+    try:
+        from model_validator import ModelValidator
+        
+        settings = get_current_settings(sqlite3.connect(DATABASE_PATH))
+        ollama_url = settings.get("copilot_ollama_url", DEFAULT_OLLAMA_URL)
+        model = settings.get("copilot_model", "llama3.2:3b")
+        
+        validator = ModelValidator(ollama_url)
+        result = await validator.validate_model(model)
+        
+        return {
+            "success": True,
+            "validation_result": result,
+            "recommendation": {
+                "safe_for_production": result["safe_for_production"],
+                "overall_score": result["score"],
+                "status": result["overall_status"],
+                "message": result["recommendation"]
+            }
+        }
+        
+    except ImportError:
+        return {
+            "success": False, 
+            "error": "Model validation service not available"
+        }
+    except Exception as e:
+        return {
+            "success": False,
+            "error": f"Validation failed: {str(e)}"
+        }
+
+@app.get("/api/copilot/validate-all")
+async def validate_all_recommended_models(_: bool = Depends(verify_api_key)):
+    """Validate all recommended models for LLMscope deployment."""
+    if not COPILOT_AVAILABLE:
+        return {"success": False, "error": "Copilot service not available"}
+    
+    try:
+        from model_validator import ModelValidator
+        
+        settings = get_current_settings(sqlite3.connect(DATABASE_PATH))
+        ollama_url = settings.get("copilot_ollama_url", DEFAULT_OLLAMA_URL)
+        
+        validator = ModelValidator(ollama_url)
+        results = await validator.validate_recommended_models()
+        
+        return {
+            "success": True,
+            "validation_results": results,
+            "summary": {
+                "total_models_tested": len(results["validation_summary"]),
+                "safe_for_production": len(results["recommended_for_production"]),
+                "models_to_avoid": len(results["models_to_avoid"]),
+                "best_model": results["best_model"]
+            }
+        }
+        
+    except ImportError:
+        return {
+            "success": False, 
+            "error": "Model validation service not available"
+        }
+    except Exception as e:
+        return {
+            "success": False,
+            "error": f"Validation failed: {str(e)}"
+        }
+
+@app.post("/api/violations/{violation_id}/explain")
+async def explain_violation(
+    violation_id: int,
+    explanation_type: str = Query("technical", regex="^(technical|business|remediation)$"),
+    _: bool = Depends(verify_api_key)
+):
+    """Generate AI explanation for violation using Ollama."""
+    print(f"[DEBUG] Explain endpoint called: violation_id={violation_id}, type={explanation_type}")
+    
+    if not COPILOT_AVAILABLE:
+        print("[DEBUG] Copilot not available")
+        raise HTTPException(status_code=503, detail="AI copilot not available")
+    
+    try:
+        conn = sqlite3.connect(DATABASE_PATH)
+        conn.row_factory = sqlite3.Row
+        c = conn.cursor()
+        
+        # Get violation data
+        c.execute("SELECT * FROM violations WHERE id = ?", (violation_id,))
+        violation_row = c.fetchone()
+        
+        if not violation_row:
+            raise HTTPException(status_code=404, detail="Violation not found")
+        
+        violation_data = dict(violation_row)
+        
+        # Check if explanation already exists
+        c.execute("""
+            SELECT processed_explanation, confidence_score, model_used, generation_time_ms 
+            FROM ai_explanations 
+            WHERE violation_id = ? AND explanation_type = ?
+        """, (violation_id, explanation_type))
+        existing = c.fetchone()
+        
+        if existing:
+            return {
+                "explanation": existing[0],
+                "confidence": existing[1],
+                "model": existing[2],
+                "generation_time_ms": existing[3],
+                "cached": True
+            }
+        
+        # Get copilot settings
+        settings = get_current_settings(conn)
+        if not settings.get("copilot_enabled", True):
+            raise HTTPException(status_code=503, detail="AI copilot disabled in settings")
+        
+        ollama_url = settings.get("copilot_ollama_url", DEFAULT_OLLAMA_URL)
+        model = settings.get("copilot_model", "llama3.2:3b")
+        
+        # Generate explanation
+        async with CopilotService(ollama_url, model) as copilot:
+            result = await copilot.explain_violation(violation_data, explanation_type)
+        
+        if result["success"]:
+            # Store explanation in database
+            c.execute("""
+                INSERT INTO ai_explanations 
+                (violation_id, explanation_type, raw_response, processed_explanation, 
+                 confidence_score, model_used, generation_time_ms)
+                VALUES (?, ?, ?, ?, ?, ?, ?)
+            """, (
+                violation_id, 
+                explanation_type,
+                result["explanation"],
+                result["explanation"],
+                result["confidence_score"],
+                result["model_used"],
+                result["generation_time_ms"]
+            ))
+            conn.commit()
+            
+            return {
+                "explanation": result["explanation"],
+                "confidence": result["confidence_score"],
+                "model": result["model_used"],
+                "generation_time_ms": result["generation_time_ms"],
+                "cached": False
+            }
+        else:
+            raise HTTPException(
+                status_code=503, 
+                detail=f"AI explanation failed: {result.get('error', 'Unknown error')}"
+            )
+            
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+    finally:
+        if 'conn' in locals():
+            conn.close()
+
+@app.get("/api/copilot/settings")
+async def get_copilot_settings(_: bool = Depends(verify_api_key)):
+    """Get current copilot configuration."""
+    try:
+        conn = sqlite3.connect(DATABASE_PATH)
+        settings = get_current_settings(conn)
+        conn.close()
+        
+        return {
+            "enabled": settings.get("copilot_enabled", True),
+            "ollama_url": settings.get("copilot_ollama_url", "http://localhost:11434"),
+            "model": settings.get("copilot_model", "llama3.2:3b"),
+            "auto_explain": settings.get("copilot_auto_explain", False)
+        }
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+@app.post("/api/copilot/settings")
+async def update_copilot_settings(
+    settings_data: Dict[str, Any] = Body(...),
+    _: bool = Depends(verify_api_key)
+):
+    """Update copilot configuration."""
+    try:
+        conn = sqlite3.connect(DATABASE_PATH)
+        c = conn.cursor()
+        
+        # Update allowed settings
+        allowed_keys = ["copilot_enabled", "copilot_ollama_url", "copilot_model", "copilot_auto_explain"]
+        
+        for key in allowed_keys:
+            if key in settings_data:
+                value = str(settings_data[key]).lower() if isinstance(settings_data[key], bool) else str(settings_data[key])
+                c.execute(
+                    "INSERT OR REPLACE INTO settings (key, value, type) VALUES (?, ?, ?)",
+                    (key, value, "boolean" if isinstance(settings_data[key], bool) else "text")
+                )
+        
+        conn.commit()
+        conn.close()
+        return {"status": "ok", "updated": list(settings_data.keys())}
+        
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 

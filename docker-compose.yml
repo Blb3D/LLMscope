@@ -8,6 +8,7 @@ services:
       - LLMSCOPE_API_KEY=${LLMSCOPE_API_KEY}
       - DATABASE_PATH=/app/data/llmscope.db
       - ENABLE_SYSTEM_API=${ENABLE_SYSTEM_API}
+      - OLLAMA_URL=http://host.docker.internal:11434
     volumes:
       - ./data:/app/data
     ports:
