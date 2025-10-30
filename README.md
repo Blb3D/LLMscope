@@ -17,7 +17,7 @@ After running `docker-compose up -d`:
 - **🌐 Dashboard**: [http://localhost:8081](http://localhost:8081) - Main SPC monitoring interface
 - **🔌 API**: [http://localhost:8000](http://localhost:8000) - Backend API endpoints  
 - **📊 API Docs**: [http://localhost:8000/docs](http://localhost:8000/docs) - Interactive API documentation
-- **🔑 API Key**: `dev-123` (for development)
+- **🔑 API Key**: Set via `LLMSCOPE_API_KEY` environment variable
 
 ---
 
@@ -146,15 +146,16 @@ cd monitor && python monitor_apis.py
 
 ### Real Violation Detection
 
-<img src="https://github.com/Blb3D/LLMscope/assets/YOUR_USER_ID/violation-detection.gif" width="600" alt="Violation detection in action">
+<!-- Future: Add violation detection GIF -->
+<img src="https://via.placeholder.com/600x300/1e293b/06b6d4?text=Violation+Detection+Demo" width="600" alt="Violation detection in action">
 
 In this real test, LLMscope detected a "cognitive load spike" pattern 10 minutes before Ollama would have crashed, allowing automatic intervention.
 
 ### Dashboard Views
 <!-- markdownlint-disable MD033 -->
 <div align="center">
-<img src="https://github.com/Blb3D/LLMscope/assets/YOUR_USER_ID/dashboard-stats.png" width="400" alt="Statistics Panel">
-<img src="https://github.com/Blb3D/LLMscope/assets/YOUR_USER_ID/violations-log.png" width="400" alt="Violations Log">
+<img src="https://via.placeholder.com/400x250/1e293b/06b6d4?text=Statistics+Panel" width="400" alt="Statistics Panel">
+<img src="https://via.placeholder.com/400x250/1e293b/06b6d4?text=Violations+Log" width="400" alt="Violations Log">
 </div>
 <!-- markdownlint-enable MD033 -->
 
