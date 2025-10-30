@@ -27,6 +27,14 @@ After running `docker-compose up -d`:
   <i>Detecting performance degradation 10 minutes before failure using Nelson Rules</i>
 </div>
 
+### 🎬 AI Copilot Demo Video
+
+**Smart Fallback System in Action** (3:30 minutes)
+
+[![AI Copilot Demo](https://img.shields.io/badge/🎥_Watch_Demo-AI_Copilot_Smart_Fallback-blue?style=for-the-badge)](docs/assets/demos/ai-copilot-demo-smart-fallback.mp4)
+
+See the complete AI workflow: violation detection → intelligent analysis → direct resolution. Features smart model detection, professional explanations, and seamless fallback from llama3.2:3b to 1b.
+
 ---
 
 ## 🚨 The Problem
