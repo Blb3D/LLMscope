@@ -1,6 +1,6 @@
 # 🔬 LLMscope
 
-### Statistical Process Control for LLM Performance Monitoring
+## Statistical Process Control for LLM Performance Monitoring
 
 [![GitHub stars](https://img.shields.io/github/stars/Blb3D/LLMscope?style=social)](https://github.com/Blb3D/LLMscope/stargazers)
 [![GitHub forks](https://img.shields.io/github/forks/Blb3D/LLMscope?style=social)](https://github.com/Blb3D/LLMscope/network)
@@ -22,7 +22,7 @@ After running `docker-compose up -d`:
 ---
 
 <div align="center">
-  <img src="https://github.com/Blb3D/LLMscope/assets/YOUR_USER_ID/dashboard-preview.gif" width="800" alt="LLMscope Dashboard showing real-time violation detection">
+  <img src="https://github.com/Blb3D/LLMscope/assets/Blb3D/llmscope-dashboard-preview.gif" width="800" alt="LLMscope Dashboard showing real-time violation detection">
   <br>
   <i>Detecting performance degradation 10 minutes before failure using Nelson Rules</i>
 </div>
@@ -61,11 +61,13 @@ LLMscope brings **50 years of proven Statistical Process Control (SPC)** from ma
 ## 🚀 Quick Start (2 minutes)
 
 ### Option 1: One-Line Install (Recommended)
+
 ```bash
 curl -sSL https://raw.githubusercontent.com/Blb3D/LLMscope/main/install.sh | bash
 ```
 
 ### Option 2: Docker Compose
+
 ```bash
 # Clone the repository
 git clone https://github.com/Blb3D/LLMscope.git
@@ -79,6 +81,7 @@ open http://localhost:8081
 ```
 
 ### Option 3: Manual Setup
+
 ```bash
 # Backend API
 cd backend && pip install -r requirements.txt
@@ -142,15 +145,18 @@ cd monitor && python monitor_apis.py
 ## 🎬 See It In Action
 
 ### Real Violation Detection
+
 <img src="https://github.com/Blb3D/LLMscope/assets/YOUR_USER_ID/violation-detection.gif" width="600" alt="Violation detection in action">
 
 In this real test, LLMscope detected a "cognitive load spike" pattern 10 minutes before Ollama would have crashed, allowing automatic intervention.
 
 ### Dashboard Views
+<!-- markdownlint-disable MD033 -->
 <div align="center">
 <img src="https://github.com/Blb3D/LLMscope/assets/YOUR_USER_ID/dashboard-stats.png" width="400" alt="Statistics Panel">
 <img src="https://github.com/Blb3D/LLMscope/assets/YOUR_USER_ID/violations-log.png" width="400" alt="Violations Log">
 </div>
+<!-- markdownlint-enable MD033 -->
 
 ## 🏗️ Architecture
 
@@ -167,6 +173,7 @@ graph LR
 ## 🛠️ Configuration
 
 ### Basic Configuration
+
 ```yaml
 # config.yaml
 monitor:
@@ -200,6 +207,7 @@ thresholds:
 ## 🚦 Roadmap
 
 ### Current (v0.2.0)
+
 - ✅ Real-time SPC monitoring
 - ✅ Nelson Rules R1-R3
 - ✅ Email/Slack alerts
@@ -207,12 +215,14 @@ thresholds:
 - ✅ Docker deployment
 
 ### Coming Soon (v0.3.0 - Q1 2026)
+
 - 🔄 Complete Nelson Rules (R4-R8)
 - 🔄 Prometheus/Grafana integration
 - 🔄 Cost analytics dashboard
 - 🔄 Team collaboration features
 
 ### Future (v1.0.0 - 2026)
+
 - 🔮 Manufacturing IoT monitoring
 - 🔮 Predictive maintenance AI
 - 🔮 Enterprise SSO/RBAC
@@ -223,6 +233,7 @@ thresholds:
 We love contributions! See [CONTRIBUTING.md](./CONTRIBUTING.md) for guidelines.
 
 ### Quick Contribution Ideas
+
 - Add support for your LLM provider
 - Improve violation detection algorithms  
 - Create custom dashboards
@@ -240,11 +251,12 @@ LLMscope is licensed under the Business Source License 1.1. See [LICENSE](./LICE
 - **Discord**: [Join our community](https://discord.gg/llmscope)
 - **GitHub Issues**: [Report bugs](https://github.com/Blb3D/LLMscope/issues)
 - **Twitter**: [@LLMscope](https://twitter.com/llmscope)
-- **Email**: support@llmscope.io
+- **Email**: <support@llmscope.io>
 
 ## 🙏 Acknowledgments
 
 Built with inspiration from:
+
 - Statistical Process Control pioneers (Shewhart, Deming, Nelson)
 - The Ollama community
 - Modern observability tools

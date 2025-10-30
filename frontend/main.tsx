@@ -1,9 +1,9 @@
 import './index.css';
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect } from 'react';
 import ReactDOM from 'react-dom/client'
 import { BrowserRouter, Routes, Route } from 'react-router-dom'
-import Dashboard from './Dashboard_ollama_revB'
-import SetupWizard from './SetupWizard'
+import Dashboard from './src/Dashboard_ollama_revB'
+import SetupWizard from './src/SetupWizard'
 
 function App() {
   const [setupComplete, setSetupComplete] = useState(false);
