@@ -6,7 +6,7 @@
 
 export default function NelsonLegend() {
   return (
-    <div style={{ fontSize: 12 }}>
+    <div style={{ fontSize: 14 }}>
       <div style={{ fontWeight: 600, marginBottom: 4 }}>Nelson Rules</div>
       <ul style={{ margin: 0, paddingLeft: 16 }}>
         {RULES.map(r => (
