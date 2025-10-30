@@ -1,14 +1,28 @@
 import React, { useEffect, useState, useCallback, useMemo } from "react";
-import {
-  ResponsiveContainer,
-  LineChart,
-  Line,
-  XAxis,
-  YAxis,
-  CartesianGrid,
-  Tooltip,
-  ReferenceLine,
-} from "recharts";
+import ChartSelector from "./components/charts/ChartSelector";
+
+/**
+ * LLMscope Dashboard - Real-time SPC Monitoring for LLM Performance
+ * 
+ * 🌐 DASHBOARD LOCATION: http://localhost:8081
+ * 🔌 API ENDPOINT: http://localhost:8000
+ * 🔑 API KEY: dev-123
+ * 
+ * Features:
+ * - Live mode: Last 90 data points with 1-second updates
+ * - Historical modes: 6h/24h with full data access  
+ * - Complete SPC statistics (Mean, Std Dev, UCL, LCL, P95)
+ * - Nelson Rules violation detection (R1, R2, R3)
+ * - System telemetry monitoring
+ * - Violation acknowledgment and resolution
+ * - CSV export functionality
+ * 
+ * Architecture:
+ * - Frontend: React + Recharts + Tailwind CSS (Port 8081)
+ * - Backend: FastAPI + SQLite (Port 8000) 
+ * - Monitor: Continuous data collection service
+ * - Docker: Fully containerized deployment
+ */
 
 const AVAILABLE_MODELS = [
   "gemma3:4b",
@@ -25,7 +39,7 @@ export default function Dashboard_ollama_revB() {
   const [provider, setProvider] = useState("ollama");
   const [models, setModels] = useState(AVAILABLE_MODELS);
   const [model, setModel] = useState("");
-  const [timeMode, setTimeMode] = useState("24h");
+  const [timeMode, setTimeMode] = useState("live");
   const [hours, setHours] = useState(24);
   const [data, setData] = useState([]);
   const [stats, setStats] = useState({});
@@ -62,7 +76,12 @@ export default function Dashboard_ollama_revB() {
   // Fetch SPC chart data (telemetry)
   const fetchSPC = useCallback(async () => {
     try {
-      const q = new URLSearchParams({ hours: hours.toString() });
+      const q = new URLSearchParams({ 
+        hours: hours.toString()
+      });
+      
+      // No point limits - let each chart component handle its own data constraints
+      
       if (provider) q.append("provider", provider);
       if (model) q.append("model", model);
 
@@ -72,6 +91,7 @@ export default function Dashboard_ollama_revB() {
       if (!r.ok) throw new Error(`HTTP ${r.status}`);
 
       const j = await r.json();
+      console.log(`[Dashboard] API returned ${j.timestamps?.length || 0} points for ${hours}h request`);
 
       let series = (j.timestamps || []).map((t, i) => ({
         t,
@@ -80,9 +100,16 @@ export default function Dashboard_ollama_revB() {
         provider: j.providers?.[i] || "unknown",
       }));
 
+      console.log(`[Dashboard] Created series with ${series.length} points`);
       const totalCount = series.length;
-      const values = series.map((v) => v.y);
+      
+      // For Live mode, calculate stats from last 90 points to match chart display
+      // For Historical modes, use all data
+      const statsData = timeMode === "live" ? series.slice(-90) : series;
+      const values = statsData.map((v) => v.y);
       let statsObj = {};
+
+      console.log(`[Dashboard] Calculating stats from ${statsData.length} points (mode: ${timeMode})`);
 
       if (values.length > 0) {
         const sorted = [...values].sort((a, b) => a - b);
@@ -93,7 +120,8 @@ export default function Dashboard_ollama_revB() {
         const lcl = Math.max(0, mean - 3 * std);
 
         statsObj = {
-          count: totalCount,
+          count: statsData.length, // Count should match what's displayed on chart
+          totalAvailable: totalCount, // Track total points available from API
           mean,
           std,
           min: sorted[0],
@@ -104,6 +132,8 @@ export default function Dashboard_ollama_revB() {
         };
       }
 
+      console.log(`[Dashboard] Stats calculated: mean=${statsObj.mean?.toFixed(3)}, ucl=${statsObj.ucl?.toFixed(3)}, lcl=${statsObj.lcl?.toFixed(3)}`);
+      console.log(`[Dashboard] Setting data with ${series.length} points`);
       setData(series);
       setStats(statsObj);
       setErr("");
@@ -111,14 +141,24 @@ export default function Dashboard_ollama_revB() {
       console.error("fetchSPC:", e);
       setErr(e.message);
     }
-  }, [provider, model, hours]);
+  }, [provider, model, hours, timeMode]);
 
   // Fetch violations from database (server-side detected)
   const fetchViolations = useCallback(async () => {
     try {
-      const q = new URLSearchParams();
+      const q = new URLSearchParams({
+        hours: hours.toString() // Respect the selected time window
+      });
       if (model) q.append("model", model);
-      q.append("limit", "100");
+      
+      // Different limits based on time window
+      if (timeMode === "live") {
+        q.append("limit", "50");   // Live: recent violations only
+      } else if (timeMode === "6h") {
+        q.append("limit", "200");  // 6h: more violations
+      } else {
+        q.append("limit", "500");  // 24h: many violations
+      }
 
       const r = await fetch(`/api/violations?${q.toString()}`, {
         headers: { Authorization: `Bearer ${apiKey}` },
@@ -134,7 +174,7 @@ export default function Dashboard_ollama_revB() {
       console.warn("fetchViolations error:", e);
       setViolations([]);
     }
-  }, [model]);
+  }, [model, hours, timeMode]);
 
   // Fetch system telemetry
   const fetchTelemetry = useCallback(async () => {
@@ -279,7 +319,7 @@ export default function Dashboard_ollama_revB() {
     URL.revokeObjectURL(url);
   }
 
-  const isLive = data.length > 0 && timeMode === "1h";
+  const isLive = data.length > 0 && timeMode === "live";
 
   const ruleDescriptions = {
     R1: "Point beyond 3σ from mean",
@@ -315,27 +355,26 @@ export default function Dashboard_ollama_revB() {
                 />
                 <span className="font-bold">{isLive ? "🚀 Live" : "📊 Historical"}</span>
               </div>
-              <span className="text-xs text-slate-400">{data.length} pts</span>
             </div>
           </div>
 
           <div className="bg-gradient-to-br from-slate-800/60 to-slate-900/60 border border-purple-500/30 rounded-2xl p-4 space-y-3">
             <div>
-              <label className="text-xs font-bold text-slate-400 uppercase">Provider</label>
+              <label className="text-sm font-bold text-slate-400 uppercase">Provider</label>
               <select
                 value={provider}
                 onChange={(e) => setProvider(e.target.value)}
-                className="w-full mt-2 bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-sm"
+                className="w-full mt-2 bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-base"
               >
                 <option value="ollama">🦙 Ollama</option>
               </select>
             </div>
             <div>
-              <label className="text-xs font-bold text-slate-400 uppercase">Model</label>
+              <label className="text-sm font-bold text-slate-400 uppercase">Model</label>
               <select
                 value={model}
                 onChange={(e) => setModel(e.target.value)}
-                className="w-full mt-2 bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-sm"
+                className="w-full mt-2 bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-base"
               >
                 <option value="">All</option>
                 {models.map((m) => (
@@ -346,25 +385,25 @@ export default function Dashboard_ollama_revB() {
               </select>
             </div>
             <div>
-              <label className="text-xs font-bold text-slate-400 uppercase">Window</label>
+              <label className="text-sm font-bold text-slate-400 uppercase">Window</label>
               <div className="grid grid-cols-3 gap-2 mt-2">
                 <button
                   onClick={() => {
-                    setTimeMode("1h");
+                    setTimeMode("live");
                     setHours(1);
                   }}
-                  className={`px-2 py-2 rounded text-xs font-bold ${
-                    timeMode === "1h" ? "bg-cyan-600" : "bg-slate-800"
+                  className={`px-2 py-2 rounded text-sm font-bold ${
+                    timeMode === "live" ? "bg-cyan-600" : "bg-slate-800"
                   }`}
                 >
-                  1h (Live)
+                  Live
                 </button>
                 <button
                   onClick={() => {
                     setTimeMode("6h");
                     setHours(6);
                   }}
-                  className={`px-2 py-2 rounded text-xs font-bold ${
+                  className={`px-2 py-2 rounded text-sm font-bold ${
                     timeMode === "6h" ? "bg-cyan-600" : "bg-slate-800"
                   }`}
                 >
@@ -375,7 +414,7 @@ export default function Dashboard_ollama_revB() {
                     setTimeMode("24h");
                     setHours(24);
                   }}
-                  className={`px-2 py-2 rounded text-xs font-bold ${
+                  className={`px-2 py-2 rounded text-sm font-bold ${
                     timeMode === "24h" ? "bg-cyan-600" : "bg-slate-800"
                   }`}
                 >
@@ -385,34 +424,63 @@ export default function Dashboard_ollama_revB() {
             </div>
           </div>
 
-          {stats.mean && (
-            <div className="bg-gradient-to-br from-slate-800/60 to-slate-900/60 border border-cyan-500/30 rounded-2xl p-4 space-y-2">
-              <h3 className="text-sm font-bold text-cyan-300">Stats</h3>
-              <div className="space-y-2 text-sm">
+          {stats && Object.keys(stats).length > 0 && stats.mean && (
+            <div className="bg-gradient-to-br from-slate-800/60 to-slate-900/60 border border-cyan-500/30 rounded-2xl p-4 space-y-3">
+              <h3 className="text-base font-bold text-cyan-300">SPC Stats ({stats.count || 0} pts)</h3>
+              
+              {/* Core Statistics */}
+              <div className="space-y-2 text-base">
                 <div className="flex justify-between">
                   <span className="text-slate-400">Mean:</span>
                   <span className="font-bold text-emerald-400">{stats.mean.toFixed(3)}s</span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-slate-400">Std:</span>
+                  <span className="text-slate-400">Std Dev:</span>
                   <span className="font-bold text-purple-400">{stats.std.toFixed(3)}s</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-slate-400">UCL:</span>
+                  <span className="font-bold text-red-400">{stats.ucl.toFixed(3)}s</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-slate-400">LCL:</span>
+                  <span className="font-bold text-red-400">{stats.lcl.toFixed(3)}s</span>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-slate-400">P95:</span>
                   <span className="font-bold text-amber-400">{stats.p95.toFixed(3)}s</span>
                 </div>
-                <div className="flex justify-between">
-                  <span className="text-slate-400">Violations:</span>
-                  <span className="font-bold text-red-400">{violations.length}</span>
+              </div>
+
+              {/* Violation Breakdown */}
+              <div className="border-t border-slate-700 pt-3">
+                <div className="text-sm font-bold text-slate-400 uppercase mb-2">Nelson Rules</div>
+                <div className="grid grid-cols-2 gap-2 text-sm">
+                  <div className="flex justify-between">
+                    <span className="text-slate-400">R1:</span>
+                    <span className="font-bold text-red-400">{violations.filter(v => v.rule === 'R1').length}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-slate-400">R2:</span>
+                    <span className="font-bold text-orange-400">{violations.filter(v => v.rule === 'R2').length}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-slate-400">R3:</span>
+                    <span className="font-bold text-yellow-400">{violations.filter(v => v.rule === 'R3').length}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-slate-400">Total:</span>
+                    <span className="font-bold text-white">{violations.length}</span>
+                  </div>
                 </div>
               </div>
             </div>
           )}
 
           <div className="bg-gradient-to-br from-slate-800/60 to-slate-900/60 border border-orange-500/30 rounded-2xl p-4 space-y-3">
-            <h3 className="text-sm font-bold text-cyan-300">System</h3>
+            <h3 className="text-base font-bold text-cyan-300">System</h3>
             <div>
-              <div className="flex justify-between text-xs mb-1">
+              <div className="flex justify-between text-sm mb-1">
                 <span>CPU</span>
                 <span className="font-bold text-cyan-400">{(telemetry.cpu || 0).toFixed(0)}%</span>
               </div>
@@ -424,7 +492,7 @@ export default function Dashboard_ollama_revB() {
               </div>
             </div>
             <div>
-              <div className="flex justify-between text-xs mb-1">
+              <div className="flex justify-between text-sm mb-1">
                 <span>GPU</span>
                 <span className="font-bold text-purple-400">{(telemetry.gpu || 0).toFixed(0)}%</span>
               </div>
@@ -436,7 +504,7 @@ export default function Dashboard_ollama_revB() {
               </div>
             </div>
             <div>
-              <div className="flex justify-between text-xs mb-1">
+              <div className="flex justify-between text-sm mb-1">
                 <span>Mem</span>
                 <span className="font-bold text-purple-400">{(telemetry.memory || 0).toFixed(0)}%</span>
               </div>
@@ -460,158 +528,15 @@ export default function Dashboard_ollama_revB() {
 
           {/* Chart - 60% */}
           <div className="h-3/5 bg-slate-900/50 border border-slate-800 rounded-xl p-6 overflow-hidden">
-            <div className="space-y-4 h-full flex flex-col">
-              {/* Stats Bar */}
-              <div className="bg-gradient-to-r from-slate-800/60 to-slate-900/60 border border-purple-500/30 rounded-2xl p-4 backdrop-blur-sm shadow-lg">
-                <div className="grid grid-cols-3 md:grid-cols-6 gap-3 text-xs">
-                  <div className="bg-slate-900/50 rounded-lg p-2 border border-slate-700">
-                    <div className="text-slate-400 uppercase tracking-wider">Mean</div>
-                    <div className="text-lg font-bold text-cyan-400">
-                      {Number(stats.mean || 0).toFixed(3)}s
-                    </div>
-                  </div>
-                  <div className="bg-slate-900/50 rounded-lg p-2 border border-slate-700">
-                    <div className="text-slate-400 uppercase tracking-wider">Std Dev</div>
-                    <div className="text-lg font-bold text-purple-400">
-                      {Number(stats.std || 0).toFixed(3)}s
-                    </div>
-                  </div>
-                  <div className="bg-slate-900/50 rounded-lg p-2 border border-red-500/30">
-                    <div className="text-slate-400 uppercase tracking-wider">UCL</div>
-                    <div className="text-lg font-bold text-red-400">
-                      {Number(stats.ucl || 0).toFixed(3)}s
-                    </div>
-                  </div>
-                  <div className="bg-slate-900/50 rounded-lg p-2 border border-green-500/30">
-                    <div className="text-slate-400 uppercase tracking-wider">LCL</div>
-                    <div className="text-lg font-bold text-green-400">
-                      {Number(stats.lcl || 0).toFixed(3)}s
-                    </div>
-                  </div>
-                  <div className="bg-slate-900/50 rounded-lg p-2 border border-slate-700">
-                    <div className="text-slate-400 uppercase tracking-wider">R1 Violations</div>
-                    <div className="text-lg font-bold text-red-400">
-                      {violations.filter((v) => v.rule === "R1").length}
-                    </div>
-                  </div>
-                  <div className="bg-slate-900/50 rounded-lg p-2 border border-slate-700">
-                    <div className="text-slate-400 uppercase tracking-wider">Total Violations</div>
-                    <div className="text-lg font-bold text-white">{violations.length}</div>
-                  </div>
-                </div>
-              </div>
-
+            <div className="h-full flex flex-col">
               {/* Chart */}
-              <div className="flex-1 bg-gradient-to-br from-slate-900/40 to-slate-950/40 border border-slate-800 rounded-2xl p-4 backdrop-blur-sm">
-                <ResponsiveContainer width="100%" height="100%" debounce={100}>
-                  <LineChart data={data} margin={{ top: 20, right: 30, left: 50, bottom: 20 }}>
-                    <defs>
-                      <linearGradient id="lineGradient" x1="0" y1="0" x2="0" y2="1">
-                        <stop offset="5%" stopColor="#06b6d4" stopOpacity={0.8} />
-                        <stop offset="95%" stopColor="#06b6d4" stopOpacity={0} />
-                      </linearGradient>
-                    </defs>
-                    <CartesianGrid strokeDasharray="3 3" stroke="#334155" opacity={0.1} />
-                    <XAxis dataKey="t" tick={false} stroke="#64748b" />
-                    <YAxis
-                      tick={{ fill: "#94a3b8", fontSize: 11 }}
-                      stroke="#64748b"
-                      domain={[0, "dataMax + 1"]}
-                      type="number"
-                    />
-                    <Tooltip
-                      content={({ active, payload }) => {
-                        if (active && payload && payload.length) {
-                          const p = payload[0].payload;
-                          return (
-                            <div className="rounded-lg p-3 shadow-lg text-xs z-50 bg-slate-950 border-2 border-cyan-500">
-                              <div className="text-slate-200">
-                                <span className="text-slate-400">Time: </span>
-                                <span className="font-mono text-cyan-300">
-                                  {new Date(p.t).toLocaleTimeString()}
-                                </span>
-                              </div>
-                              <div className="text-slate-200 mt-1">
-                                <span className="text-slate-400">Latency: </span>
-                                <span className="font-mono font-bold text-emerald-300">
-                                  {Number(p.y).toFixed(3)}s
-                                </span>
-                              </div>
-                              <div className="text-slate-200">
-                                <span className="text-slate-400">Model: </span>
-                                <span className="font-mono text-blue-300">{p.model}</span>
-                              </div>
-                              <div className="text-slate-200">
-                                <span className="text-slate-400">Deviation: </span>
-                                <span className="font-mono">
-                                  {((p.y - stats.mean) / stats.std).toFixed(2)}σ
-                                </span>
-                              </div>
-                              <div className="border-t border-slate-700 mt-2 pt-2 text-slate-300">
-                                <div>
-                                  <span className="text-slate-400">Mean: </span>
-                                  <span className="text-cyan-400 font-mono">
-                                    {Number(stats.mean || 0).toFixed(3)}s
-                                  </span>
-                                </div>
-                              </div>
-                            </div>
-                          );
-                        }
-                        return null;
-                      }}
-                    />
-
-                    {/* Control Lines */}
-                    <ReferenceLine
-                      y={stats.mean}
-                      stroke="#22d3ee"
-                      strokeDasharray="5 5"
-                      strokeWidth={2}
-                      label={{
-                        value: "Mean",
-                        position: "right",
-                        fill: "#22d3ee",
-                        fontSize: 11,
-                      }}
-                    />
-                    <ReferenceLine
-                      y={stats.ucl}
-                      stroke="#ef4444"
-                      strokeDasharray="8 4"
-                      strokeWidth={1.5}
-                      label={{
-                        value: "UCL",
-                        position: "right",
-                        fill: "#ef4444",
-                        fontSize: 11,
-                      }}
-                    />
-                    <ReferenceLine
-                      y={stats.lcl}
-                      stroke="#10b981"
-                      strokeDasharray="8 4"
-                      strokeWidth={1.5}
-                      label={{
-                        value: "LCL",
-                        position: "right",
-                        fill: "#10b981",
-                        fontSize: 11,
-                      }}
-                    />
-
-                    {/* Main Line */}
-                    <Line
-                      type="monotone"
-                      dataKey="y"
-                      stroke="#06b6d4"
-                      strokeWidth={2.5}
-                      dot={false}
-                      isAnimationActive={false}
-                      strokeOpacity={0.8}
-                    />
-                  </LineChart>
-                </ResponsiveContainer>
+              <div className="flex-1">
+                <ChartSelector 
+                  timeMode={timeMode}
+                  data={data}
+                  stats={stats}
+                  violations={violations}
+                />
               </div>
             </div>
           </div>
@@ -620,10 +545,10 @@ export default function Dashboard_ollama_revB() {
           {violations.length > 0 && (
             <div className="flex-1 min-h-0 bg-slate-900/50 border border-slate-800 rounded-xl p-4 flex flex-col overflow-hidden">
               <div className="flex justify-between items-center mb-3 flex-shrink-0">
-                <h3 className="text-sm font-bold text-cyan-300">🚨 Violations ({violations.length})</h3>
+                <h3 className="text-base font-bold text-cyan-300">🚨 Violations ({violations.length})</h3>
                 <button
                   onClick={exportViolationsCSV}
-                  className="text-xs bg-cyan-600 hover:bg-cyan-700 px-2 py-1 rounded"
+                  className="text-sm bg-cyan-600 hover:bg-cyan-700 px-3 py-1 rounded"
                 >
                   📥 Export
                 </button>
@@ -742,7 +667,7 @@ export default function Dashboard_ollama_revB() {
                   </div>
                   <div>
                     <span className="text-slate-400">LCL:</span>
-                    <div className="font-bold text-green-400">{selectedViolation.lcl_ms?.toFixed(0)}ms</div>
+                    <div className="font-bold text-red-400">{selectedViolation.lcl_ms?.toFixed(0)}ms</div>
                   </div>
                 </div>
               </div>

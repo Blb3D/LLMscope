@@ -1,18 +1,23 @@
-<div align="center">
-  
-  # 🔬 LLMscope
-  
-  ### Statistical Process Control for LLM Performance Monitoring
-  
-  [![GitHub stars](https://img.shields.io/github/stars/Blb3D/LLMscope?style=social)](https://github.com/Blb3D/LLMscope/stargazers)
-  [![GitHub forks](https://img.shields.io/github/forks/Blb3D/LLMscope?style=social)](https://github.com/Blb3D/LLMscope/network)
-  [![License](https://img.shields.io/badge/license-BSL--1.1-blue)](./LICENSE-BSL.txt)
-  [![Docker Ready](https://img.shields.io/badge/docker-ready-brightgreen)](https://hub.docker.com/r/blb3d/llmscope)
-  [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](http://makeapullrequest.com)
-  
-  [🚀 Live Demo](https://demo.llmscope.io) | [📖 Documentation](./docs) | [💬 Discord](https://discord.gg/llmscope) | [🐛 Report Bug](https://github.com/Blb3D/LLMscope/issues)
+# 🔬 LLMscope
 
-</div>
+### Statistical Process Control for LLM Performance Monitoring
+
+[![GitHub stars](https://img.shields.io/github/stars/Blb3D/LLMscope?style=social)](https://github.com/Blb3D/LLMscope/stargazers)
+[![GitHub forks](https://img.shields.io/github/forks/Blb3D/LLMscope?style=social)](https://github.com/Blb3D/LLMscope/network)
+[![License](https://img.shields.io/badge/license-BSL--1.1-blue)](./LICENSE-BSL.txt)
+[![Docker Ready](https://img.shields.io/badge/docker-ready-brightgreen)](https://hub.docker.com/r/blb3d/llmscope)
+[![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](http://makeapullrequest.com)
+
+[🚀 Live Demo](https://demo.llmscope.io) | [📖 Documentation](./docs) | [💬 Discord](https://discord.gg/llmscope) | [🐛 Report Bug](https://github.com/Blb3D/LLMscope/issues)
+
+## 🎯 Quick Access
+
+After running `docker-compose up -d`:
+
+- **🌐 Dashboard**: [http://localhost:8081](http://localhost:8081) - Main SPC monitoring interface
+- **🔌 API**: [http://localhost:8000](http://localhost:8000) - Backend API endpoints  
+- **📊 API Docs**: [http://localhost:8000/docs](http://localhost:8000/docs) - Interactive API documentation
+- **🔑 API Key**: `dev-123` (for development)
 
 ---
 
