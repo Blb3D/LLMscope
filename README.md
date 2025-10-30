@@ -29,11 +29,14 @@ After running `docker-compose up -d`:
 
 ### 🎬 AI Copilot Demo Video
 
-**Smart Fallback System in Action** (3 minutes - full workflow)
+**Complete Workflow Demo** (3 minutes - plays directly)
 
-[![AI Copilot Demo](https://img.shields.io/badge/🎥_Watch_Demo-AI_Copilot_Smart_Fallback-blue?style=for-the-badge)](docs/assets/demos/ai-copilot-demo-smart-fallback.mp4)
+https://github.com/user-attachments/assets/e91fb24e-1a92-4826-9b31-f5517e881853
 
-See the complete AI workflow: violation detection → intelligent analysis → direct resolution. Features smart model detection, professional explanations, and seamless fallback from llama3.2:3b to 1b.
+*Complete AI workflow: violation detection → intelligent analysis → direct resolution*
+- Smart model fallback (llama3.2:3b → 1b)
+- Three explanation types (Technical, Business, Remediation)  
+- Professional quality analysis with actionable insights
 
 ---
 
