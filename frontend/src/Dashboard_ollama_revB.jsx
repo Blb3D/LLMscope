@@ -1,5 +1,6 @@
 import React, { useEffect, useState, useCallback, useMemo } from "react";
 import ChartSelector from "./components/charts/ChartSelector";
+import CopilotWidget from "./components/CopilotWidget";
 
 /**
  * LLMscope Dashboard - Real-time SPC Monitoring for LLM Performance
@@ -771,6 +772,13 @@ export default function Dashboard_ollama_revB() {
           </div>
         </div>
       )}
+
+      {/* AI Copilot Widget */}
+      <CopilotWidget 
+        violation={selectedViolation}
+        apiKey="dev-123"
+        baseUrl="http://localhost:8000"
+      />
     </div>
   );
 }
