@@ -29,7 +29,7 @@ After running `docker-compose up -d`:
 
 ### 🎬 AI Copilot Demo Video
 
-**Smart Fallback System in Action** (3:30 minutes)
+**Smart Fallback System in Action** (3 minutes - full workflow)
 
 [![AI Copilot Demo](https://img.shields.io/badge/🎥_Watch_Demo-AI_Copilot_Smart_Fallback-blue?style=for-the-badge)](docs/assets/demos/ai-copilot-demo-smart-fallback.mp4)
 
