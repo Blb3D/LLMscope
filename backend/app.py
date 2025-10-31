@@ -475,16 +475,18 @@ async def get_system_info(_: bool = Depends(verify_api_key)):
 async def get_feature_flags(_: bool = Depends(verify_api_key)):
     """Get enabled feature flags for frontend conditional rendering."""
     try:
-        from feature_flags import FLAGS
+        # Instantiate flags per request so environment changes are picked up
+        from feature_flags import FeatureFlags
+        flags = FeatureFlags()
 
         return {
-            "enhanced_telemetry": FLAGS.is_enabled("ENHANCED_TELEMETRY"),
-            "copilot_cognitive_load": FLAGS.is_enabled("COPILOT_COGNITIVE_LOAD"),
-            "case_reports": FLAGS.is_enabled("CASE_REPORTS"),
-            "zoomed_chart": FLAGS.is_enabled("ZOOMED_CHART"),
-            "websocket_dashboard": FLAGS.is_enabled("WEBSOCKET_DASHBOARD"),
-            "dark_mode": FLAGS.is_enabled("DARK_MODE"),
-            "export_controls": FLAGS.is_enabled("EXPORT_CONTROLS"),
+            "enhanced_telemetry": flags.is_enabled("ENHANCED_TELEMETRY"),
+            "copilot_cognitive_load": flags.is_enabled("COPILOT_COGNITIVE_LOAD"),
+            "case_reports": flags.is_enabled("CASE_REPORTS"),
+            "zoomed_chart": flags.is_enabled("ZOOMED_CHART"),
+            "websocket_dashboard": flags.is_enabled("WEBSOCKET_DASHBOARD"),
+            "dark_mode": flags.is_enabled("DARK_MODE"),
+            "export_controls": flags.is_enabled("EXPORT_CONTROLS"),
         }
     except Exception as e:
         # If feature flags module not found, return all disabled
