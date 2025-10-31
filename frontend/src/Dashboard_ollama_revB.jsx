@@ -1,6 +1,7 @@
 import React, { useEffect, useState, useCallback, useMemo } from "react";
 import ChartSelector from "./components/charts/ChartSelector";
 import CopilotWidget from "./components/CopilotWidget";
+import OllamaTelemetry from "./components/OllamaTelemetry";
 // import ViolationZoomedChart from "./components/ViolationZoomedChart";
 // import ViolationReport from "./components/ViolationReport";
 
@@ -68,6 +69,7 @@ export default function Dashboard_ollama_revB() {
   const [showZoomedChart, setShowZoomedChart] = useState(false);
   const [zoomedViolation, setZoomedViolation] = useState(null);
   const [violationStats, setViolationStats] = useState({ total: 0, displayed: 0 });
+  const [featureFlags, setFeatureFlags] = useState({ enhanced_telemetry: false });
 
   const apiKey = "dev-123";
 
@@ -87,6 +89,19 @@ export default function Dashboard_ollama_revB() {
     } catch (e) {
       console.warn("fetchModels error", e);
       setModels(FALLBACK_MODELS);
+    }
+  }, []);
+
+  // Fetch feature flags
+  const fetchFeatureFlags = useCallback(async () => {
+    try {
+      const r = await fetch("/api/feature-flags", {
+        headers: { Authorization: `Bearer ${apiKey}` },
+      });
+      const j = await r.json();
+      setFeatureFlags(j);
+    } catch (e) {
+      console.warn("fetchFeatureFlags error", e);
     }
   }, []);
 
@@ -134,6 +149,13 @@ export default function Dashboard_ollama_revB() {
         y: Number(j.values?.[i] || 0) / 1000,
         model: j.models?.[i] || "unknown",
         provider: j.providers?.[i] || "unknown",
+        // Enhanced telemetry (P0-1)
+        total_duration: j.total_durations?.[i] || 0,
+        load_duration: j.load_durations?.[i] || 0,
+        prompt_eval_duration: j.prompt_eval_durations?.[i] || 0,
+        eval_duration: j.eval_durations?.[i] || 0,
+        prompt_count: j.prompt_counts?.[i] || 0,
+        eval_count: j.eval_counts?.[i] || 0,
       }));
 
       console.log(`[Dashboard] Created series with ${series.length} points`);
@@ -261,9 +283,10 @@ export default function Dashboard_ollama_revB() {
 
   // Setup initial fetches and intervals
   useEffect(() => {
+    fetchFeatureFlags();
     fetchModels();
     fetchCopilotStatus();
-  }, [provider, fetchModels, fetchCopilotStatus]);
+  }, [provider, fetchModels, fetchCopilotStatus, fetchFeatureFlags]);
 
   useEffect(() => {
     fetchSPC();
@@ -715,6 +738,28 @@ Generated: ${timestamp}
               )}
             </div>
           </div>
+
+          {/* Enhanced Ollama Telemetry (P0-1) */}
+          {featureFlags.enhanced_telemetry && provider === "ollama" && (
+            <OllamaTelemetry 
+              data={data.map(d => ({
+                ...d,
+                eval_duration: d.eval_duration || 0,
+                eval_count: d.eval_count || 0,
+                load_duration: d.load_duration || 0,
+                prompt_eval_duration: d.prompt_eval_duration || 0,
+                prompt_count: d.prompt_count || 0,
+              }))}
+              latestPoint={data.length > 0 ? {
+                ...data[data.length - 1],
+                eval_duration: data[data.length - 1].eval_duration || 0,
+                eval_count: data[data.length - 1].eval_count || 0,
+                load_duration: data[data.length - 1].load_duration || 0,
+                prompt_eval_duration: data[data.length - 1].prompt_eval_duration || 0,
+                prompt_count: data[data.length - 1].prompt_count || 0,
+              } : null}
+            />
+          )}
 
           {/* AI Copilot Status */}
           <div className="bg-gradient-to-br from-slate-800/60 to-slate-900/60 border border-purple-500/30 rounded-2xl p-4 space-y-3">

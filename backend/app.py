@@ -471,6 +471,33 @@ async def get_system_info(_: bool = Depends(verify_api_key)):
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
+@app.get("/api/feature-flags")
+async def get_feature_flags(_: bool = Depends(verify_api_key)):
+    """Get enabled feature flags for frontend conditional rendering."""
+    try:
+        from backend.feature_flags import FLAGS
+        
+        return {
+            "enhanced_telemetry": FLAGS.is_enabled("ENHANCED_TELEMETRY"),
+            "copilot_cognitive_load": FLAGS.is_enabled("COPILOT_COGNITIVE_LOAD"),
+            "case_reports": FLAGS.is_enabled("CASE_REPORTS"),
+            "zoomed_chart": FLAGS.is_enabled("ZOOMED_CHART"),
+            "websocket_dashboard": FLAGS.is_enabled("WEBSOCKET_DASHBOARD"),
+            "dark_mode": FLAGS.is_enabled("DARK_MODE"),
+            "export_controls": FLAGS.is_enabled("EXPORT_CONTROLS"),
+        }
+    except Exception as e:
+        # If feature flags module not found, return all disabled
+        return {
+            "enhanced_telemetry": False,
+            "copilot_cognitive_load": False,
+            "case_reports": False,
+            "zoomed_chart": False,
+            "websocket_dashboard": False,
+            "dark_mode": False,
+            "export_controls": False,
+        }
+
 # === SUMMARY STATS ==========================================================
 @app.get("/api/stats")
 async def get_stats(_: bool = Depends(verify_api_key)):
@@ -641,9 +668,9 @@ async def stats_spc(
         
         query = """
             SELECT timestamp, latency_ms, model, provider, 
-                   total_duration_ms, eval_duration_ms, prompt_eval_count, 
-                   eval_count, cpu_percent, memory_percent, gpu_percent,
-                   prompt_hash
+                   total_duration_ms, load_duration_ms, prompt_eval_duration_ms,
+                   eval_duration_ms, prompt_eval_count, eval_count, 
+                   cpu_percent, memory_percent, gpu_percent, prompt_hash
             FROM telemetry
             WHERE timestamp >= ?
         """
@@ -681,13 +708,15 @@ async def stats_spc(
         models = [r[2] for r in rows]
         providers = [r[3] for r in rows]
         total_durations = [r[4] or 0 for r in rows]
-        eval_durations = [r[5] or 0 for r in rows]
-        prompt_counts = [r[6] or 0 for r in rows]
-        eval_counts = [r[7] or 0 for r in rows]
-        cpu_percents = [r[8] or 0 for r in rows]
-        memory_percents = [r[9] or 0 for r in rows]
-        gpu_percents = [r[10] or 0 for r in rows]
-        prompt_hashes = [r[11] or "" for r in rows]
+        load_durations = [r[5] or 0 for r in rows]
+        prompt_eval_durations = [r[6] or 0 for r in rows]
+        eval_durations = [r[7] or 0 for r in rows]
+        prompt_counts = [r[8] or 0 for r in rows]
+        eval_counts = [r[9] or 0 for r in rows]
+        cpu_percents = [r[10] or 0 for r in rows]
+        memory_percents = [r[11] or 0 for r in rows]
+        gpu_percents = [r[12] or 0 for r in rows]
+        prompt_hashes = [r[13] or "" for r in rows]
 
         return {
             "timestamps": timestamps,
@@ -695,6 +724,8 @@ async def stats_spc(
             "models": models,
             "providers": providers,
             "total_durations": total_durations,
+            "load_durations": load_durations,
+            "prompt_eval_durations": prompt_eval_durations,
             "eval_durations": eval_durations,
             "prompt_counts": prompt_counts,
             "eval_counts": eval_counts,
