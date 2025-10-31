@@ -1,8 +1,13 @@
 """Tests for feature flags system"""
 
 import os
+import sys
 import pytest
-from backend.feature_flags import FeatureFlags, is_feature_enabled
+
+# Add parent directory to path for imports
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..'))
+
+from feature_flags import FeatureFlags, is_feature_enabled
 
 
 def test_feature_flags_default_disabled():
