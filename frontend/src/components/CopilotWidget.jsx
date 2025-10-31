@@ -15,7 +15,7 @@ import React, { useState, useEffect } from 'react';
 const CopilotWidget = ({ 
   violation, 
   apiKey, 
-  baseUrl = "http://localhost:8000",
+  baseUrl = "", // Use relative path to go through nginx proxy
   onViolationUpdate = null // Callback to refresh violations in parent
 }) => {
   const [isExpanded, setIsExpanded] = useState(false);

@@ -41,6 +41,33 @@ SLACK_WEBHOOK_URL = os.getenv("SLACK_WEBHOOK_URL", "")
 
 # ============================================================================
 
+async def get_ollama_telemetry():
+    """Get Ollama API telemetry for cognitive statistics."""
+    try:
+        async with aiohttp.ClientSession() as session:
+            # Get running models
+            async with session.get(f"{DEFAULT_OLLAMA_URL}/api/ps") as response:
+                if response.status == 200:
+                    ps_data = await response.json()
+                    running_models = ps_data.get("models", [])
+                    
+                    total_memory_usage = 0
+                    model_count = len(running_models)
+                    
+                    for model in running_models:
+                        total_memory_usage += model.get("size_vram", 0)
+                    
+                    return {
+                        "available": True,
+                        "running_models": model_count,
+                        "total_memory_usage_gb": round(total_memory_usage / (1024**3), 2) if total_memory_usage > 0 else 0,
+                        "models": [{"name": m.get("name", ""), "size_gb": round(m.get("size_vram", 0) / (1024**3), 2)} for m in running_models]
+                    }
+                else:
+                    return {"available": False, "error": f"HTTP {response.status}"}
+    except Exception as e:
+        return {"available": False, "error": str(e)}
+
 def init_db():
     """Initialize database with all Phase 2 tables."""
     os.makedirs(os.path.dirname(DATABASE_PATH) or ".", exist_ok=True)
@@ -428,6 +455,9 @@ async def get_system_info(_: bool = Depends(verify_api_key)):
         except ImportError:
             pass
         
+        # Get Ollama telemetry if available
+        ollama_stats = await get_ollama_telemetry()
+        
         return {
             "cpu": cpu,
             "memory": memory,
@@ -436,6 +466,7 @@ async def get_system_info(_: bool = Depends(verify_api_key)):
             "system": system,
             "release": release,
             "timestamp": datetime.datetime.utcnow().isoformat(),
+            "ollama": ollama_stats
         }
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
@@ -629,8 +660,18 @@ async def stats_spc(
         query += " ORDER BY timestamp DESC LIMIT ?"
         params.append(limit)
         
+        # Debug: print query details
+        print(f"[DEBUG] SPC Query: {query}")
+        print(f"[DEBUG] SPC Params: {params}")
+        
         c.execute(query, params)
         rows = c.fetchall()
+        
+        # Debug: print row count
+        print(f"[DEBUG] SPC returned {len(rows)} rows")
+        if rows:
+            print(f"[DEBUG] First row: {rows[0]}")
+        
         conn.close()
         
         rows = list(reversed(rows))
@@ -674,37 +715,54 @@ async def get_violations(
     acknowledged: Optional[bool] = Query(None),
     limit: int = Query(100, ge=1, le=1000),
     offset: int = Query(0, ge=0),
+    hours: Optional[int] = Query(None),
     _: bool = Depends(verify_api_key),
-) -> List[Dict[str, Any]]:
-    """Get violations with optional filtering."""
+) -> Dict[str, Any]:
+    """Get violations with optional filtering and total count."""
     try:
         conn = sqlite3.connect(DATABASE_PATH)
         conn.row_factory = sqlite3.Row
         c = conn.cursor()
         
-        query = "SELECT * FROM violations WHERE 1=1"
+        # Base query and count query
+        base_query = "FROM violations WHERE 1=1"
         params = []
         
         if model:
-            query += " AND model = ?"
+            base_query += " AND model = ?"
             params.append(model)
         
         if rule:
-            query += " AND rule = ?"
+            base_query += " AND rule = ?"
             params.append(rule)
         
         if acknowledged is not None:
-            query += " AND is_acknowledged = ?"
+            base_query += " AND is_acknowledged = ?"
             params.append(1 if acknowledged else 0)
+            
+        if hours:
+            base_query += " AND timestamp > datetime('now', '-{} hours')".format(hours)
         
-        query += " ORDER BY timestamp DESC LIMIT ? OFFSET ?"
+        # Get total count
+        count_query = f"SELECT COUNT(*) {base_query}"
+        c.execute(count_query, params)
+        total_count = c.fetchone()[0]
+        
+        # Get limited results
+        data_query = f"SELECT * {base_query} ORDER BY timestamp DESC LIMIT ? OFFSET ?"
         params.extend([limit, offset])
         
-        c.execute(query, params)
+        c.execute(data_query, params)
         rows = c.fetchall()
         conn.close()
         
-        return [dict(row) for row in rows]
+        return {
+            "violations": [dict(row) for row in rows],
+            "total_count": total_count,
+            "displayed_count": len(rows),
+            "limit": limit,
+            "offset": offset
+        }
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 

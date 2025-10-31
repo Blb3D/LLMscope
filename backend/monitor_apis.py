@@ -12,13 +12,13 @@ import hashlib
 from datetime import datetime
 
 # === CONFIGURATION ==========================================================
-LLMSCOPE_API_BASE = os.getenv("LLMSCOPE_API_BASE", "http://llmscope_api:8000")
+LLMSCOPE_API_BASE = os.getenv("LLMSCOPE_API_BASE", "http://localhost:8000")
 API_KEY = os.getenv("LLMSCOPE_API_KEY", "dev-123")
 
-USE_OLLAMA = os.getenv("USE_OLLAMA", "false").lower() == "true"
-OLLAMA_BASE_URL = os.getenv("OLLAMA_BASE_URL", "http://host.docker.internal:11434")
-OLLAMA_MODEL = os.getenv("OLLAMA_MODEL", "llama3")
-MONITOR_INTERVAL = int(os.getenv("MONITOR_INTERVAL", "2"))
+USE_OLLAMA = os.getenv("USE_OLLAMA", "true").lower() == "true"
+OLLAMA_BASE_URL = os.getenv("OLLAMA_BASE_URL", "http://localhost:11434")
+OLLAMA_MODEL = os.getenv("OLLAMA_MODEL", "mistral")
+MONITOR_INTERVAL = int(os.getenv("MONITOR_INTERVAL", "5"))
 
 TEST_PROMPT = "Write one sentence explaining what LLMscope does."
 PROMPT_HASH = hashlib.sha256(TEST_PROMPT.encode()).hexdigest()[:8]
@@ -62,7 +62,7 @@ def get_system_telemetry():
 
 
 async def test_ollama(session):
-    """Send test prompt to Ollama and capture all telemetry."""
+    """Send test prompt to Ollama and capture all enhanced telemetry."""
     start = time.perf_counter()
     sys_telemetry = get_system_telemetry()
     
@@ -75,14 +75,19 @@ async def test_ollama(session):
             data = await resp.json()
             elapsed = time.perf_counter() - start
             
+            # Enhanced telemetry from Ollama API response
             total_duration_ms = data.get("total_duration", 0) / 1_000_000
             load_duration_ms = data.get("load_duration", 0) / 1_000_000
             prompt_eval_duration_ms = data.get("prompt_eval_duration", 0) / 1_000_000
             eval_duration_ms = data.get("eval_duration", 0) / 1_000_000
             prompt_eval_count = data.get("prompt_eval_count", 0)
             eval_count = data.get("eval_count", 0)
-
-            print(f"✅ Ollama ({OLLAMA_MODEL}): {elapsed:.3f}s | {eval_count} tokens | GPU: {sys_telemetry['gpu_percent']:.1f}%")
+            
+            # Calculate cognitive load metrics
+            tokens_per_second = eval_count / (eval_duration_ms / 1000) if eval_duration_ms > 0 else 0
+            prompt_efficiency = prompt_eval_count / (prompt_eval_duration_ms / 1000) if prompt_eval_duration_ms > 0 else 0
+            
+            print(f"✅ Ollama ({OLLAMA_MODEL}): {elapsed:.3f}s | {eval_count} tokens | {tokens_per_second:.1f} t/s | GPU: {sys_telemetry['gpu_percent']:.1f}%")
 
             return {
                 "provider": "ollama",
@@ -90,16 +95,23 @@ async def test_ollama(session):
                 "latency_ms": round(elapsed * 1000, 3),
                 "timestamp": datetime.utcnow().isoformat(),
                 "success": True,
+                # Core Ollama timing metrics
                 "total_duration_ms": round(total_duration_ms, 3),
                 "load_duration_ms": round(load_duration_ms, 3),
                 "prompt_eval_duration_ms": round(prompt_eval_duration_ms, 3),
                 "eval_duration_ms": round(eval_duration_ms, 3),
+                # Token counts
                 "prompt_eval_count": prompt_eval_count,
                 "eval_count": eval_count,
+                # Cognitive load metrics
+                "tokens_per_second": round(tokens_per_second, 2),
+                "prompt_efficiency": round(prompt_efficiency, 2),
+                # System telemetry
                 "cpu_percent": sys_telemetry["cpu_percent"],
                 "memory_percent": sys_telemetry["memory_percent"],
                 "gpu_percent": sys_telemetry["gpu_percent"],
                 "gpu_memory_percent": sys_telemetry["gpu_memory_percent"],
+                # Prompt tracking
                 "prompt_hash": PROMPT_HASH,
                 "prompt_text": TEST_PROMPT,
             }

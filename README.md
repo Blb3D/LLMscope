@@ -8,7 +8,7 @@
 [![Docker Ready](https://img.shields.io/badge/docker-ready-brightgreen)](https://hub.docker.com/r/blb3d/llmscope)
 [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](http://makeapullrequest.com)
 
-[🚀 Live Demo](https://demo.llmscope.io) | [📖 Documentation](./docs) | [� Contact](./CONTACT.md) | [🐛 Report Bug](https://github.com/Blb3D/LLMscope/issues)
+[🚀 Live Demo](https://demo.llmscope.io) | [📖 Documentation](./docs) | [🗺️ v1.0 Roadmap](./docs/v1.0.0_ROADMAP.md) | [📫 Contact](./CONTACT.md) | [🐛 Report Bug](https://github.com/Blb3D/LLMscope/issues)
 
 ## 🎯 Quick Access
 

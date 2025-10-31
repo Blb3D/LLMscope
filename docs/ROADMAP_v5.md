@@ -1,8 +1,8 @@
 # LLMscope Product Roadmap
 
-**Last Updated:** October 29, 2024  
-**Current Version:** 0.2.0  
-**Status:** Phase 2 Complete, Phase 3 in Planning
+**Last Updated:** October 30, 2025  
+**Current Version:** 0.2.5 (Enhanced Dashboard)  
+**Status:** Phase 2 Complete, Phase 3 Priority Fixes Identified
 
 ---
 
@@ -86,6 +86,43 @@ These features are **functional but still being tested** in production:
 
 **Target:** Q1 2025 (January - March)  
 **Goal:** Complete Nelson Rules implementation + enterprise integrations
+
+### 🚨 PRIORITY FIXES (Next Session) - URGENT
+
+**Status:** Critical functionality gaps identified in enhanced dashboard  
+**Priority:** P0 - Must fix before continuing roadmap  
+
+#### 3.0 Enhanced Dashboard Completion (IMMEDIATE)
+- 🔥 **Enhanced Telemetry Display** - Ollama cognitive metrics not showing in UI
+  - Issue: System telemetry working but enhanced cognitive load data not displayed
+  - Fix: Update dashboard to show total_duration, eval_duration, prompt_eval metrics
+  - Impact: Users can't see detailed performance insights
+
+- 🔥 **AI Copilot Integration** - Copilot not mentioning enhanced telemetry in analysis
+  - Issue: Copilot provides basic analysis but ignores cognitive load data
+  - Fix: Update copilot prompts to include Ollama telemetry in violation explanations
+  - Impact: Missing context in violation analysis and recommendations
+
+- 🔥 **Professional Case Reports** - Generate detailed violation case studies
+  - Issue: Current reports are basic summaries, not actionable case studies
+  - Fix: Create detailed case report template for each analyzed/fixed violation
+  - Format: Medical-style case report with symptoms, diagnosis, treatment, outcome
+  - Impact: Enable proper post-mortem analysis and learning
+
+- 🔥 **Zoomed Chart Component** - 30-minute context window around violations
+  - Issue: ViolationZoomedChart commented out due to crashes
+  - Fix: Repair component prop interfaces and error handling
+  - Feature: Show ±15min window around violation for context analysis
+  - Impact: Missing crucial temporal context for violation diagnosis
+
+**Success Criteria:**
+- ✅ Enhanced telemetry visible in System Status section
+- ✅ Copilot mentions cognitive load in violation analysis  
+- ✅ Professional case reports generated for analyzed violations
+- ✅ Zoomed charts working without crashes
+- ✅ All DevOps workflow features fully operational
+
+---
 
 ### Planned Features
 
