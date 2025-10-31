@@ -475,8 +475,8 @@ async def get_system_info(_: bool = Depends(verify_api_key)):
 async def get_feature_flags(_: bool = Depends(verify_api_key)):
     """Get enabled feature flags for frontend conditional rendering."""
     try:
-        from backend.feature_flags import FLAGS
-        
+        from feature_flags import FLAGS
+
         return {
             "enhanced_telemetry": FLAGS.is_enabled("ENHANCED_TELEMETRY"),
             "copilot_cognitive_load": FLAGS.is_enabled("COPILOT_COGNITIVE_LOAD"),
