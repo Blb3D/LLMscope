@@ -130,6 +130,11 @@ async def get_usage(
     usage = [dict(row) for row in cursor.fetchall()]
     conn.close()
 
+    # Round costs to avoid floating point precision issues
+    for item in usage:
+        if item.get("cost_usd"):
+            item["cost_usd"] = round(item["cost_usd"], 6)
+
     return {"usage": usage, "count": len(usage)}
 
 @app.get("/api/costs/summary")
@@ -152,6 +157,11 @@ async def get_cost_summary():
 
     summary = [dict(row) for row in cursor.fetchall()]
     conn.close()
+
+    # Round costs to avoid floating point precision issues
+    for item in summary:
+        if item.get("total_cost"):
+            item["total_cost"] = round(item["total_cost"], 6)
 
     return {"summary": summary}
 
@@ -186,7 +196,7 @@ async def log_usage(usage: Dict[str, Any]):
     if pricing:
         input_cost = (usage["prompt_tokens"] / 1000) * pricing["input_cost_per_1k"]
         output_cost = (usage["completion_tokens"] / 1000) * pricing["output_cost_per_1k"]
-        cost_usd = input_cost + output_cost
+        cost_usd = round(input_cost + output_cost, 6)
 
     # Insert usage record
     conn.execute("""
@@ -227,7 +237,7 @@ async def get_recommendations(current_model: str = None):
 
     recommendations = []
     for model in models[:5]:  # Top 5 cheapest
-        avg_cost = (model["input_cost_per_1k"] + model["output_cost_per_1k"]) / 2
+        avg_cost = round((model["input_cost_per_1k"] + model["output_cost_per_1k"]) / 2, 6)
         recommendations.append({
             **model,
             "avg_cost_per_1k": avg_cost,
