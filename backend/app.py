@@ -5,7 +5,7 @@ A self-hosted dashboard that shows LLM API costs in real-time and recommends che
 
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
-from typing import List, Dict, Any
+from typing import Dict, Any
 import sqlite3
 import os
 import datetime
