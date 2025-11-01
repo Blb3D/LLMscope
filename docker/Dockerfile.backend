@@ -10,20 +10,24 @@ RUN apt-get update && \
     rm -rf /var/lib/apt/lists/*
 
 # Copy requirements and install Python deps
-COPY requirements.txt /app/requirements.txt
+COPY backend/requirements.txt /app/requirements.txt
 RUN pip install --no-cache-dir -r /app/requirements.txt
 
 # Copy the backend application
 COPY backend/app.py /app/app.py
-COPY backend/copilot_service.py /app/copilot_service.py
-COPY backend/model_validator.py /app/model_validator.py
+COPY backend/seed_pricing.py /app/seed_pricing.py
+COPY backend/generate_demo_data.py /app/generate_demo_data.py
+COPY backend/__init__.py /app/__init__.py
 
 # Create data directory
 RUN mkdir -p /app/data
 
-# Healthcheck
+# Seed the database with pricing data on startup
+RUN python seed_pricing.py
+
+# Healthcheck (use root endpoint which returns {"status":"ok"})
 HEALTHCHECK --interval=15s --timeout=5s --retries=10 \
-    CMD curl -f http://localhost:8000/health || exit 1
+    CMD curl -f http://localhost:8000/ || exit 1
 
 EXPOSE 8000
 CMD ["uvicorn", "app:app", "--host", "0.0.0.0", "--port", "8000"]
