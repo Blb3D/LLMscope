@@ -1,0 +1,21 @@
+{
+  "typeCheckingMode": "basic",
+  "exclude": [
+    "**/.venv",
+    "**/node_modules",
+    "**/__pycache__",
+    "data",
+    "docs",
+    "files"
+  ],
+  "executionEnvironments": [
+    {
+      "root": "./",
+      "extraPaths": ["./backend"]
+    }
+  ],
+  "reportMissingImports": true,
+  "reportOptionalMemberAccess": "warning",
+  "reportArgumentType": "warning",
+  "reportGeneralTypeIssues": "warning"
+}
