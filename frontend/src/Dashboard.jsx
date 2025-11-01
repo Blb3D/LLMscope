@@ -18,16 +18,18 @@ const API_BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:8000";
  * @param {string} url - The API endpoint URL
  * @param {string} errorContext - Context for error messages
  * @returns {Promise<any>} The parsed JSON response
+ * @throws {Error} If the request fails or returns a non-OK status
+ * @throws {Error} If the response body is not valid JSON
  */
 async function fetchWithErrorHandling(url, errorContext) {
   const response = await fetch(url);
   if (!response.ok) {
-    throw new Error(`Failed to fetch ${errorContext} from ${url}: ${response.status} ${response.statusText}`);
+    throw new Error(`Failed to fetch ${errorContext}: ${response.status} ${response.statusText}`);
   }
   try {
     return await response.json();
   } catch (jsonError) {
-    throw new Error(`Failed to parse JSON response for ${errorContext} from ${url}: ${jsonError.message}`);
+    throw new Error(`Failed to parse JSON response for ${errorContext}`);
   }
 }
 
