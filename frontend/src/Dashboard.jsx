@@ -122,21 +122,21 @@ export default function Dashboard() {
                     <table className="min-w-full">
                       <thead>
                         <tr className="border-b">
-                          <th className="text-left py-2">Provider</th>
-                          <th className="text-left py-2">Model</th>
-                          <th className="text-right py-2">Total Cost</th>
-                          <th className="text-right py-2">Requests</th>
-                          <th className="text-right py-2">Tokens</th>
+                          <th className="text-left py-2 text-gray-700 font-semibold">Provider</th>
+                          <th className="text-left py-2 text-gray-700 font-semibold">Model</th>
+                          <th className="text-right py-2 text-gray-700 font-semibold">Total Cost</th>
+                          <th className="text-right py-2 text-gray-700 font-semibold">Requests</th>
+                          <th className="text-right py-2 text-gray-700 font-semibold">Tokens</th>
                         </tr>
                       </thead>
                       <tbody>
                         {summary.map((item, idx) => (
-                          <tr key={idx} className="border-b">
-                            <td className="py-2">{item.provider}</td>
-                            <td className="py-2">{item.model}</td>
-                            <td className="text-right py-2">${(item.total_cost || 0).toFixed(4)}</td>
-                            <td className="text-right py-2">{item.request_count}</td>
-                            <td className="text-right py-2">{(item.total_tokens || 0).toLocaleString()}</td>
+                          <tr key={idx} className="border-b hover:bg-gray-50">
+                            <td className="py-2 text-gray-900">{item.provider}</td>
+                            <td className="py-2 text-gray-900">{item.model}</td>
+                            <td className="text-right py-2 text-gray-900">${(item.total_cost || 0).toFixed(4)}</td>
+                            <td className="text-right py-2 text-gray-900">{item.request_count}</td>
+                            <td className="text-right py-2 text-gray-900">{(item.total_tokens || 0).toLocaleString()}</td>
                           </tr>
                         ))}
                       </tbody>
@@ -186,21 +186,21 @@ export default function Dashboard() {
                     <table className="min-w-full">
                       <thead>
                         <tr className="border-b">
-                          <th className="text-left py-2">Timestamp</th>
-                          <th className="text-left py-2">Provider</th>
-                          <th className="text-left py-2">Model</th>
-                          <th className="text-right py-2">Tokens</th>
-                          <th className="text-right py-2">Cost</th>
+                          <th className="text-left py-2 text-gray-700 font-semibold">Timestamp</th>
+                          <th className="text-left py-2 text-gray-700 font-semibold">Provider</th>
+                          <th className="text-left py-2 text-gray-700 font-semibold">Model</th>
+                          <th className="text-right py-2 text-gray-700 font-semibold">Tokens</th>
+                          <th className="text-right py-2 text-gray-700 font-semibold">Cost</th>
                         </tr>
                       </thead>
                       <tbody>
                         {usage.slice(0, 10).map((item, idx) => (
-                          <tr key={idx} className="border-b">
-                            <td className="py-2 text-sm">{new Date(item.timestamp).toLocaleString()}</td>
-                            <td className="py-2">{item.provider}</td>
-                            <td className="py-2">{item.model}</td>
-                            <td className="text-right py-2">{item.total_tokens}</td>
-                            <td className="text-right py-2">${(item.cost_usd || 0).toFixed(4)}</td>
+                          <tr key={idx} className="border-b hover:bg-gray-50">
+                            <td className="py-2 text-sm text-gray-900">{new Date(item.timestamp).toLocaleString()}</td>
+                            <td className="py-2 text-gray-900">{item.provider}</td>
+                            <td className="py-2 text-gray-900">{item.model}</td>
+                            <td className="text-right py-2 text-gray-900">{item.total_tokens}</td>
+                            <td className="text-right py-2 text-gray-900">${(item.cost_usd || 0).toFixed(4)}</td>
                           </tr>
                         ))}
                       </tbody>
