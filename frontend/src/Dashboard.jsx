@@ -13,6 +13,20 @@ import React, { useEffect, useState } from "react";
 
 const API_BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:8000";
 
+/**
+ * Helper function to fetch data from API with proper error handling
+ * @param {string} url - The API endpoint URL
+ * @param {string} errorContext - Context for error messages
+ * @returns {Promise<any>} The parsed JSON response
+ */
+async function fetchWithErrorHandling(url, errorContext) {
+  const response = await fetch(url);
+  if (!response.ok) {
+    throw new Error(`Failed to fetch ${errorContext}: ${response.status} ${response.statusText}`);
+  }
+  return response.json();
+}
+
 export default function Dashboard() {
   const [usage, setUsage] = useState([]);
   const [summary, setSummary] = useState([]);
@@ -27,35 +41,19 @@ export default function Dashboard() {
       setLoading(true);
 
       // Fetch usage data
-      const usageRes = await fetch(`${API_BASE_URL}/api/usage?limit=100`);
-      if (!usageRes.ok) {
-        throw new Error(`Failed to fetch usage: ${usageRes.status} ${usageRes.statusText}`);
-      }
-      const usageData = await usageRes.json();
+      const usageData = await fetchWithErrorHandling(`${API_BASE_URL}/api/usage?limit=100`, "usage");
       setUsage(usageData.usage || []);
 
       // Fetch cost summary
-      const summaryRes = await fetch(`${API_BASE_URL}/api/costs/summary`);
-      if (!summaryRes.ok) {
-        throw new Error(`Failed to fetch cost summary: ${summaryRes.status} ${summaryRes.statusText}`);
-      }
-      const summaryData = await summaryRes.json();
+      const summaryData = await fetchWithErrorHandling(`${API_BASE_URL}/api/costs/summary`, "cost summary");
       setSummary(summaryData.summary || []);
 
       // Fetch pricing
-      const pricingRes = await fetch(`${API_BASE_URL}/api/models/pricing`);
-      if (!pricingRes.ok) {
-        throw new Error(`Failed to fetch pricing: ${pricingRes.status} ${pricingRes.statusText}`);
-      }
-      const pricingData = await pricingRes.json();
+      const pricingData = await fetchWithErrorHandling(`${API_BASE_URL}/api/models/pricing`, "pricing");
       setPricing(pricingData.pricing || []);
 
       // Fetch recommendations
-      const recRes = await fetch(`${API_BASE_URL}/api/recommendations`);
-      if (!recRes.ok) {
-        throw new Error(`Failed to fetch recommendations: ${recRes.status} ${recRes.statusText}`);
-      }
-      const recData = await recRes.json();
+      const recData = await fetchWithErrorHandling(`${API_BASE_URL}/api/recommendations`, "recommendations");
       setRecommendations(recData.recommendations || []);
 
       setError("");
