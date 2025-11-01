@@ -28,21 +28,33 @@ export default function Dashboard() {
 
       // Fetch usage data
       const usageRes = await fetch(`${API_BASE_URL}/api/usage?limit=100`);
+      if (!usageRes.ok) {
+        throw new Error(`Failed to fetch usage: ${usageRes.status} ${usageRes.statusText}`);
+      }
       const usageData = await usageRes.json();
       setUsage(usageData.usage || []);
 
       // Fetch cost summary
       const summaryRes = await fetch(`${API_BASE_URL}/api/costs/summary`);
+      if (!summaryRes.ok) {
+        throw new Error(`Failed to fetch cost summary: ${summaryRes.status} ${summaryRes.statusText}`);
+      }
       const summaryData = await summaryRes.json();
       setSummary(summaryData.summary || []);
 
       // Fetch pricing
       const pricingRes = await fetch(`${API_BASE_URL}/api/models/pricing`);
+      if (!pricingRes.ok) {
+        throw new Error(`Failed to fetch pricing: ${pricingRes.status} ${pricingRes.statusText}`);
+      }
       const pricingData = await pricingRes.json();
       setPricing(pricingData.pricing || []);
 
       // Fetch recommendations
       const recRes = await fetch(`${API_BASE_URL}/api/recommendations`);
+      if (!recRes.ok) {
+        throw new Error(`Failed to fetch recommendations: ${recRes.status} ${recRes.statusText}`);
+      }
       const recData = await recRes.json();
       setRecommendations(recData.recommendations || []);
 
