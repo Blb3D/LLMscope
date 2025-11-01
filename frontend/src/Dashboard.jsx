@@ -22,9 +22,13 @@ const API_BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:8000";
 async function fetchWithErrorHandling(url, errorContext) {
   const response = await fetch(url);
   if (!response.ok) {
-    throw new Error(`Failed to fetch ${errorContext}: ${response.status} ${response.statusText}`);
+    throw new Error(`Failed to fetch ${errorContext} from ${url}: ${response.status} ${response.statusText}`);
   }
-  return response.json();
+  try {
+    return await response.json();
+  } catch (jsonError) {
+    throw new Error(`Failed to parse JSON response for ${errorContext} from ${url}: ${jsonError.message}`);
+  }
 }
 
 export default function Dashboard() {
