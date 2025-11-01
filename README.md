@@ -2,7 +2,7 @@
 
 > A self-hosted dashboard that shows LLM API costs in real-time and recommends cheaper models.
 
-[![License](https://img.shields.io/badge/license-MIT-blue)](./LICENSE)
+[![License](https://img.shields.io/badge/license-BSL%201.1-blue)](./LICENSE)
 [![Docker Ready](https://img.shields.io/badge/docker-ready-brightgreen)](./docker-compose.yml)
 [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](http://makeapullrequest.com)
 
@@ -262,7 +262,28 @@ Contributions are welcome! Please feel free to submit a Pull Request.
 
 ## 📄 License
 
-MIT License - see LICENSE file for details
+**Business Source License 1.1**
+
+### ✅ Free for Non-Commercial Use
+- ✅ **Self-hosting** for personal use, education, and research
+- ✅ **Modify and redistribute** for non-commercial purposes
+- ✅ **Full source code access** - no restrictions on reading the code
+
+### 💼 Commercial Use Requires License
+
+Commercial use includes:
+- Using LLMscope to monitor production LLM deployments in a business
+- Offering LLMscope as a hosted/managed service to customers
+- Incorporating LLMscope into a commercial product
+
+**Need a commercial license?** Contact: bbaker@blb3dprinting.com
+
+### 🔓 Future: Converts to MIT License
+On **October 29, 2028** (3 years from first publication), this license automatically converts to MIT - making it fully open source forever.
+
+---
+
+**Why BSL?** We want LLMscope to be freely available for individuals and small teams, while ensuring companies using it commercially contribute back. This allows us to keep developing new features like SPC analysis, AI copilot, and enhanced reporting.
 
 ---
 
