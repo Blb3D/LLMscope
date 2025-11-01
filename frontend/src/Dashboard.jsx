@@ -27,28 +27,48 @@ export default function Dashboard() {
       setLoading(true);
 
       // Fetch usage data
-      const usageRes = await fetch(`${API_BASE_URL}/api/usage?limit=100`);
-      const usageData = await usageRes.json();
-      setUsage(usageData.usage || []);
+      try {
+        const usageRes = await fetch(`${API_BASE_URL}/api/usage?limit=100`);
+        if (!usageRes.ok) throw new Error(`HTTP ${usageRes.status}`);
+        const usageData = await usageRes.json();
+        setUsage(usageData.usage || []);
+      } catch (err) {
+        throw new Error(`Failed to fetch usage data from ${API_BASE_URL}/api/usage. Please check if the backend API is running at ${API_BASE_URL}. Details: ${err.message}`);
+      }
 
       // Fetch cost summary
-      const summaryRes = await fetch(`${API_BASE_URL}/api/costs/summary`);
-      const summaryData = await summaryRes.json();
-      setSummary(summaryData.summary || []);
+      try {
+        const summaryRes = await fetch(`${API_BASE_URL}/api/costs/summary`);
+        if (!summaryRes.ok) throw new Error(`HTTP ${summaryRes.status}`);
+        const summaryData = await summaryRes.json();
+        setSummary(summaryData.summary || []);
+      } catch (err) {
+        throw new Error(`Failed to fetch cost summary from ${API_BASE_URL}/api/costs/summary. Please check if the backend API is running at ${API_BASE_URL}. Details: ${err.message}`);
+      }
 
       // Fetch pricing
-      const pricingRes = await fetch(`${API_BASE_URL}/api/models/pricing`);
-      const pricingData = await pricingRes.json();
-      setPricing(pricingData.pricing || []);
+      try {
+        const pricingRes = await fetch(`${API_BASE_URL}/api/models/pricing`);
+        if (!pricingRes.ok) throw new Error(`HTTP ${pricingRes.status}`);
+        const pricingData = await pricingRes.json();
+        setPricing(pricingData.pricing || []);
+      } catch (err) {
+        throw new Error(`Failed to fetch model pricing from ${API_BASE_URL}/api/models/pricing. Please check if the backend API is running at ${API_BASE_URL}. Details: ${err.message}`);
+      }
 
       // Fetch recommendations
-      const recRes = await fetch(`${API_BASE_URL}/api/recommendations`);
-      const recData = await recRes.json();
-      setRecommendations(recData.recommendations || []);
+      try {
+        const recRes = await fetch(`${API_BASE_URL}/api/recommendations`);
+        if (!recRes.ok) throw new Error(`HTTP ${recRes.status}`);
+        const recData = await recRes.json();
+        setRecommendations(recData.recommendations || []);
+      } catch (err) {
+        throw new Error(`Failed to fetch recommendations from ${API_BASE_URL}/api/recommendations. Please check if the backend API is running at ${API_BASE_URL}. Details: ${err.message}`);
+      }
 
       setError("");
     } catch (err) {
-      setError(`Failed to fetch data: ${err.message}`);
+      setError(err.message);
       console.error(err);
     } finally {
       setLoading(false);
@@ -122,21 +142,21 @@ export default function Dashboard() {
                     <table className="min-w-full">
                       <thead>
                         <tr className="border-b">
-                          <th className="text-left py-2">Provider</th>
-                          <th className="text-left py-2">Model</th>
-                          <th className="text-right py-2">Total Cost</th>
-                          <th className="text-right py-2">Requests</th>
-                          <th className="text-right py-2">Tokens</th>
+                          <th className="text-left py-2 text-gray-700 font-semibold">Provider</th>
+                          <th className="text-left py-2 text-gray-700 font-semibold">Model</th>
+                          <th className="text-right py-2 text-gray-700 font-semibold">Total Cost</th>
+                          <th className="text-right py-2 text-gray-700 font-semibold">Requests</th>
+                          <th className="text-right py-2 text-gray-700 font-semibold">Tokens</th>
                         </tr>
                       </thead>
                       <tbody>
                         {summary.map((item, idx) => (
-                          <tr key={idx} className="border-b">
-                            <td className="py-2">{item.provider}</td>
-                            <td className="py-2">{item.model}</td>
-                            <td className="text-right py-2">${(item.total_cost || 0).toFixed(4)}</td>
-                            <td className="text-right py-2">{item.request_count}</td>
-                            <td className="text-right py-2">{(item.total_tokens || 0).toLocaleString()}</td>
+                          <tr key={idx} className="border-b hover:bg-gray-50">
+                            <td className="py-2 text-gray-900">{item.provider}</td>
+                            <td className="py-2 text-gray-900">{item.model}</td>
+                            <td className="text-right py-2 text-gray-900">${(item.total_cost || 0).toFixed(4)}</td>
+                            <td className="text-right py-2 text-gray-900">{item.request_count}</td>
+                            <td className="text-right py-2 text-gray-900">{(item.total_tokens || 0).toLocaleString()}</td>
                           </tr>
                         ))}
                       </tbody>
@@ -186,21 +206,21 @@ export default function Dashboard() {
                     <table className="min-w-full">
                       <thead>
                         <tr className="border-b">
-                          <th className="text-left py-2">Timestamp</th>
-                          <th className="text-left py-2">Provider</th>
-                          <th className="text-left py-2">Model</th>
-                          <th className="text-right py-2">Tokens</th>
-                          <th className="text-right py-2">Cost</th>
+                          <th className="text-left py-2 text-gray-700 font-semibold">Timestamp</th>
+                          <th className="text-left py-2 text-gray-700 font-semibold">Provider</th>
+                          <th className="text-left py-2 text-gray-700 font-semibold">Model</th>
+                          <th className="text-right py-2 text-gray-700 font-semibold">Tokens</th>
+                          <th className="text-right py-2 text-gray-700 font-semibold">Cost</th>
                         </tr>
                       </thead>
                       <tbody>
                         {usage.slice(0, 10).map((item, idx) => (
-                          <tr key={idx} className="border-b">
-                            <td className="py-2 text-sm">{new Date(item.timestamp).toLocaleString()}</td>
-                            <td className="py-2">{item.provider}</td>
-                            <td className="py-2">{item.model}</td>
-                            <td className="text-right py-2">{item.total_tokens}</td>
-                            <td className="text-right py-2">${(item.cost_usd || 0).toFixed(4)}</td>
+                          <tr key={idx} className="border-b hover:bg-gray-50">
+                            <td className="py-2 text-sm text-gray-900">{new Date(item.timestamp).toLocaleString()}</td>
+                            <td className="py-2 text-gray-900">{item.provider}</td>
+                            <td className="py-2 text-gray-900">{item.model}</td>
+                            <td className="text-right py-2 text-gray-900">{item.total_tokens}</td>
+                            <td className="text-right py-2 text-gray-900">${(item.cost_usd || 0).toFixed(4)}</td>
                           </tr>
                         ))}
                       </tbody>
