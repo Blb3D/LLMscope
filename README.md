@@ -2,9 +2,11 @@
 
 > A self-hosted dashboard that shows LLM API costs in real-time and recommends cheaper models.
 
-[![License](https://img.shields.io/badge/license-MIT-blue)](./LICENSE)
+[![License](https://img.shields.io/badge/license-BSL%201.1-blue)](./LICENSE)
 [![Docker Ready](https://img.shields.io/badge/docker-ready-brightgreen)](./docker-compose.yml)
 [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](http://makeapullrequest.com)
+
+![LLMscope Dashboard](./Cost_Dashboard_1.png)
 
 ## 🎯 Quick Access
 
@@ -54,6 +56,14 @@ Visit [http://localhost:8081](http://localhost:8081)
 ```bash
 cd backend
 pip install -r requirements.txt
+
+# Seed the database with LLM pricing data
+python seed_pricing.py
+
+# (Optional) Generate demo data for testing
+python generate_demo_data.py
+
+# Start the backend
 python app.py
 ```
 
@@ -64,40 +74,83 @@ npm install
 npm run dev
 ```
 
+Visit [http://localhost:8081](http://localhost:8081)
+
 ---
 
 ## 📊 Features
 
-### Cost Tracking
-- Track API usage across OpenAI, Anthropic, Cohere, etc.
-- Automatic cost calculation based on token usage
-- Real-time cost updates
+### 💰 Real-Time Cost Tracking
+Track every LLM API call with automatic cost calculation. Monitor spending across **63+ models** from OpenAI, Anthropic, Google, Cohere, Together AI, Mistral, Groq, and more.
 
-### Analytics
-- Cost breakdown by provider and model
-- Historical usage trends
-- Token usage statistics
+- **Instant cost visibility** - See exactly what each request costs
+- **Provider comparison** - Compare costs across different LLM providers
+- **Token usage analytics** - Track prompt and completion tokens
+- **Auto-refresh** - Dashboard updates every 5 seconds
 
-### Recommendations
-- Get suggestions for cheaper alternatives
-- Compare pricing across models
-- Optimize your LLM spend
+### 💡 Smart Cost Optimization
+
+![Cost Recommendations](./Cost_dashboard_2.png)
+
+Get **intelligent recommendations** for cheaper model alternatives:
+
+- **Cheapest models first** - Groq's Llama-3-8B at $0.000065/1K tokens
+- **Side-by-side pricing** - Compare input/output costs instantly
+- **Recent usage history** - Track your last 100 API calls
+- **Save money automatically** - Identify where you're overspending
+
+### 🔐 Privacy-First & Self-Hosted
+- **100% local** - Your data never leaves your infrastructure
+- **No external dependencies** - Runs entirely on Docker
+- **Open source** - Audit every line of code
 
 ---
 
-## 🔌 API Usage
+## 🔌 Integration Examples
 
 ### Log API Usage
 
-```bash
-curl -X POST http://localhost:8000/api/usage \
-  -H "Content-Type: application/json" \
-  -d '{
+**Python:**
+```python
+import requests
+
+response = requests.post("http://localhost:8000/api/usage", json={
     "provider": "openai",
     "model": "gpt-4",
     "prompt_tokens": 100,
     "completion_tokens": 50
-  }'
+})
+print(response.json())  # {'status': 'logged', 'cost_usd': 0.006}
+```
+
+**JavaScript:**
+```javascript
+fetch('http://localhost:8000/api/usage', {
+  method: 'POST',
+  headers: { 'Content-Type': 'application/json' },
+  body: JSON.stringify({
+    provider: 'openai',
+    model: 'gpt-4',
+    prompt_tokens: 100,
+    completion_tokens: 50
+  })
+})
+.then(res => res.json())
+.then(data => console.log(data));
+```
+
+**PowerShell:**
+```powershell
+Invoke-RestMethod -Uri "http://localhost:8000/api/usage" -Method POST `
+  -ContentType "application/json" `
+  -Body '{"provider":"openai","model":"gpt-4","prompt_tokens":100,"completion_tokens":50}'
+```
+
+**cURL:**
+```bash
+curl -X POST http://localhost:8000/api/usage \
+  -H "Content-Type: application/json" \
+  -d '{"provider":"openai","model":"gpt-4","prompt_tokens":100,"completion_tokens":50}'
 ```
 
 ### Get Cost Summary
@@ -209,7 +262,28 @@ Contributions are welcome! Please feel free to submit a Pull Request.
 
 ## 📄 License
 
-MIT License - see LICENSE file for details
+**Business Source License 1.1**
+
+### ✅ Free for Non-Commercial Use
+- ✅ **Self-hosting** for personal use, education, and research
+- ✅ **Modify and redistribute** for non-commercial purposes
+- ✅ **Full source code access** - no restrictions on reading the code
+
+### 💼 Commercial Use Requires License
+
+Commercial use includes:
+- Using LLMscope to monitor production LLM deployments in a business
+- Offering LLMscope as a hosted/managed service to customers
+- Incorporating LLMscope into a commercial product
+
+**Need a commercial license?** Contact: bbaker@blb3dprinting.com
+
+### 🔓 Future: Converts to MIT License
+On **October 29, 2028** (3 years from first publication), this license automatically converts to MIT - making it fully open source forever.
+
+---
+
+**Why BSL?** We want LLMscope to be freely available for individuals and small teams, while ensuring companies using it commercially contribute back. This allows us to keep developing new features like SPC analysis, AI copilot, and enhanced reporting.
 
 ---
 

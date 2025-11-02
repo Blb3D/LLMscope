@@ -27,48 +27,28 @@ export default function Dashboard() {
       setLoading(true);
 
       // Fetch usage data
-      try {
-        const usageRes = await fetch(`${API_BASE_URL}/api/usage?limit=100`);
-        if (!usageRes.ok) throw new Error(`HTTP ${usageRes.status}`);
-        const usageData = await usageRes.json();
-        setUsage(usageData.usage || []);
-      } catch (err) {
-        throw new Error(`Failed to fetch usage data from ${API_BASE_URL}/api/usage. Please check if the backend API is running at ${API_BASE_URL}. Details: ${err.message}`);
-      }
+      const usageRes = await fetch(`${API_BASE_URL}/api/usage?limit=100`);
+      const usageData = await usageRes.json();
+      setUsage(usageData.usage || []);
 
       // Fetch cost summary
-      try {
-        const summaryRes = await fetch(`${API_BASE_URL}/api/costs/summary`);
-        if (!summaryRes.ok) throw new Error(`HTTP ${summaryRes.status}`);
-        const summaryData = await summaryRes.json();
-        setSummary(summaryData.summary || []);
-      } catch (err) {
-        throw new Error(`Failed to fetch cost summary from ${API_BASE_URL}/api/costs/summary. Please check if the backend API is running at ${API_BASE_URL}. Details: ${err.message}`);
-      }
+      const summaryRes = await fetch(`${API_BASE_URL}/api/costs/summary`);
+      const summaryData = await summaryRes.json();
+      setSummary(summaryData.summary || []);
 
       // Fetch pricing
-      try {
-        const pricingRes = await fetch(`${API_BASE_URL}/api/models/pricing`);
-        if (!pricingRes.ok) throw new Error(`HTTP ${pricingRes.status}`);
-        const pricingData = await pricingRes.json();
-        setPricing(pricingData.pricing || []);
-      } catch (err) {
-        throw new Error(`Failed to fetch model pricing from ${API_BASE_URL}/api/models/pricing. Please check if the backend API is running at ${API_BASE_URL}. Details: ${err.message}`);
-      }
+      const pricingRes = await fetch(`${API_BASE_URL}/api/models/pricing`);
+      const pricingData = await pricingRes.json();
+      setPricing(pricingData.pricing || []);
 
       // Fetch recommendations
-      try {
-        const recRes = await fetch(`${API_BASE_URL}/api/recommendations`);
-        if (!recRes.ok) throw new Error(`HTTP ${recRes.status}`);
-        const recData = await recRes.json();
-        setRecommendations(recData.recommendations || []);
-      } catch (err) {
-        throw new Error(`Failed to fetch recommendations from ${API_BASE_URL}/api/recommendations. Please check if the backend API is running at ${API_BASE_URL}. Details: ${err.message}`);
-      }
+      const recRes = await fetch(`${API_BASE_URL}/api/recommendations`);
+      const recData = await recRes.json();
+      setRecommendations(recData.recommendations || []);
 
       setError("");
     } catch (err) {
-      setError(err.message);
+      setError(`Failed to fetch data: ${err.message}`);
       console.error(err);
     } finally {
       setLoading(false);
@@ -85,17 +65,17 @@ export default function Dashboard() {
   const totalCost = summary.reduce((sum, item) => sum + (item.total_cost || 0), 0);
 
   return (
-    <div className="min-h-screen bg-gray-100 p-8">
+    <div className="min-h-screen bg-slate-900 p-8">
       <div className="max-w-7xl mx-auto">
         {/* Header */}
         <div className="mb-8">
-          <h1 className="text-4xl font-bold text-gray-900">LLMscope Cost Dashboard</h1>
-          <p className="text-gray-600 mt-2">Track LLM API costs in real-time and get model recommendations</p>
+          <h1 className="text-4xl font-bold text-white">LLMscope Cost Dashboard</h1>
+          <p className="text-slate-400 mt-2">Track LLM API costs in real-time and get model recommendations</p>
         </div>
 
         {/* Error Message */}
         {error && (
-          <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
+          <div className="bg-red-900/20 border border-red-500 text-red-400 px-4 py-3 rounded mb-4">
             {error}
           </div>
         )}
@@ -103,7 +83,7 @@ export default function Dashboard() {
         {/* Loading State */}
         {loading && (
           <div className="text-center py-8">
-            <div className="text-gray-600">Loading data...</div>
+            <div className="text-slate-400">Loading data...</div>
           </div>
         )}
 
@@ -111,52 +91,52 @@ export default function Dashboard() {
           <>
             {/* Cost Summary Cards */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-              <div className="bg-white rounded-lg shadow p-6">
-                <h3 className="text-sm font-medium text-gray-500 uppercase">Total Cost</h3>
-                <p className="text-3xl font-bold text-gray-900 mt-2">${totalCost.toFixed(4)}</p>
+              <div className="bg-slate-800 rounded-lg shadow-xl border border-slate-700 p-6">
+                <h3 className="text-sm font-medium text-slate-400 uppercase">Total Cost</h3>
+                <p className="text-3xl font-bold text-emerald-400 mt-2">${totalCost.toFixed(4)}</p>
               </div>
-              <div className="bg-white rounded-lg shadow p-6">
-                <h3 className="text-sm font-medium text-gray-500 uppercase">Total Requests</h3>
-                <p className="text-3xl font-bold text-gray-900 mt-2">
+              <div className="bg-slate-800 rounded-lg shadow-xl border border-slate-700 p-6">
+                <h3 className="text-sm font-medium text-slate-400 uppercase">Total Requests</h3>
+                <p className="text-3xl font-bold text-white mt-2">
                   {summary.reduce((sum, item) => sum + (item.request_count || 0), 0)}
                 </p>
               </div>
-              <div className="bg-white rounded-lg shadow p-6">
-                <h3 className="text-sm font-medium text-gray-500 uppercase">Total Tokens</h3>
-                <p className="text-3xl font-bold text-gray-900 mt-2">
+              <div className="bg-slate-800 rounded-lg shadow-xl border border-slate-700 p-6">
+                <h3 className="text-sm font-medium text-slate-400 uppercase">Total Tokens</h3>
+                <p className="text-3xl font-bold text-white mt-2">
                   {summary.reduce((sum, item) => sum + (item.total_tokens || 0), 0).toLocaleString()}
                 </p>
               </div>
             </div>
 
             {/* Cost Breakdown by Model */}
-            <div className="bg-white rounded-lg shadow mb-8">
-              <div className="px-6 py-4 border-b">
-                <h2 className="text-xl font-semibold text-gray-900">Cost Breakdown by Model</h2>
+            <div className="bg-slate-800 rounded-lg shadow-xl border border-slate-700 mb-8">
+              <div className="px-6 py-4 border-b border-slate-700">
+                <h2 className="text-xl font-semibold text-white">Cost Breakdown by Model</h2>
               </div>
               <div className="p-6">
                 {summary.length === 0 ? (
-                  <p className="text-gray-500 text-center py-8">No usage data yet</p>
+                  <p className="text-slate-400 text-center py-8">No usage data yet</p>
                 ) : (
                   <div className="overflow-x-auto">
                     <table className="min-w-full">
                       <thead>
-                        <tr className="border-b">
-                          <th className="text-left py-2 text-gray-700 font-semibold">Provider</th>
-                          <th className="text-left py-2 text-gray-700 font-semibold">Model</th>
-                          <th className="text-right py-2 text-gray-700 font-semibold">Total Cost</th>
-                          <th className="text-right py-2 text-gray-700 font-semibold">Requests</th>
-                          <th className="text-right py-2 text-gray-700 font-semibold">Tokens</th>
+                        <tr className="border-b border-slate-700">
+                          <th className="text-left py-2 text-slate-300">Provider</th>
+                          <th className="text-left py-2 text-slate-300">Model</th>
+                          <th className="text-right py-2 text-slate-300">Total Cost</th>
+                          <th className="text-right py-2 text-slate-300">Requests</th>
+                          <th className="text-right py-2 text-slate-300">Tokens</th>
                         </tr>
                       </thead>
                       <tbody>
                         {summary.map((item, idx) => (
-                          <tr key={idx} className="border-b hover:bg-gray-50">
-                            <td className="py-2 text-gray-900">{item.provider}</td>
-                            <td className="py-2 text-gray-900">{item.model}</td>
-                            <td className="text-right py-2 text-gray-900">${(item.total_cost || 0).toFixed(4)}</td>
-                            <td className="text-right py-2 text-gray-900">{item.request_count}</td>
-                            <td className="text-right py-2 text-gray-900">{(item.total_tokens || 0).toLocaleString()}</td>
+                          <tr key={idx} className="border-b border-slate-700/50">
+                            <td className="py-2 text-slate-200">{item.provider}</td>
+                            <td className="py-2 text-slate-200">{item.model}</td>
+                            <td className="text-right py-2 text-emerald-400 font-semibold">${(item.total_cost || 0).toFixed(4)}</td>
+                            <td className="text-right py-2 text-slate-300">{item.request_count}</td>
+                            <td className="text-right py-2 text-slate-300">{(item.total_tokens || 0).toLocaleString()}</td>
                           </tr>
                         ))}
                       </tbody>
@@ -167,25 +147,25 @@ export default function Dashboard() {
             </div>
 
             {/* Model Recommendations */}
-            <div className="bg-white rounded-lg shadow mb-8">
-              <div className="px-6 py-4 border-b">
-                <h2 className="text-xl font-semibold text-gray-900">Cheaper Model Recommendations</h2>
+            <div className="bg-slate-800 rounded-lg shadow-xl border border-slate-700 mb-8">
+              <div className="px-6 py-4 border-b border-slate-700">
+                <h2 className="text-xl font-semibold text-white">Cheaper Model Recommendations</h2>
               </div>
               <div className="p-6">
                 {recommendations.length === 0 ? (
-                  <p className="text-gray-500 text-center py-8">No recommendations yet. Add model pricing data to get started.</p>
+                  <p className="text-slate-400 text-center py-8">No recommendations yet. Add model pricing data to get started.</p>
                 ) : (
                   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                     {recommendations.map((rec, idx) => (
-                      <div key={idx} className="border rounded-lg p-4">
-                        <div className="font-semibold text-gray-900">{rec.provider} / {rec.model}</div>
-                        <div className="text-sm text-gray-600 mt-1">
+                      <div key={idx} className="border border-slate-700 bg-slate-900/50 rounded-lg p-4 hover:border-emerald-500 transition-colors">
+                        <div className="font-semibold text-white">{rec.provider} / {rec.model}</div>
+                        <div className="text-sm text-slate-400 mt-1">
                           Input: ${rec.input_cost_per_1k}/1K tokens
                         </div>
-                        <div className="text-sm text-gray-600">
+                        <div className="text-sm text-slate-400">
                           Output: ${rec.output_cost_per_1k}/1K tokens
                         </div>
-                        <div className="text-xs text-green-600 mt-2">{rec.reason}</div>
+                        <div className="text-xs text-emerald-400 mt-2">{rec.reason}</div>
                       </div>
                     ))}
                   </div>
@@ -194,33 +174,33 @@ export default function Dashboard() {
             </div>
 
             {/* Recent Usage */}
-            <div className="bg-white rounded-lg shadow">
-              <div className="px-6 py-4 border-b">
-                <h2 className="text-xl font-semibold text-gray-900">Recent Usage</h2>
+            <div className="bg-slate-800 rounded-lg shadow-xl border border-slate-700">
+              <div className="px-6 py-4 border-b border-slate-700">
+                <h2 className="text-xl font-semibold text-white">Recent Usage</h2>
               </div>
               <div className="p-6">
                 {usage.length === 0 ? (
-                  <p className="text-gray-500 text-center py-8">No usage data yet</p>
+                  <p className="text-slate-400 text-center py-8">No usage data yet</p>
                 ) : (
                   <div className="overflow-x-auto">
                     <table className="min-w-full">
                       <thead>
-                        <tr className="border-b">
-                          <th className="text-left py-2 text-gray-700 font-semibold">Timestamp</th>
-                          <th className="text-left py-2 text-gray-700 font-semibold">Provider</th>
-                          <th className="text-left py-2 text-gray-700 font-semibold">Model</th>
-                          <th className="text-right py-2 text-gray-700 font-semibold">Tokens</th>
-                          <th className="text-right py-2 text-gray-700 font-semibold">Cost</th>
+                        <tr className="border-b border-slate-700">
+                          <th className="text-left py-2 text-slate-300">Timestamp</th>
+                          <th className="text-left py-2 text-slate-300">Provider</th>
+                          <th className="text-left py-2 text-slate-300">Model</th>
+                          <th className="text-right py-2 text-slate-300">Tokens</th>
+                          <th className="text-right py-2 text-slate-300">Cost</th>
                         </tr>
                       </thead>
                       <tbody>
                         {usage.slice(0, 10).map((item, idx) => (
-                          <tr key={idx} className="border-b hover:bg-gray-50">
-                            <td className="py-2 text-sm text-gray-900">{new Date(item.timestamp).toLocaleString()}</td>
-                            <td className="py-2 text-gray-900">{item.provider}</td>
-                            <td className="py-2 text-gray-900">{item.model}</td>
-                            <td className="text-right py-2 text-gray-900">{item.total_tokens}</td>
-                            <td className="text-right py-2 text-gray-900">${(item.cost_usd || 0).toFixed(4)}</td>
+                          <tr key={idx} className="border-b border-slate-700/50 hover:bg-slate-700/30">
+                            <td className="py-2 text-sm text-slate-400">{new Date(item.timestamp).toLocaleString()}</td>
+                            <td className="py-2 text-slate-200">{item.provider}</td>
+                            <td className="py-2 text-slate-200">{item.model}</td>
+                            <td className="text-right py-2 text-slate-300">{item.total_tokens}</td>
+                            <td className="text-right py-2 text-emerald-400 font-semibold">${(item.cost_usd || 0).toFixed(4)}</td>
                           </tr>
                         ))}
                       </tbody>

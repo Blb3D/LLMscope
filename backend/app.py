@@ -112,48 +112,74 @@ async def get_usage(
     model: str = None
 ):
     """Get API usage history."""
-    conn = get_db()
-    query = "SELECT * FROM api_usage WHERE 1=1"
-    params = []
+    # Validate limit
+    if limit < 1 or limit > 10000:
+        raise HTTPException(status_code=400, detail="Limit must be between 1 and 10000")
 
-    if provider:
-        query += " AND provider = ?"
-        params.append(provider)
-    if model:
-        query += " AND model = ?"
-        params.append(model)
+    try:
+        conn = get_db()
+        query = "SELECT * FROM api_usage WHERE 1=1"
+        params = []
 
-    query += " ORDER BY timestamp DESC LIMIT ?"
-    params.append(limit)
+        if provider:
+            query += " AND provider = ?"
+            params.append(provider)
+        if model:
+            query += " AND model = ?"
+            params.append(model)
 
-    cursor = conn.execute(query, params)
-    usage = [dict(row) for row in cursor.fetchall()]
-    conn.close()
+        query += " ORDER BY timestamp DESC LIMIT ?"
+        params.append(limit)
 
-    return {"usage": usage, "count": len(usage)}
+        cursor = conn.execute(query, params)
+        usage = [dict(row) for row in cursor.fetchall()]
+        conn.close()
+
+        # Round costs to avoid floating point precision issues
+        for item in usage:
+            if item.get("cost_usd"):
+                item["cost_usd"] = round(item["cost_usd"], 6)
+
+        return {"usage": usage, "count": len(usage)}
+
+    except Exception as e:
+        if 'conn' in locals():
+            conn.close()
+        raise HTTPException(status_code=500, detail=f"Database error: {str(e)}")
 
 @app.get("/api/costs/summary")
 async def get_cost_summary():
     """Get cost summary by provider and model."""
-    conn = get_db()
+    try:
+        conn = get_db()
 
-    # Total costs
-    cursor = conn.execute("""
-        SELECT
-            provider,
-            model,
-            SUM(cost_usd) as total_cost,
-            SUM(total_tokens) as total_tokens,
-            COUNT(*) as request_count
-        FROM api_usage
-        GROUP BY provider, model
-        ORDER BY total_cost DESC
-    """)
+        # Total costs
+        cursor = conn.execute("""
+            SELECT
+                provider,
+                model,
+                SUM(cost_usd) as total_cost,
+                SUM(total_tokens) as total_tokens,
+                COUNT(*) as request_count
+            FROM api_usage
+            GROUP BY provider, model
+            ORDER BY total_cost DESC
+        """)
 
-    summary = [dict(row) for row in cursor.fetchall()]
-    conn.close()
+        summary = [dict(row) for row in cursor.fetchall()]
+        conn.close()
 
-    return {"summary": summary}
+        # Round costs to avoid floating point precision issues
+        for item in summary:
+            if item.get("total_cost"):
+                item["total_cost"] = round(item["total_cost"], 6)
+
+        return {"summary": summary}
+
+    except Exception as e:
+        if 'conn' in locals():
+            conn.close()
+        raise HTTPException(status_code=500, detail=f"Database error: {str(e)}")
 
 @app.get("/api/models/pricing")
 async def get_model_pricing():
@@ -168,47 +194,75 @@ async def get_model_pricing():
 @app.post("/api/usage")
 async def log_usage(usage: Dict[str, Any]):
     """Log API usage and calculate cost."""
+    # Validate required fields
     required_fields = ["provider", "model", "prompt_tokens", "completion_tokens"]
     for field in required_fields:
         if field not in usage:
             raise HTTPException(status_code=400, detail=f"Missing required field: {field}")
 
-    conn = get_db()
+    # Validate token counts
+    try:
+        prompt_tokens = int(usage["prompt_tokens"])
+        completion_tokens = int(usage["completion_tokens"])
 
-    # Calculate cost based on pricing data
-    cursor = conn.execute(
-        "SELECT input_cost_per_1k, output_cost_per_1k FROM model_pricing WHERE provider = ? AND model = ?",
-        (usage["provider"], usage["model"])
-    )
-    pricing = cursor.fetchone()
+        if prompt_tokens < 0 or completion_tokens < 0:
+            raise HTTPException(status_code=400, detail="Token counts must be non-negative")
 
-    cost_usd = 0.0
-    if pricing:
-        input_cost = (usage["prompt_tokens"] / 1000) * pricing["input_cost_per_1k"]
-        output_cost = (usage["completion_tokens"] / 1000) * pricing["output_cost_per_1k"]
-        cost_usd = input_cost + output_cost
+        if prompt_tokens > 1000000 or completion_tokens > 1000000:
+            raise HTTPException(status_code=400, detail="Token counts seem unrealistically high (>1M)")
 
-    # Insert usage record
-    conn.execute("""
-        INSERT INTO api_usage
-        (provider, model, timestamp, prompt_tokens, completion_tokens, total_tokens, cost_usd, request_id, metadata)
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
-    """, (
-        usage["provider"],
-        usage["model"],
-        usage.get("timestamp", datetime.datetime.utcnow().isoformat()),
-        usage["prompt_tokens"],
-        usage["completion_tokens"],
-        usage["prompt_tokens"] + usage["completion_tokens"],
-        cost_usd,
-        usage.get("request_id"),
-        json.dumps(usage.get("metadata", {}))
-    ))
+    except (ValueError, TypeError):
+        raise HTTPException(status_code=400, detail="Token counts must be valid integers")
 
-    conn.commit()
-    conn.close()
+    try:
+        conn = get_db()
 
-    return {"status": "logged", "cost_usd": cost_usd}
+        # Calculate cost based on pricing data
+        cursor = conn.execute(
+            "SELECT input_cost_per_1k, output_cost_per_1k FROM model_pricing WHERE provider = ? AND model = ?",
+            (usage["provider"], usage["model"])
+        )
+        pricing = cursor.fetchone()
+
+        cost_usd = 0.0
+        if pricing:
+            input_cost = (prompt_tokens / 1000) * pricing["input_cost_per_1k"]
+            output_cost = (completion_tokens / 1000) * pricing["output_cost_per_1k"]
+            cost_usd = round(input_cost + output_cost, 6)
+        else:
+            # Warning: unknown model, still log but with $0 cost
+            print(f"⚠️  Warning: Unknown model '{usage['provider']}/{usage['model']}' - cost set to $0")
+
+        # Insert usage record
+        conn.execute("""
+            INSERT INTO api_usage
+            (provider, model, timestamp, prompt_tokens, completion_tokens, total_tokens, cost_usd, request_id, metadata)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+        """, (
+            usage["provider"],
+            usage["model"],
+            usage.get("timestamp", datetime.datetime.utcnow().isoformat()),
+            prompt_tokens,
+            completion_tokens,
+            prompt_tokens + completion_tokens,
+            cost_usd,
+            usage.get("request_id"),
+            json.dumps(usage.get("metadata", {}))
+        ))
+
+        conn.commit()
+        conn.close()
+
+        return {
+            "status": "logged",
+            "cost_usd": cost_usd,
+            "warning": None if pricing else f"Unknown model '{usage['provider']}/{usage['model']}' - cost set to $0"
+        }
+
+    except Exception as e:
+        if 'conn' in locals():
+            conn.close()
+        raise HTTPException(status_code=500, detail=f"Database error: {str(e)}")
 
 @app.get("/api/recommendations")
 async def get_recommendations(current_model: str = None):
@@ -227,7 +281,7 @@ async def get_recommendations(current_model: str = None):
 
     recommendations = []
     for model in models[:5]:  # Top 5 cheapest
-        avg_cost = (model["input_cost_per_1k"] + model["output_cost_per_1k"]) / 2
+        avg_cost = round((model["input_cost_per_1k"] + model["output_cost_per_1k"]) / 2, 6)
         recommendations.append({
             **model,
             "avg_cost_per_1k": avg_cost,
