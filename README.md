@@ -1,6 +1,6 @@
-# 💰 LLMscope - LLM Cost Dashboard
+# 💰 LLMscope - Track Your LLM Costs in Real-Time
 
-> A self-hosted dashboard that shows LLM API costs in real-time and recommends cheaper models.
+> Stop guessing what your ChatGPT and Claude API calls cost. Track them in 60 seconds with 3 lines of code.
 
 [![License](https://img.shields.io/badge/license-BSL%201.1-blue)](./LICENSE)
 [![Docker Ready](https://img.shields.io/badge/docker-ready-brightgreen)](./docker-compose.yml)
@@ -38,19 +38,160 @@ After running `docker-compose up -d`:
 
 ---
 
-## 🚀 Quick Start
+## 🚀 Quick Start (60 Seconds)
 
-### Option 1: Docker (Recommended)
+### Step 1: Deploy LLMscope
 
+**Using Docker (Recommended):**
 ```bash
 git clone https://github.com/Blb3D/LLMscope.git
 cd LLMscope
 docker-compose up -d
 ```
 
-Visit [http://localhost:8081](http://localhost:8081)
+Visit [http://localhost:8081](http://localhost:8081) - You'll see the dashboard (empty until you track your first API call).
 
-### Option 2: Manual Setup
+### Step 2: Track YOUR First LLM API Call
+
+After making any OpenAI, Anthropic, or other LLM API call, add **3 lines** to log the cost:
+
+**Example: Track OpenAI GPT-4 Call**
+```python
+import openai
+import requests
+
+# Your normal OpenAI API call
+response = openai.ChatCompletion.create(
+    model="gpt-4",
+    messages=[{"role": "user", "content": "Hello!"}]
+)
+
+# Add these 3 lines to track cost:
+requests.post('http://localhost:8000/api/usage', json={
+    'provider': 'openai',
+    'model': 'gpt-4',
+    'prompt_tokens': response['usage']['prompt_tokens'],
+    'completion_tokens': response['usage']['completion_tokens']
+})
+```
+
+**That's it!** Refresh the dashboard to see your real costs.
+
+### Step 3 (Optional): Generate Demo Data for Testing
+
+Want to test the dashboard before integrating your real API calls?
+
+```bash
+cd backend
+python generate_demo_data.py
+```
+
+This creates 100 sample API calls to preview the dashboard features.
+
+---
+
+## 📊 Real-World Integration Examples
+
+### OpenAI Integration
+
+**Track every OpenAI API call:**
+```python
+import openai
+import requests
+
+def track_openai_usage(response):
+    """Helper function to track OpenAI costs"""
+    requests.post('http://localhost:8000/api/usage', json={
+        'provider': 'openai',
+        'model': response['model'],
+        'prompt_tokens': response['usage']['prompt_tokens'],
+        'completion_tokens': response['usage']['completion_tokens']
+    })
+
+# Use it after any OpenAI call:
+response = openai.ChatCompletion.create(
+    model="gpt-4-turbo",
+    messages=[{"role": "user", "content": "Explain quantum computing"}]
+)
+track_openai_usage(response)
+```
+
+### Anthropic Claude Integration
+
+**Track Claude API calls:**
+```python
+import anthropic
+import requests
+
+def track_anthropic_usage(model, response):
+    """Helper function to track Anthropic costs"""
+    requests.post('http://localhost:8000/api/usage', json={
+        'provider': 'anthropic',
+        'model': model,
+        'prompt_tokens': response.usage.input_tokens,
+        'completion_tokens': response.usage.output_tokens
+    })
+
+# Use it after Claude API calls:
+client = anthropic.Anthropic(api_key="your-key")
+message = client.messages.create(
+    model="claude-3-sonnet-20240229",
+    max_tokens=1024,
+    messages=[{"role": "user", "content": "Hello, Claude!"}]
+)
+track_anthropic_usage("claude-3-sonnet", message)
+```
+
+### LangChain Integration
+
+**Automatic tracking with LangChain callback:**
+```python
+from langchain.callbacks.base import BaseCallbackHandler
+from langchain.chat_models import ChatOpenAI
+import requests
+
+class LLMscopeCallback(BaseCallbackHandler):
+    def on_llm_end(self, response, **kwargs):
+        if hasattr(response, 'llm_output') and response.llm_output:
+            usage = response.llm_output.get('token_usage', {})
+            requests.post('http://localhost:8000/api/usage', json={
+                'provider': 'openai',
+                'model': response.llm_output.get('model_name', 'gpt-3.5-turbo'),
+                'prompt_tokens': usage.get('prompt_tokens', 0),
+                'completion_tokens': usage.get('completion_tokens', 0)
+            })
+
+# Use with LangChain:
+llm = ChatOpenAI(callbacks=[LLMscopeCallback()])
+result = llm.predict("What is the capital of France?")
+```
+
+### Google Gemini Integration
+
+**Track Gemini API calls:**
+```python
+import google.generativeai as genai
+import requests
+
+def track_gemini_usage(model_name, response):
+    """Helper function to track Google Gemini costs"""
+    requests.post('http://localhost:8000/api/usage', json={
+        'provider': 'google',
+        'model': model_name,
+        'prompt_tokens': response.usage_metadata.prompt_token_count,
+        'completion_tokens': response.usage_metadata.candidates_token_count
+    })
+
+# Use it after Gemini calls:
+genai.configure(api_key="your-key")
+model = genai.GenerativeModel('gemini-pro')
+response = model.generate_content("Write a poem about AI")
+track_gemini_usage('gemini-pro', response)
+```
+
+---
+
+## 🔧 Manual Setup (Without Docker)
 
 **Backend:**
 ```bash
@@ -59,9 +200,6 @@ pip install -r requirements.txt
 
 # Seed the database with LLM pricing data
 python seed_pricing.py
-
-# (Optional) Generate demo data for testing
-python generate_demo_data.py
 
 # Start the backend
 python app.py
@@ -106,64 +244,61 @@ Get **intelligent recommendations** for cheaper model alternatives:
 
 ---
 
-## 🔌 Integration Examples
+## 🔌 API Reference
 
-### Log API Usage
+### Log API Usage (POST)
 
-**Python:**
-```python
-import requests
+**Endpoint:** `POST http://localhost:8000/api/usage`
 
-response = requests.post("http://localhost:8000/api/usage", json={
-    "provider": "openai",
-    "model": "gpt-4",
-    "prompt_tokens": 100,
-    "completion_tokens": 50
-})
-print(response.json())  # {'status': 'logged', 'cost_usd': 0.006}
+**Request Body:**
+```json
+{
+  "provider": "openai",
+  "model": "gpt-4",
+  "prompt_tokens": 100,
+  "completion_tokens": 50
+}
 ```
 
-**JavaScript:**
-```javascript
-fetch('http://localhost:8000/api/usage', {
-  method: 'POST',
-  headers: { 'Content-Type': 'application/json' },
-  body: JSON.stringify({
-    provider: 'openai',
-    model: 'gpt-4',
-    prompt_tokens: 100,
-    completion_tokens: 50
-  })
-})
-.then(res => res.json())
-.then(data => console.log(data));
+**Response:**
+```json
+{
+  "status": "logged",
+  "cost_usd": 0.006,
+  "timestamp": "2025-11-02T10:30:00Z"
+}
 ```
 
-**PowerShell:**
-```powershell
-Invoke-RestMethod -Uri "http://localhost:8000/api/usage" -Method POST `
-  -ContentType "application/json" `
-  -Body '{"provider":"openai","model":"gpt-4","prompt_tokens":100,"completion_tokens":50}'
+### Get Cost Summary (GET)
+
+**Endpoint:** `GET http://localhost:8000/api/costs/summary`
+
+**Response:**
+```json
+{
+  "total_cost": 15.23,
+  "total_requests": 1250,
+  "by_provider": {
+    "openai": 12.45,
+    "anthropic": 2.78
+  },
+  "by_model": {
+    "gpt-4": 10.20,
+    "gpt-3.5-turbo": 2.25,
+    "claude-3-sonnet": 2.78
+  }
+}
 ```
 
-**cURL:**
-```bash
-curl -X POST http://localhost:8000/api/usage \
-  -H "Content-Type: application/json" \
-  -d '{"provider":"openai","model":"gpt-4","prompt_tokens":100,"completion_tokens":50}'
-```
+### Get Model Recommendations (GET)
 
-### Get Cost Summary
+**Endpoint:** `GET http://localhost:8000/api/recommendations`
 
-```bash
-curl http://localhost:8000/api/costs/summary
-```
+Returns a list of LLM models sorted by cost (cheapest first) with pricing details.
 
-### Get Model Recommendations
+### Interactive API Docs
 
-```bash
-curl http://localhost:8000/api/recommendations
-```
+Visit [http://localhost:8000/docs](http://localhost:8000/docs) for full interactive API documentation.
 
 ---
 
@@ -244,13 +379,14 @@ docker-compose -f docker-compose.prod.yml up -d
 
 ## 🗺️ Roadmap
 
-- [ ] Support for more LLM providers
-- [ ] Cost alerts and budgets
-- [ ] Advanced analytics and visualizations
-- [ ] Team usage tracking
-- [ ] Export reports (PDF, CSV)
-- [ ] Cost prediction
-- [ ] API key management
+**Supported Providers:** OpenAI, Anthropic, Google, Cohere, Together AI, Mistral, Groq, Ollama, and 60+ models
+
+**Coming Soon:**
+- Cost alerts and budget thresholds
+- Export to CSV/PDF
+- More provider integrations (request yours in Issues!)
+
+Want to influence the roadmap? [Open an issue](https://github.com/Blb3D/LLMscope/issues) or start a [discussion](https://github.com/Blb3D/LLMscope/discussions)!
 
 ---
 
