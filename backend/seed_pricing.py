@@ -39,7 +39,8 @@ PRICING_DATA = [
     ("google", "gemini-pro", 0.0005, 0.0015),
     ("google", "gemini-pro-vision", 0.00025, 0.00075),
     ("google", "gemini-1.5-pro", 0.00125, 0.005),
-    ("google", "gemini-1.5-flash", 0.000075, 0.0003),
+    ("google", "gemini-1.5-flash", 0.00015, 0.0006),  # Updated Jan 2025
+    ("google", "gemini-2.0-flash", 0.0001, 0.0004),  # New model
     ("google", "gemini-ultra", 0.0, 0.0),  # Pricing TBA
 
     # Cohere Models

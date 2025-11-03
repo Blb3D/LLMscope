@@ -5,11 +5,14 @@ A self-hosted dashboard that shows LLM API costs in real-time and recommends che
 
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import StreamingResponse
 from typing import Dict, Any
 import sqlite3
 import os
 import datetime
 import json
+import io
+import csv
 
 # === CONFIGURATION ==========================================================
 DATABASE_PATH = os.getenv("DATABASE_PATH", "./data/llmscope.db")
@@ -61,6 +64,11 @@ def init_db():
         )
     """)
 
+    # Create indexes for performance
+    c.execute("CREATE INDEX IF NOT EXISTS idx_timestamp ON api_usage(timestamp)")
+    c.execute("CREATE INDEX IF NOT EXISTS idx_provider_model ON api_usage(provider, model)")
+    c.execute("CREATE INDEX IF NOT EXISTS idx_provider ON api_usage(provider)")
+
     conn.commit()
     conn.close()
     print(f"✓ Database initialized at {DATABASE_PATH}")
@@ -109,9 +117,19 @@ async def root():
 async def get_usage(
     limit: int = 100,
     provider: str = None,
-    model: str = None
+    model: str = None,
+    start_date: str = None,
+    end_date: str = None
 ):
-    """Get API usage history."""
+    """Get API usage history with optional date filtering.
+
+    Args:
+        limit: Maximum number of records to return (1-10000)
+        provider: Filter by provider name
+        model: Filter by model name
+        start_date: Filter by start date (ISO format: YYYY-MM-DD or YYYY-MM-DDTHH:MM:SS)
+        end_date: Filter by end date (ISO format: YYYY-MM-DD or YYYY-MM-DDTHH:MM:SS)
+    """
     # Validate limit
     if limit < 1 or limit > 10000:
         raise HTTPException(status_code=400, detail="Limit must be between 1 and 10000")
@@ -127,6 +145,12 @@ async def get_usage(
         if model:
             query += " AND model = ?"
             params.append(model)
+        if start_date:
+            query += " AND timestamp >= ?"
+            params.append(start_date)
+        if end_date:
+            query += " AND timestamp <= ?"
+            params.append(end_date)
 
         query += " ORDER BY timestamp DESC LIMIT ?"
         params.append(limit)
@@ -148,13 +172,21 @@ async def get_usage(
         raise HTTPException(status_code=500, detail=f"Database error: {str(e)}")
 
 @app.get("/api/costs/summary")
-async def get_cost_summary():
-    """Get cost summary by provider and model."""
+async def get_cost_summary(
+    start_date: str = None,
+    end_date: str = None
+):
+    """Get cost summary by provider and model with optional date filtering.
+
+    Args:
+        start_date: Filter by start date (ISO format: YYYY-MM-DD or YYYY-MM-DDTHH:MM:SS)
+        end_date: Filter by end date (ISO format: YYYY-MM-DD or YYYY-MM-DDTHH:MM:SS)
+    """
     try:
         conn = get_db()
 
-        # Total costs
-        cursor = conn.execute("""
+        # Build query with optional date filtering
+        query = """
             SELECT
                 provider,
                 model,
@@ -162,10 +194,23 @@ async def get_cost_summary():
                 SUM(total_tokens) as total_tokens,
                 COUNT(*) as request_count
             FROM api_usage
+            WHERE 1=1
+        """
+        params = []
+
+        if start_date:
+            query += " AND timestamp >= ?"
+            params.append(start_date)
+        if end_date:
+            query += " AND timestamp <= ?"
+            params.append(end_date)
+
+        query += """
             GROUP BY provider, model
             ORDER BY total_cost DESC
-        """)
+        """
 
+        cursor = conn.execute(query, params)
         summary = [dict(row) for row in cursor.fetchall()]
         conn.close()
 
@@ -289,6 +334,89 @@ async def get_recommendations(current_model: str = None):
         })
 
     return {"recommendations": recommendations}
+
+@app.get("/api/export/csv")
+async def export_csv(
+    start_date: str = None,
+    end_date: str = None
+):
+    """Export API usage data to CSV with optional date filtering.
+
+    Args:
+        start_date: Filter by start date (ISO format: YYYY-MM-DD or YYYY-MM-DDTHH:MM:SS)
+        end_date: Filter by end date (ISO format: YYYY-MM-DD or YYYY-MM-DDTHH:MM:SS)
+
+    Returns:
+        CSV file with usage data
+    """
+    try:
+        conn = get_db()
+
+        # Build query with optional date filtering
+        query = "SELECT * FROM api_usage WHERE 1=1"
+        params = []
+
+        if start_date:
+            query += " AND timestamp >= ?"
+            params.append(start_date)
+        if end_date:
+            query += " AND timestamp <= ?"
+            params.append(end_date)
+
+        query += " ORDER BY timestamp DESC"
+
+        cursor = conn.execute(query, params)
+        rows = cursor.fetchall()
+        conn.close()
+
+        # Create CSV in memory
+        output = io.StringIO()
+        writer = csv.writer(output)
+
+        # Write headers
+        writer.writerow([
+            "Timestamp",
+            "Provider",
+            "Model",
+            "Prompt Tokens",
+            "Completion Tokens",
+            "Total Tokens",
+            "Cost (USD)",
+            "Request ID"
+        ])
+
+        # Write data rows
+        for row in rows:
+            writer.writerow([
+                row["timestamp"],
+                row["provider"],
+                row["model"],
+                row["prompt_tokens"],
+                row["completion_tokens"],
+                row["total_tokens"],
+                f"{row['cost_usd']:.6f}" if row["cost_usd"] else "0.000000",
+                row["request_id"] or ""
+            ])
+
+        # Prepare response
+        output.seek(0)
+
+        # Generate filename with date range
+        if start_date and end_date:
+            filename = f"llmscope_export_{start_date[:10]}_to_{end_date[:10]}.csv"
+        else:
+            filename = f"llmscope_export_{datetime.datetime.now().strftime('%Y%m%d')}.csv"
+
+        return StreamingResponse(
+            iter([output.getvalue()]),
+            media_type="text/csv",
+            headers={"Content-Disposition": f"attachment; filename={filename}"}
+        )
+
+    except Exception as e:
+        if 'conn' in locals():
+            conn.close()
+        raise HTTPException(status_code=500, detail=f"Export error: {str(e)}")
 
 # ============================================================================
 # SETTINGS ENDPOINTS

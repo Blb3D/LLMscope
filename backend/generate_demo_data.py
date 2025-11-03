@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
 Generate Demo Data for LLMscope
-Creates realistic API usage data for testing and screenshots.
+Creates realistic API usage data for testing and screenshots with weighted usage patterns.
 """
 
 import sqlite3
@@ -11,28 +11,52 @@ from datetime import datetime, timedelta
 
 DATABASE_PATH = os.getenv("DATABASE_PATH", "./data/llmscope.db")
 
-# Realistic token ranges for different model sizes
-TOKEN_RANGES = {
-    "small": (50, 500),      # Quick queries
-    "medium": (500, 2000),   # Normal conversations
-    "large": (2000, 5000),   # Long documents
-}
+# Weighted token ranges matching real-world usage patterns
+# 30% simple, 40% medium, 25% complex, 5% extreme
+REQUEST_PATTERNS = [
+    # Pattern: (name, min_prompt, max_prompt, weight)
+    ("simple", 50, 300, 0.30),      # 30% - Quick queries, simple tasks
+    ("medium", 200, 1500, 0.40),    # 40% - Normal conversations
+    ("complex", 1000, 8000, 0.25),  # 25% - Long documents, detailed analysis
+    ("extreme", 4000, 15000, 0.05), # 5% - Very large contexts
+]
 
 # Models to use for demo (mix of expensive and cheap)
 DEMO_MODELS = [
-    ("openai", "gpt-4-turbo", "large"),
-    ("openai", "gpt-3.5-turbo", "small"),
-    ("openai", "gpt-4o-mini", "small"),
-    ("anthropic", "claude-3-sonnet", "medium"),
-    ("anthropic", "claude-3-haiku", "small"),
-    ("google", "gemini-pro", "medium"),
-    ("google", "gemini-1.5-flash", "small"),
-    ("together", "llama-3-70b", "medium"),
-    ("mistral", "mistral-small", "small"),
-    ("cohere", "command-r", "medium"),
-    ("groq", "mixtral-8x7b", "medium"),
-    ("groq", "llama-3-8b", "small"),
+    # Expensive models (premium tier)
+    ("openai", "gpt-4-turbo"),
+    ("openai", "gpt-4"),
+    ("anthropic", "claude-3-opus"),
+    ("anthropic", "claude-3-sonnet"),
+
+    # Mid-tier models
+    ("openai", "gpt-3.5-turbo"),
+    ("anthropic", "claude-3-haiku"),
+    ("google", "gemini-pro"),
+    ("google", "gemini-1.5-flash"),
+    ("cohere", "command-r"),
+    ("mistral", "mistral-small"),
+
+    # Budget models (fast and cheap)
+    ("openai", "gpt-4o-mini"),
+    ("together", "llama-3-70b"),
+    ("together", "llama-3-8b"),
+    ("groq", "mixtral-8x7b"),
+    ("groq", "llama-3-8b"),
 ]
+
+def select_request_pattern():
+    """Select a request pattern based on weighted probabilities."""
+    rand = random.random()
+    cumulative = 0.0
+
+    for name, min_tokens, max_tokens, weight in REQUEST_PATTERNS:
+        cumulative += weight
+        if rand <= cumulative:
+            return name, min_tokens, max_tokens
+
+    # Fallback to medium
+    return "medium", 200, 1500
 
 def calculate_cost(provider, model, prompt_tokens, completion_tokens):
     """Calculate cost based on pricing data."""
@@ -58,40 +82,69 @@ def calculate_cost(provider, model, prompt_tokens, completion_tokens):
 
     return round(cost, 6)
 
-def generate_demo_data(num_requests=100):
-    """Generate realistic demo data."""
+def generate_demo_data(num_requests=500, days=30):
+    """Generate realistic demo data with weighted patterns.
+
+    Args:
+        num_requests: Number of API requests to generate (default: 500)
+        days: Number of days to spread data over (default: 30)
+    """
 
     conn = sqlite3.connect(DATABASE_PATH)
     cursor = conn.cursor()
 
-    # Generate requests over the last 7 days
+    # Generate requests over the specified time period
     end_time = datetime.utcnow()
-    start_time = end_time - timedelta(days=7)
+    start_time = end_time - timedelta(days=days)
 
     inserted = 0
     total_cost = 0.0
+    pattern_counts = {"simple": 0, "medium": 0, "complex": 0, "extreme": 0}
+
+    print(f"Generating {num_requests} requests over {days} days...")
+    print(f"Time range: {start_time.strftime('%Y-%m-%d')} to {end_time.strftime('%Y-%m-%d')}")
+    print()
 
     for _ in range(num_requests):
+        # Select request pattern (weighted)
+        pattern_name, min_prompt, max_prompt = select_request_pattern()
+        pattern_counts[pattern_name] += 1
+
         # Pick random model
-        provider, model, size = random.choice(DEMO_MODELS)
+        provider, model = random.choice(DEMO_MODELS)
 
-        # Generate realistic token counts
-        prompt_range = TOKEN_RANGES[size]
-        prompt_tokens = random.randint(prompt_range[0], prompt_range[1])
+        # Generate realistic token counts based on pattern
+        prompt_tokens = random.randint(min_prompt, max_prompt)
 
-        # Completion is typically 10-50% of prompt
-        completion_ratio = random.uniform(0.1, 0.5)
+        # Completion is typically 10-60% of prompt, varies by use case
+        # Simple queries get shorter responses, complex ones get longer
+        if pattern_name == "simple":
+            completion_ratio = random.uniform(0.1, 0.3)
+        elif pattern_name == "medium":
+            completion_ratio = random.uniform(0.2, 0.5)
+        elif pattern_name == "complex":
+            completion_ratio = random.uniform(0.3, 0.6)
+        else:  # extreme
+            completion_ratio = random.uniform(0.2, 0.4)
+
         completion_tokens = int(prompt_tokens * completion_ratio)
-
         total_tokens = prompt_tokens + completion_tokens
 
         # Calculate cost
         cost = calculate_cost(provider, model, prompt_tokens, completion_tokens)
         total_cost += cost
 
-        # Random timestamp in the last 7 days
-        time_delta = random.uniform(0, (end_time - start_time).total_seconds())
-        timestamp = start_time + timedelta(seconds=time_delta)
+        # Random timestamp with slight bias toward recent data
+        # 60% of requests in last 1/3 of time period (more recent activity)
+        if random.random() < 0.6:
+            # Recent third of time period
+            recent_start = end_time - timedelta(days=days//3)
+            time_delta = random.uniform(0, (end_time - recent_start).total_seconds())
+            timestamp = recent_start + timedelta(seconds=time_delta)
+        else:
+            # Earlier two-thirds
+            time_delta = random.uniform(0, (end_time - start_time).total_seconds())
+            timestamp = start_time + timedelta(seconds=time_delta)
 
         # Insert into database
         cursor.execute("""
@@ -105,21 +158,38 @@ def generate_demo_data(num_requests=100):
     conn.commit()
     conn.close()
 
-    return inserted, total_cost
+    return inserted, total_cost, pattern_counts
 
 if __name__ == "__main__":
     print("🎲 Generating Demo Data for LLMscope...")
-    print("=" * 50)
+    print("=" * 60)
+    print()
 
-    num_requests = 100
-    inserted, total_cost = generate_demo_data(num_requests)
+    # Default: 500 requests over 30 days
+    num_requests = 500
+    days = 30
 
-    print(f"\n✅ Demo Data Generated Successfully!")
-    print(f"   📊 Requests created: {inserted}")
+    inserted, total_cost, pattern_counts = generate_demo_data(num_requests, days)
+
+    print()
+    print("=" * 60)
+    print("✅ Demo Data Generated Successfully!")
+    print()
+    print(f"   📊 Total requests: {inserted}")
     print(f"   💰 Total cost: ${total_cost:.4f}")
-    print(f"   📅 Date range: Last 7 days")
+    print(f"   📅 Date range: Last {days} days")
     print(f"   💾 Database: {DATABASE_PATH}")
-
-    print("\n" + "=" * 50)
+    print()
+    print("   📈 Request Pattern Distribution:")
+    print(f"      • Simple (50-300 tokens):     {pattern_counts['simple']:3d} ({pattern_counts['simple']/inserted*100:.1f}%)")
+    print(f"      • Medium (200-1.5K tokens):   {pattern_counts['medium']:3d} ({pattern_counts['medium']/inserted*100:.1f}%)")
+    print(f"      • Complex (1K-8K tokens):     {pattern_counts['complex']:3d} ({pattern_counts['complex']/inserted*100:.1f}%)")
+    print(f"      • Extreme (4K-15K tokens):    {pattern_counts['extreme']:3d} ({pattern_counts['extreme']/inserted*100:.1f}%)")
+    print()
+    print("=" * 60)
     print("✨ Done! Your dashboard now has realistic data.")
-    print("\n💡 Tip: Run 'docker-compose up -d' and visit http://localhost:8081")
+    print()
+    print("💡 Next steps:")
+    print("   1. Start the dashboard: docker-compose up -d")
+    print("   2. Visit: http://localhost:8081")
+    print("   3. Explore cost breakdown and recommendations!")
