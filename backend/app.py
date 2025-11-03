@@ -311,21 +311,23 @@ async def log_usage(usage: Dict[str, Any]):
 
 @app.get("/api/recommendations")
 async def get_recommendations(current_model: str = None):
-    """Get cheaper model recommendations."""
+    """Get cheaper model recommendations (paid models only, excluding free/local)."""
     conn = get_db()
 
-    # Get all models with pricing
+    # Get all models with pricing, excluding free/local models ($0 cost)
     cursor = conn.execute("""
         SELECT provider, model, input_cost_per_1k, output_cost_per_1k
         FROM model_pricing
+        WHERE (input_cost_per_1k + output_cost_per_1k) > 0
         ORDER BY (input_cost_per_1k + output_cost_per_1k) ASC
+        LIMIT 10
     """)
 
     models = [dict(row) for row in cursor.fetchall()]
     conn.close()
 
     recommendations = []
-    for model in models[:5]:  # Top 5 cheapest
+    for model in models:
         avg_cost = round((model["input_cost_per_1k"] + model["output_cost_per_1k"]) / 2, 6)
         recommendations.append({
             **model,
