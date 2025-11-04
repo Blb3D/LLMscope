@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useCallback } from "react";
 
 /**
  * LLMscope Cost Dashboard
@@ -50,7 +50,8 @@ export default function Dashboard() {
   };
 
   // Fetch data from API
-  const fetchData = async (isInitialLoad = false) => {
+  // Wrapped in useCallback to prevent unnecessary re-renders and fix React Hook dependency warning
+  const fetchData = useCallback(async (isInitialLoad = false) => {
     try {
       // Only show loading spinner on initial load or date range change
       if (isInitialLoad) {
@@ -91,13 +92,13 @@ export default function Dashboard() {
         setLoading(false);
       }
     }
-  };
+  }, [dateRange]); // Re-create fetchData when dateRange changes
 
   useEffect(() => {
     fetchData(true); // Initial load with loading spinner
     const interval = setInterval(() => fetchData(false), 5000); // Background refresh without loading spinner
     return () => clearInterval(interval);
-  }, [dateRange]); // Re-fetch when date range changes
+  }, [fetchData]); // Re-fetch when fetchData changes (which happens when dateRange changes)
 
   // Calculate total cost
   const totalCost = summary.reduce((sum, item) => sum + (item.total_cost || 0), 0);

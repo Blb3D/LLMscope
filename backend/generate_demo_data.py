@@ -11,6 +11,19 @@ from datetime import datetime, timedelta
 
 DATABASE_PATH = os.getenv("DATABASE_PATH", "./data/llmscope.db")
 
+# === CONFIGURATION CONSTANTS ================================================
+
+# Completion token ratios by pattern type (response length as % of prompt)
+COMPLETION_RATIOS = {
+    "simple": (0.1, 0.3),    # Short answers to quick queries
+    "medium": (0.2, 0.5),    # Normal conversation responses
+    "complex": (0.3, 0.6),   # Detailed explanations
+    "extreme": (0.2, 0.4),   # Focused responses to large contexts
+}
+
+# Temporal distribution (60% of requests occur in the most recent 1/3 of time period)
+RECENT_DATA_WEIGHT = 0.6  # Biases data generation toward recent timestamps
+
 # Weighted token ranges matching real-world usage patterns
 # 30% simple, 40% medium, 25% complex, 5% extreme
 REQUEST_PATTERNS = [
@@ -118,14 +131,8 @@ def generate_demo_data(num_requests=500, days=30):
 
         # Completion is typically 10-60% of prompt, varies by use case
         # Simple queries get shorter responses, complex ones get longer
-        if pattern_name == "simple":
-            completion_ratio = random.uniform(0.1, 0.3)
-        elif pattern_name == "medium":
-            completion_ratio = random.uniform(0.2, 0.5)
-        elif pattern_name == "complex":
-            completion_ratio = random.uniform(0.3, 0.6)
-        else:  # extreme
-            completion_ratio = random.uniform(0.2, 0.4)
+        min_ratio, max_ratio = COMPLETION_RATIOS[pattern_name]
+        completion_ratio = random.uniform(min_ratio, max_ratio)
 
         completion_tokens = int(prompt_tokens * completion_ratio)
         total_tokens = prompt_tokens + completion_tokens
@@ -135,8 +142,8 @@ def generate_demo_data(num_requests=500, days=30):
         total_cost += cost
 
         # Random timestamp with slight bias toward recent data
-        # 60% of requests in last 1/3 of time period (more recent activity)
-        if random.random() < 0.6:
+        # RECENT_DATA_WEIGHT (60%) of requests in last 1/3 of time period (more recent activity)
+        if random.random() < RECENT_DATA_WEIGHT:
             # Recent third of time period
             recent_start = end_time - timedelta(days=days//3)
             time_delta = random.uniform(0, (end_time - recent_start).total_seconds())

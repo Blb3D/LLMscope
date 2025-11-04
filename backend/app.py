@@ -337,6 +337,29 @@ async def get_recommendations(current_model: str = None):
 
     return {"recommendations": recommendations}
 
+def sanitize_date_for_filename(date_str):
+    """
+    Extract YYYY-MM-DD from ISO date string safely for use in filenames.
+
+    Args:
+        date_str: ISO date string (YYYY-MM-DD or YYYY-MM-DDTHH:MM:SS)
+
+    Returns:
+        str: YYYY-MM-DD format date or current date if invalid
+    """
+    if not date_str:
+        return datetime.datetime.now().strftime('%Y-%m-%d')
+
+    try:
+        # Handle both YYYY-MM-DD and YYYY-MM-DDTHH:MM:SS formats
+        # Extract first 10 characters if string is long enough
+        if len(date_str) >= 10 and date_str[4] == '-' and date_str[7] == '-':
+            return date_str[:10]
+        else:
+            return datetime.datetime.now().strftime('%Y-%m-%d')
+    except:
+        return datetime.datetime.now().strftime('%Y-%m-%d')
+
 @app.get("/api/export/csv")
 async def export_csv(
     start_date: str = None,
@@ -403,9 +426,11 @@ async def export_csv(
         # Prepare response
         output.seek(0)
 
-        # Generate filename with date range
+        # Generate filename with date range (safely sanitized)
         if start_date and end_date:
-            filename = f"llmscope_export_{start_date[:10]}_to_{end_date[:10]}.csv"
+            start_part = sanitize_date_for_filename(start_date)
+            end_part = sanitize_date_for_filename(end_date)
+            filename = f"llmscope_export_{start_part}_to_{end_part}.csv"
         else:
             filename = f"llmscope_export_{datetime.datetime.now().strftime('%Y%m%d')}.csv"
 
