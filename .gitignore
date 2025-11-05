@@ -22,6 +22,9 @@ docs/SCALABILITY_IMPROVEMENTS.md
 docs/CODE_QUALITY_IMPROVEMENTS.md
 docs/IMPLEMENTATION_ROADMAP.md
 
+# Internal development context (business strategy - not for public)
+CLAUDE_CODE_CONTEXT.md
+
 # ============================================================================
 # Private Business Documentation (NEVER push these)
 # ============================================================================
